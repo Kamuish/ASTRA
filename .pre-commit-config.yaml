@@ -17,7 +17,7 @@ repos:
     - id: pytest-check
       types: [python]
       name: pytest-check
-      entry: python -m pytest -v tests/
+      entry: uv run pytest
       language: system
       pass_filenames: false
       always_run: true
