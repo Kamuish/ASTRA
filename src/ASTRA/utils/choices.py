@@ -1,3 +1,5 @@
+"""Defines that availabe choices of ASTRA."""
+
 from enum import Enum
 
 
@@ -11,23 +13,23 @@ class DISK_SAVE_MODE(Enum):
     EXTREME = 3
 
 
-class WORKING_MODE(Enum):
-    ONE_SHOT = "ONE_SHOT"
-    ROLLING = "ROLLING"
-
-
 class TELLURIC_EXTENSION(Enum):
+    """Method for the extension of telluric template."""
+
     LINES = "LINES"
     WINDOW = "WINDOW"
 
 
 class TELLURIC_CREATION_MODE(Enum):
+    """Method for the construction of telluric template."""
+
     tapas = "tapas"
     telfit = "telfit"
-    OHemission = "OHemission"
 
 
 class STELLAR_CREATION_MODE(Enum):
+    """Method for the construction of stellar template."""
+
     Sum = "Sum"
     Concatenate = "Concatenate"
     OBSERVATION = "OBSERVATION"
@@ -36,6 +38,8 @@ class STELLAR_CREATION_MODE(Enum):
 
 
 class TELLURIC_APPLICATION_MODE(Enum):
+    """Approach to handle telluric features."""
+
     removal = "removal"
     correction = "correction"
 
@@ -59,14 +63,14 @@ class SPLINE_INTERPOL_MODE(Enum):
 
 
 class FLUX_SMOOTH_CONFIGS(Enum):
-    """Enumerator to flux smoothing applied at template construction"""
+    """Enumerator to flux smoothing applied at template construction."""
 
     NONE = 1
     SAVGOL = 2
 
 
 class FLUX_SMOOTH_ORDER(Enum):
-    """The order in which the smooth is applied"""
+    """The order in which the smooth is applied."""
 
     BEFORE = 1
     AFTER = 2
@@ -74,7 +78,7 @@ class FLUX_SMOOTH_ORDER(Enum):
 
 
 class INTERPOLATION_ERR_PROP(Enum):
-    """how should we propagate uncertainties"""
+    """how should we propagate uncertainties."""
 
     interpolation = 1
     propagation = 2

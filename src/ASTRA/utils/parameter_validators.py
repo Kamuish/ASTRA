@@ -31,11 +31,12 @@ class Constraint:
 
     """
 
-    def __init__(self, const_text: str):
+    def __init__(self, const_text: str):  # noqa: D107
         self._constraint_list = [self._evaluate]
         self.constraint_text = const_text
 
     def __add__(self, other: Constraint) -> Constraint:
+        """Create AND condition of current and other."""
         new_const = Constraint(self.constraint_text)
         # ensure that we don't propagate changes to all existing constraints
         new_const._constraint_list = deepcopy(self._constraint_list)
@@ -44,7 +45,7 @@ class Constraint:
 
         return new_const
 
-    def __radd__(self, other: Constraint) -> Constraint:
+    def __radd__(self, other: Constraint) -> Constraint:  # noqa: D105
         return self.__add__(other)
 
     def _evaluate(self, value: Any) -> None:
@@ -63,13 +64,14 @@ class Constraint:
         for evaluator in self._constraint_list:
             evaluator(value)
 
-    def __str__(self) -> str:
+    def __str__(self) -> str:  # noqa: D105
         return self.constraint_text
 
-    def __repr__(self) -> str:
+    def __repr__(self) -> str:  # noqa: D105
         return self.constraint_text
 
     def __call__(self, value: Any) -> None:
+        """Call the self.check_if_value_meets_constraint."""
         self.check_if_value_meets_constraint(value)
 
 
@@ -100,16 +102,11 @@ class ValueInInterval(Constraint):
             elif self._interval[0] < value < self._interval[1]:
                 good_value = True
         except TypeError as exc:
-            msg = (
-                "Config value can't be compared"
-                f"with the the interval: {value} ({type(value)}) vs {self._interval}"
-            )
+            msg = f"Config value can't be compared with the the interval: {value} ({type(value)}) vs {self._interval}"
             raise InvalidConfiguration(msg) from exc
 
         if not good_value:
-            msg = (
-                f"Config value is not inside the interval: {value} vs {self._interval}"
-            )
+            msg = f"Config value is not inside the interval: {value} vs {self._interval}"
             raise InvalidConfiguration(msg)
 
 
@@ -120,7 +117,7 @@ class ValueFromDtype(Constraint):
         """Constraint that limits the datatype of the input.
 
         Args:
-            dtype_list (List[type]):
+            dtype_list (List[type]): Valid data types
 
         """
         super().__init__(const_text=f"Value from dtype <{dtype_list}>")
@@ -132,10 +129,7 @@ class ValueFromDtype(Constraint):
 
     def _evaluate(self, value: Any) -> None:
         if not isinstance(value, self.valid_dtypes):
-            msg = (
-                f"Config value ({value}) not from"
-                f"the valid dtypes: {type(value)} vs {self.valid_dtypes}"
-            )
+            msg = f"Config value ({value}) not from" f"the valid dtypes: {type(value)} vs {self.valid_dtypes}"
             raise InvalidConfiguration(
                 msg,
             )
@@ -216,16 +210,15 @@ class IterableMustHave(Constraint):
 
         if not good_value:
             raise InvalidConfiguration(
-                f"Config value {value} does not"
-                " have {self.mode} of {self.available_options}",
+                f"Config value {value} does not" " have {self.mode} of {self.available_options}",
             )
 
 
 class PathExists(Constraint):
-    """Imposes that a given path must exist"""
+    """Imposes that a given path must exist."""
 
     def __init__(self) -> None:
-        """Imposes that a given path exists"""
+        """Imposes that a given path exists."""
         super().__init__(const_text="The path must exist")
 
     def _evaluate(self, value: Any) -> None:

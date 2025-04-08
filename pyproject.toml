@@ -38,4 +38,16 @@ dev = [
 
 
 [tool.ruff.lint]
+select = [
+    # pycodestyle
+    "E",
+    # Pyflakes
+    "F",
+    # isort
+    "I",
+    "D"
+]
 ignore = ["ANN401"]
+
+[tool.ruff]
+line-length = 120

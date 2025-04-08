@@ -1,0 +1,1 @@
+"""ASTRA - interface for spectra."""
