@@ -35,3 +35,7 @@ dev = [
     "pre-commit>=4.2.0",
     "pytest>=8.3.5",
 ]
+
+
+[tool.ruff.lint]
+ignore = ["ANN401"]
