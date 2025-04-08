@@ -1,0 +1,41 @@
+repos:
+- repo: local
+  hooks:
+    - id: pylint
+      name: pylint
+      entry: pylint
+      language: system
+      types: [python]
+      exclude: tests*
+      args:
+        [
+          "-rn", # Only display messages
+#          "-sn", # Don't display the score
+          "--rcfile=pylintrc", # Link to your config file
+      ]
+
+    - id: pytest-check
+      types: [python]
+      name: pytest-check
+      entry: python -m pytest -v tests/
+      language: system
+      pass_filenames: false
+      always_run: true
+
+    - id: mypy
+      name: mypy
+      entry: mypy
+      language: python
+      types: [python]
+
+    - id: black
+      name: black
+      entry: black --check
+      language: python
+      types: [python]
+
+    - id: isort
+      name: isort
+      entry: isort --check
+      language: python
+      types: [python]
