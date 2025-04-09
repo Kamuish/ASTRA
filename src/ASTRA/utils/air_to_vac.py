@@ -52,10 +52,3 @@ def airtovac(wave_air):
             wave_vac = wave_air * fact  # Convert Wavelength
 
     return wave_vac
-
-
-if __name__ == "__main__":
-    air = 6562.808
-    vac = 6564.6209755928
-    print(airtovac(air))
-    print(airtovac2(np.asarray([air, air])))
