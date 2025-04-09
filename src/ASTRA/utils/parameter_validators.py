@@ -1,5 +1,7 @@
 """Validators for the configuration options.
 
+We can combine multiple validation conditions by summing them, thus creating a AND condition
+
 Raises:
     InvalidConfiguration: If passed value does not meet its imposed conditions
     InternalError: Passing unknown configuration of the methods
