@@ -144,7 +144,7 @@ class InternalParameters:
     def __init__(
         self,
         name_of_parent: str,
-        default_params: Dict[str, UserParam],
+        default_params: DefaultValues,
         no_logs: bool = False,
     ):
         """Create new object.
@@ -290,7 +290,7 @@ class DefaultValues:
     of the ASTRA object.
     """
 
-    def __init__(self, **kwargs: dict[str, UserParam]) -> None:
+    def __init__(self, **kwargs: UserParam) -> None:
         """Map of str to UserParam to describe configurations."""
         self.default_mapping: dict[str, UserParam] = kwargs
 

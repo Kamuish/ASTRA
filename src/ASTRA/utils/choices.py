@@ -3,6 +3,16 @@
 from enum import Enum
 
 
+class WORKING_MODE(Enum):
+    """Enumerator to represent the working mode of the ASRA object.
+
+    ONE_SHOT - All observations are processed at the same time
+
+    """
+
+    ONE_SHOT = 1
+
+
 class DISK_SAVE_MODE(Enum):
     """Enumerator to represent the DISK save mode of a given ASTRA object."""
 
