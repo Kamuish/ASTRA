@@ -2,11 +2,6 @@
 
 A class that inherits from the Components will have new functionalities.
 
-- :py:class:`~SBART.Components.SpectrumComponent.Spectrum`: Class will be able of storing spectral data (independently of format).
-- :py:class:`~SBART.Components.Modelling.Spectral_Modelling`: Children will be able to model stellar spectra.
- Yet to be **implemented**
+- Spectrum: Class will be able of storing spectral data (independently of format).
+- Spectral_Modelling: Children will be able to model stellar spectra.
 """
-
-from .Modelling import Spectral_Modelling
-from .Spectral_Normalization import Spectral_Normalization
-from .SpectrumComponent import Spectrum
