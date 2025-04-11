@@ -39,7 +39,7 @@ class Spectral_Modelling(BASE):
     """Introduces, in a given object, the functionality to model and interpolate the stellar orders.
 
     In order to inherit from this class, it must also be a children of
-    :class:`SBART.Components.SpectrumComponent.Spectrum`
+    :class:`ASTRAComponents.SpectrumComponent.Spectrum`
 
     **User parameters:**
 
@@ -53,8 +53,8 @@ class Spectral_Modelling(BASE):
         This flag will select which algorithm we will use to interpolate the spectra. Depending on the selection,
         we might want to pass extra-parameters, which can be set by passing a dictionary with the parameters
         defined in:
-            - splines: :class:`SBART.Components.scipy_interpol.ScipyInterpolSpecModel`
-            - GP: :class:`SBART.Components.GPSectralmodel.GPSpecModel`
+            - splines: :class:`ASTRAComponents.scipy_interpol.ScipyInterpolSpecModel`
+            - GP: :class:`ASTRAComponents.GPSectralmodel.GPSpecModel`
 
         Those configuration are passed in different ways, depending on if we are dealing with Frames or
         a StellarModel object. The easy way to change them both is to call the following functions:

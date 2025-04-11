@@ -25,7 +25,7 @@ class Spectral_Normalization(BASE):
     """Introduces, in a given object, the functionality to normalize the continuum level.
 
     In order to inherit from this class, it must also be a children of
-     :class:`SBART.Components.SpectrumComponent.Spectrum`
+     :class:`ASTRAComponents.SpectrumComponent.Spectrum`
 
     **User parameters:**
 
@@ -36,7 +36,7 @@ class Spectral_Normalization(BASE):
     ============================ ================ ================ ======================== ================
 
     Notes:
-        [1] Name of the spectral normalizers, that are described in :mod:`SBART.spectral_normalization`
+        [1] Name of the spectral normalizers, that are described in :mod:`ASTRA.spectral_normalization`
 
     *Note:* Also check the **User parameters** of the parent classes for further customization options of SBART
 
