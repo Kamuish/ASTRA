@@ -159,6 +159,7 @@ class ModellingBase(BASE):
         return interpol_spectra, interpol_errors
 
     def _internal_interpolation(
+        self,
         og_lambda: np.ndarray,
         og_spectra: np.ndarray,
         og_err: np.ndarray,
