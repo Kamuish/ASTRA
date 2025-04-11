@@ -59,7 +59,7 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
     through the proper methods. The internal keywords are initialized to a default value, which the Frame will use
     if the instrument does  not provide that metric/value. Furthermore, all RV-related metrics are returned as
     astropy.Quantity objects (or lists of such objects). For such cases, one can use
-    :func:`~SBART.utils.units.convert_data` to convert data to different units and/or to floats
+    :func:`~ASTRAutils.units.convert_data` to convert data to different units and/or to floats
 
 
     The supported list of keywords, and the default initialization values is:
@@ -199,7 +199,7 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
         file_path
             Path to the file that is going to be opened
         frameID
-            Numerical value that represents the frame's ID inside the :class:`~SBART.data_objects.DataClass.DataClass`
+            Numerical value that represents the frame's ID inside the :class:`~ASTRAdata_objects.DataClass.DataClass`
         KW_map
             Dictionary where the keys are names of internal Keywords and the values represent the keyword name on the
             header of the .fits files
