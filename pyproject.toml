@@ -9,6 +9,7 @@ dependencies = [
     "loguru>=0.7.3",
     "numpy>=2.2.4",
     "scipy>=1.15.2",
+    "tabletexifier>=0.3.4",
     "ujson>=5.10.0",
 ]
 
