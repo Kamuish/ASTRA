@@ -116,7 +116,7 @@ class TelluricTemplate(BaseTemplate):
 
         self._loaded_dataclass_info = False
 
-        self.template = None
+        self.template: np.ndarray = None
 
         self._metric_selection_conditions = Empty_condition()
 
