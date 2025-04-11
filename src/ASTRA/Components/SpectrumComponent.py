@@ -1,5 +1,9 @@
+"""Base class for an ASTRA object to keep spectral data."""
+
+from __future__ import annotations
+
 from collections.abc import Generator
-from typing import Any, NoReturn, Set
+from typing import TYPE_CHECKING, Any, NoReturn, Set
 
 import numpy as np
 from loguru import logger
@@ -15,6 +19,9 @@ from ASTRA.utils.shift_spectra import (
     remove_BERV_correction,
 )
 from ASTRA.utils.units import kilometer_second
+
+if TYPE_CHECKING:
+    from ASTRA.status.Mask_class import Mask
 
 
 class Spectrum(BASE):
@@ -42,11 +49,11 @@ class Spectrum(BASE):
 
         super().__init__(**kwargs)
 
-        self.qual_data = None  # error flags
-        self.spectra = None  # S2D/S1D data
-        self.wavelengths = None  # wavelengths in vacuum
-        self.uncertainties = None  # Flux errors
-        self.spectral_mask = None  # to be determined if I want this here or not .....
+        self.qual_data: np.ndarray = None  # error flags
+        self.spectra: np.ndarray = None  # S2D/S1D data
+        self.wavelengths: np.ndarray = None  # wavelengths in vacuum
+        self.uncertainties: np.ndarray = None  # Flux errors
+        self.spectral_mask: Mask = None  # to be determined if I want this here or not .....
         self._blaze_function = None
 
         self.flux_atmos_balance_corrected = False
@@ -55,7 +62,7 @@ class Spectrum(BASE):
         self.is_skysub = False
         self.is_BERV_corrected = False
 
-        self._OrderStatus = None
+        self._OrderStatus: OrderStatus = None
         self.regenerate_order_status()
 
         # If True, then the data was loaded from disk. Otherwise, it still needs to be loaded in!
@@ -270,6 +277,7 @@ class Spectrum(BASE):
                 self.uncertainties,
                 self.spectral_mask.get_custom_mask(),
             )
+        raise custom_exceptions.InternalError("Not S1D nor S2D")
 
     def scale_spectra(self, factor: float) -> None:
         """Scale flux (and uncertainties) by a given factor."""
