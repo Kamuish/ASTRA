@@ -77,7 +77,7 @@ class BASE:
         if user_configs is None:
             user_configs = {}
 
-        self._internalPaths = Paths(root_level_path=root_level_path, preconfigured_paths=needed_folders)
+        self._internalPaths: Paths = Paths(root_level_path=root_level_path, preconfigured_paths=needed_folders)
 
         self._internal_configs.receive_user_inputs(user_configs)
         self._needed_folders = needed_folders
