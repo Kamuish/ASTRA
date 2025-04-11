@@ -235,11 +235,19 @@ constraint_map = {
     "ValueFromList": ValueFromIterable,
 }
 
+Positive_Value_Constraint = ValueInInterval((0, np.inf), include_edges=True)
+StringValue = ValueFromDtype((str,))
+PathValue = ValueFromDtype((str, Path)) + PathExists()
+NumericValue = ValueFromDtype((int, float))
+IntegerValue = ValueFromDtype((int,))
+BooleanValue = ValueFromDtype((bool,))
+
+
 predefined_constraints = {
-    "Positive_Value_Constraint": ValueInInterval((0, np.inf), include_edges=True),
-    "StringValue": ValueFromDtype((str,)),
-    "PathValue": ValueFromDtype((str, Path)) + PathExists(),
-    "NumericValue": ValueFromDtype((int, float)),
-    "IntegerValue": ValueFromDtype((int,)),
-    "BooleanValue": ValueFromDtype((bool,)),
+    "Positive_Value_Constraint": Positive_Value_Constraint,
+    "StringValue": StringValue,
+    "PathValue": PathValue,
+    "NumericValue": NumericValue,
+    "IntegerValue": IntegerValue,
+    "BooleanValue": BooleanValue,
 }
