@@ -11,6 +11,8 @@ dependencies = [
     "matplotlib>=3.10.1",
     "numpy>=2.2.4",
     "scipy>=1.15.2",
+    "sqlalchemy>=2.0.40",
+    "sqlalchemy-utils>=0.41.2",
     "tabletexifier>=0.3.4",
     "ujson>=5.10.0",
 ]
