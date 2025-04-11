@@ -103,6 +103,6 @@ class Paths:
         self._root_path = path
 
     @property
-    def root_storage_path(self) -> Path | None:
+    def root_storage_path(self) -> Path:
         """Retrieve the root storage path."""
         return self._root_path

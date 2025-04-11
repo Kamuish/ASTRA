@@ -83,6 +83,10 @@ class BASE:
         self._needed_folders = needed_folders
         self._status = Status(assume_valid=start_with_valid_status)  # BY DEFAULT IT IS A VALID ONE!
 
+    def update_user_configs(self, new_configs: dict[str, Any]) -> None:
+        """Update the current configurations with new values."""
+        self._internal_configs.update_configs_with_values(new_configs)
+
     @property
     def disk_save_level(self) -> DISK_SAVE_MODE:
         """Return the current disk save level for this object."""
@@ -107,7 +111,7 @@ class BASE:
     #   Data storage
     ###
 
-    def trigger_data_storage(self, *args, **kwargs) -> None:
+    def trigger_data_storage(self, *args: Any, **kwargs: Any) -> None:
         """To be implemented by child classes."""
         ...
 
