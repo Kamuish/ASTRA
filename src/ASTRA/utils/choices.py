@@ -35,6 +35,7 @@ class TELLURIC_CREATION_MODE(Enum):
 
     tapas = "tapas"
     telfit = "telfit"
+    OHemission = "OHemission"
 
 
 class STELLAR_CREATION_MODE(Enum):
