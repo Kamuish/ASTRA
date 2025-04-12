@@ -224,7 +224,7 @@ class ModelComponent(BASE):
         """Lock the parameter space of a given parameter. When doing so, checks:
             - if the lower bound of the param space is smaller than the upper bound
             - If the initial guess is inside the parameter space
-        If any of the conditions is not met: raises SBART.utils.custom_exceptions.InvalidConfiguration
+        If any of the conditions is not met: raises ASTRA.utils.custom_exceptions.InvalidConfiguration
 
         Parameters
         ----------

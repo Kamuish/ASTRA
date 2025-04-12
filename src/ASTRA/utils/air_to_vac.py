@@ -2,7 +2,8 @@ import numpy as np
 
 
 def airtovac(wave_air):
-    """Adapted from idl astrolib (https://idlastro.gsfc.nasa.gov/ftp/pro/astro/airtovac.pro)
+    """Adapted from idl astrolib (https://idlastro.gsfc.nasa.gov/ftp/pro/astro/airtovac.pro).
+
     ;+
     ; NAME:
     ;       AIRTOVAC
