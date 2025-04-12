@@ -1,0 +1,5 @@
+include src/ASTRA/utils/cython_codes/cubic_interpolation/second_derivative/second_derivative.c
+
+include src/ASTRA/utils/cython_codes/cubic_interpolation/inversion/inverter.c
+
+include src/ASTRA/utils/cython_codes/cubic_interpolation/partial_derivative/partial_derivative.c

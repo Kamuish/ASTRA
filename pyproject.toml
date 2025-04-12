@@ -18,7 +18,7 @@ dependencies = [
 ]
 
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools",  "numpy"]
 build-backend = "setuptools.build_meta"
 
 
@@ -38,6 +38,7 @@ disallow_untyped_defs = true
 [dependency-groups]
 dev = [
     "black>=25.1.0",
+    "cython>=3.0.12",
     "isort>=6.0.1",
     "mkdocs-material>=9.6.11",
     "mkdocstrings-python>=1.16.10",

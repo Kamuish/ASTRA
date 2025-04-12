@@ -1,3 +1,6 @@
+import numpy as np
+
+
 if __name__ == "__main__":
     print("COMPILING CYTHON")
     import Cython.Compiler.Options
@@ -18,6 +21,7 @@ if __name__ == "__main__":
             [value],
             extra_compile_args=["-fopenmp"],
             extra_link_args=["-fopenmp"],
+            include_dirs=[np.get_include()],
         )
         for key, value in targets.items()
     ]
