@@ -9,7 +9,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import create_database, database_exists
 
-from ASTRA.internals.db_tables import Base, GDAS_profile, Target
+from ASTRA.internals.db_tables import declarative_Base, GDAS_profile, Target
 from ASTRA.utils import custom_exceptions
 
 resource_path = Path(__file__).parent.parent / "resources"

@@ -9,10 +9,7 @@ from astropy.io import fits
 from loguru import logger
 from scipy.constants import convert_temperature
 
-from SBART.Masks import Mask
-from SBART.utils import custom_exceptions
-from SBART.utils.RV_utilities import airtovac
-from SBART.utils.status_codes import (
+from ASTRA.status.flags import (
     ERROR_THRESHOLD,
     KW_WARNING,
     MISSING_DATA,
@@ -20,7 +17,10 @@ from SBART.utils.status_codes import (
     SATURATION,
     SUCCESS,
 )
-from SBART.utils.units import convert_data, kilometer_second, meter_second
+from ASTRA.status.Mask_class import Mask
+from ASTRA.utils import custom_exceptions
+from ASTRA.utils.air_to_vac import airtovac
+from ASTRA.utils.units import convert_data, kilometer_second, meter_second
 
 from .ESO_PIPELINE import ESO_PIPELINE
 

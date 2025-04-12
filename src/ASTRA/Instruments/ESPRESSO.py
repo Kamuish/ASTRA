@@ -6,8 +6,8 @@ from astropy.coordinates import EarthLocation
 from loguru import logger
 from scipy.constants import convert_temperature
 
-from SBART.Instruments.ESO_PIPELINE import ESO_PIPELINE
-from SBART.utils.status_codes import ERROR_THRESHOLD, KW_WARNING
+from ASTRA.Instruments.ESO_PIPELINE import ESO_PIPELINE
+from ASTRA.status.flags import ERROR_THRESHOLD, KW_WARNING
 
 
 class ESPRESSO(ESO_PIPELINE):
@@ -79,9 +79,7 @@ class ESPRESSO(ESO_PIPELINE):
 
         self.instrument_properties["wavelength_coverage"] = coverage
         self.instrument_properties["resolution"] = 140_000
-        self.instrument_properties["EarthLocation"] = EarthLocation.of_site(
-            "Cerro Paranal"
-        )
+        self.instrument_properties["EarthLocation"] = EarthLocation.of_site("Cerro Paranal")
         self.instrument_properties["is_drift_corrected"] = True
 
         # https://www.eso.org/sci/facilities/paranal/astroclimate/site.html
@@ -91,9 +89,7 @@ class ESPRESSO(ESO_PIPELINE):
         # Find the UT number and load the airmass
         for i in range(1, 5):
             try:
-                self.observation_info["airmass"] = header[
-                    f"HIERARCH ESO TEL{i} AIRM START"
-                ]
+                self.observation_info["airmass"] = header[f"HIERARCH ESO TEL{i} AIRM START"]
                 self.UT_number = i
                 break
             except KeyError as e:
@@ -109,9 +105,7 @@ class ESPRESSO(ESO_PIPELINE):
         }
 
         for name, endKW in ambi_KWs.items():
-            self.observation_info[name] = float(
-                header[f"HIERARCH ESO TEL{self.UT_number} {endKW}"]
-            )
+            self.observation_info[name] = float(header[f"HIERARCH ESO TEL{self.UT_number} {endKW}"])
             if "temperature" in name:  # store temperature in KELVIN for TELFIT
                 self.observation_info[name] = convert_temperature(
                     self.observation_info[name],
@@ -145,9 +139,7 @@ class ESPRESSO(ESO_PIPELINE):
                 except:
                     pass
             if not found_UT:
-                logger.critical(
-                    f"Did not find the entry for the following UT related metric: {flag}"
-                )
+                logger.critical(f"Did not find the entry for the following UT related metric: {flag}")
 
         if found_ADC_issue:
             self._status.store_warning(KW_WARNING("ADC2 issues found"))

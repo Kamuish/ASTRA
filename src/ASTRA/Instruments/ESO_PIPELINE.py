@@ -9,8 +9,9 @@ from scipy.constants import convert_temperature
 from ASTRA.base_models.Frame import Frame
 from ASTRA.status.flags import FATAL_KW, KW_WARNING
 from ASTRA.utils import custom_exceptions
+from ASTRA.utils.parameter_validators import BooleanValue
 from ASTRA.utils.units import kilometer_second
-from ASTRA.utils.UserConfigs import BooleanValue, DefaultValues, UserParam
+from ASTRA.utils.UserConfigs import DefaultValues, UserParam
 
 
 class ESO_PIPELINE(Frame):

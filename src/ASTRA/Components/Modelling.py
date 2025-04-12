@@ -85,24 +85,20 @@ class Spectral_Modelling(BASE):
             default_value=FLUX_SMOOTH_CONFIGS.NONE,
             constraint=ValueFromIterable(FLUX_SMOOTH_CONFIGS),
             description="Configure a possible flux smoothing before template construction",
-            mandatory=True,
         ),
         FLUX_SMOOTH_WINDOW_SIZE=UserParam(
             default_value=15,
             constraint=Positive_Value_Constraint,
-            mandatory=True,
             description="Number of points that will be used for the filter to smooth the spectra",
         ),
         FLUX_SMOOTH_DEG=UserParam(
             default_value=2,
             constraint=Positive_Value_Constraint,
-            mandatory=True,
             description="Degree of the polynomial that will be used for the filter to smooth the spectra",
         ),
         FLUX_SMOOTH_ORDER=UserParam(
             default_value=FLUX_SMOOTH_ORDER.AFTER,
             constraint=ValueFromIterable(FLUX_SMOOTH_ORDER),
-            mandatory=True,
             description="Order in which we smooth the flux (before, after or both)",
         ),
     )
@@ -122,7 +118,7 @@ class Spectral_Modelling(BASE):
 
         self._modelling_interfaces: Dict[SPECTRA_INTERPOL_MODE, ModellingBase] = {}
 
-    def _initialize_modelling_interface(self) -> None:
+    def initialize_modelling_interface(self) -> None:
         """Initialize all modelling interfaces."""
         if self.initialized_interface:
             return
@@ -152,7 +148,7 @@ class Spectral_Modelling(BASE):
     @property
     def interpolation_interface(self) -> ModellingBase:
         """Access the currently specified interpolatio interface."""
-        self._initialize_modelling_interface()
+        self.initialize_modelling_interface()
         return self._modelling_interfaces[self.interpol_mode]
 
     def update_user_configs(self, new_configs: dict[str, Any]) -> None:
@@ -187,7 +183,7 @@ class Spectral_Modelling(BASE):
             tuple[np.ndarray, np.ndarray]: New fluxes and associated uncertainties
 
         """
-        self._initialize_modelling_interface()
+        self.initialize_modelling_interface()
 
         wavelength, flux, uncertainties, mask = self.get_data_from_spectral_order(order, include_invalid)
         desired_inds = ~mask

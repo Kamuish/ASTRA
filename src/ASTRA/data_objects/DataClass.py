@@ -35,7 +35,6 @@ from ASTRA.utils.ASTRAtypes import RV_measurement
 from ASTRA.utils.BASE import BASE
 from ASTRA.utils.choices import DISK_SAVE_MODE, FLUX_SMOOTH_CONFIGS
 from ASTRA.utils.custom_exceptions import FrameError, InvalidConfiguration, NoDataError
-from ASTRA.utils.shift_spectra import apply_RVshift
 from ASTRA.utils.units import kilometer_second
 
 if TYPE_CHECKING:
@@ -76,7 +75,7 @@ class DataClass(BASE):
         input_files: Iterable[UI_PATH],
         storage_path: UI_PATH,
         instrument: Type[Frame],
-        instrument_options: dict,
+        instrument_options: dict[str, Any] | None = None,
         reject_subInstruments: Iterable[str] | None = None,
         target_name: str = None,
         sigma_clip_RVs: float | None = None,
@@ -101,6 +100,7 @@ class DataClass(BASE):
             File with two columns: first, target names; second: simbad resolvable mapping
 
         """
+        instrument_options = {} if instrument_options is None else instrument_options
         super().__init__()
         self.sigma_clip_RVs = sigma_clip_RVs
 

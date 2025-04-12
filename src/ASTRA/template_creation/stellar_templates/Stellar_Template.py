@@ -17,9 +17,10 @@ from ASTRA import __version__
 from ASTRA.base_models.Frame import Frame
 from ASTRA.base_models.Template_Model import BaseTemplate
 from ASTRA.Components import Spectral_Modelling
-from ASTRA.status.flags import HIGH_CONTAMINATION, MISSING_DATA, OrderStatus
+from ASTRA.status.flags import HIGH_CONTAMINATION, MISSING_DATA
 from ASTRA.status.Mask_class import Mask
-from ASTRA.utils import build_filename, custom_exceptions
+from ASTRA.status.OrderStatus import OrderStatus
+from ASTRA.utils import custom_exceptions
 from ASTRA.utils.choices import DISK_SAVE_MODE
 from ASTRA.utils.concurrent_tools.create_shared_arr import create_shared_array
 from ASTRA.utils.custom_exceptions import NoDataError
@@ -28,6 +29,7 @@ from ASTRA.utils.parameter_validators import (
     IntegerValue,
     Positive_Value_Constraint,
 )
+from ASTRA.utils.paths_tools.build_filename import build_filename
 from ASTRA.utils.units import convert_data, kilometer_second
 from ASTRA.utils.UserConfigs import (
     DefaultValues,

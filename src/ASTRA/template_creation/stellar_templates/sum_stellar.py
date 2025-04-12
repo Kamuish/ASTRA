@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import time
 import traceback
 from multiprocessing import Process, Queue
@@ -9,21 +11,21 @@ from loguru import logger
 from ASTRA.base_models.Frame import Frame
 from ASTRA.status.flags import INTERNAL_ERROR, MISSING_DATA
 from ASTRA.status.Mask_class import Mask
-from ASTRA.utils import choices, custom_exceptions, open_buffer
+from ASTRA.utils import choices, custom_exceptions
 from ASTRA.utils.concurrent_tools.close_interfaces import close_buffers, kill_workers
+from ASTRA.utils.concurrent_tools.open_buffers import open_buffer
 from ASTRA.utils.create_spectral_blocks import build_blocks
 from ASTRA.utils.custom_exceptions import (
     BadOrderError,
     BadTemplateError,
     InvalidConfiguration,
 )
+from ASTRA.utils.parameter_validators import Positive_Value_Constraint, ValueFromIterable
 from ASTRA.utils.shift_spectra import remove_RVshift
 from ASTRA.utils.units import convert_data, kilometer_second
 from ASTRA.utils.UserConfigs import (
     DefaultValues,
-    Positive_Value_Constraint,
     UserParam,
-    ValueFromIterable,
 )
 
 from .Stellar_Template import StellarTemplate
