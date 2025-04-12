@@ -37,6 +37,7 @@ from ASTRA.status.Status import Status
 from ASTRA.utils import custom_exceptions
 from ASTRA.utils.ASTRAtypes import RV_measurement
 from ASTRA.utils.custom_exceptions import FrameError
+from ASTRA.utils.definitions import DETECTOR_DEFINITION
 from ASTRA.utils.parameter_validators import (
     BooleanValue,
     NumericValue,
@@ -171,6 +172,12 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
             description="Use the approximated BERV correction",
         ),
     )
+
+    order_intervals: dict[DETECTOR_DEFINITION, slice] = {
+        DETECTOR_DEFINITION.WHITE_LIGHT: slice(0, -1),
+        DETECTOR_DEFINITION.RED_DET: slice(0, -1),
+        DETECTOR_DEFINITION.BLUE_DET: slice(0, -1),
+    }
 
     def __init__(
         self,

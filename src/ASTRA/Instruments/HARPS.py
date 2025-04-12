@@ -20,13 +20,14 @@ from ASTRA.status.flags import (
 from ASTRA.status.Mask_class import Mask
 from ASTRA.utils import custom_exceptions
 from ASTRA.utils.air_to_vac import airtovac
+from ASTRA.utils.definitions import DETECTOR_DEFINITION
 from ASTRA.utils.units import convert_data, kilometer_second, meter_second
 
 from .ESO_PIPELINE import ESO_PIPELINE
 
 
 class HARPS(ESO_PIPELINE):
-    """Interface to handle HARPS data; S1D **not** supported!
+    """Interface to handle HARPS data; S1D **not** supported.
 
     This class also defines 2 sub-Instruments:
 
@@ -57,6 +58,12 @@ class HARPS(ESO_PIPELINE):
 
     _name = "HARPS"
     _default_params = ESO_PIPELINE._default_params
+
+    order_intervals: dict[DETECTOR_DEFINITION, slice] = {
+        DETECTOR_DEFINITION.WHITE_LIGHT: slice(0, 71),
+        DETECTOR_DEFINITION.RED_DET: slice(47, 71),
+        DETECTOR_DEFINITION.BLUE_DET: slice(0, 47),
+    }
 
     def __init__(
         self,

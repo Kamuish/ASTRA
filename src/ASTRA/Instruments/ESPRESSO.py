@@ -8,6 +8,7 @@ from scipy.constants import convert_temperature
 
 from ASTRA.Instruments.ESO_PIPELINE import ESO_PIPELINE
 from ASTRA.status.flags import ERROR_THRESHOLD, KW_WARNING
+from ASTRA.utils.definitions import DETECTOR_DEFINITION
 
 
 class ESPRESSO(ESO_PIPELINE):
@@ -40,6 +41,12 @@ class ESPRESSO(ESO_PIPELINE):
         # "ESPRESSO19": datetime.datetime.strptime("2020-12-18", r"%Y-%m-%d"),
     }
     _name = "ESPRESSO"
+
+    order_intervals: dict[DETECTOR_DEFINITION, slice] = {
+        DETECTOR_DEFINITION.WHITE_LIGHT: slice(0, 170),
+        DETECTOR_DEFINITION.RED_DET: slice(90, 170),
+        DETECTOR_DEFINITION.BLUE_DET: slice(0, 90),
+    }
 
     def __init__(
         self,
