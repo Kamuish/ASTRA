@@ -777,7 +777,6 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
         self._status.store_warning(KW_WARNING(msg))
         ```
         """
-        logger.debug("Validating header KeyWords")
 
     def find_instrument_type(self) -> None:
         """Compare the date of observation with pre-defined sub-Instruments to see where it fits."""
