@@ -13,6 +13,7 @@ import time
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple
 
+from matplotlib import pyplot as plt
 import numpy as np
 from astropy.io import fits
 from loguru import logger
@@ -173,10 +174,10 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
         ),
     )
 
-    order_intervals: dict[DETECTOR_DEFINITION, slice] = {
-        DETECTOR_DEFINITION.WHITE_LIGHT: slice(0, -1),
-        DETECTOR_DEFINITION.RED_DET: slice(0, -1),
-        DETECTOR_DEFINITION.BLUE_DET: slice(0, -1),
+    order_intervals: dict[DETECTOR_DEFINITION, list[int]] = {
+        DETECTOR_DEFINITION.WHITE_LIGHT: [],
+        DETECTOR_DEFINITION.RED_DET: [],
+        DETECTOR_DEFINITION.BLUE_DET: [],
     }
 
     def __init__(
@@ -1006,3 +1007,35 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
             f"Frame of {self.inst_name} : {self.sub_instrument}"
             f" data ({self.get_KW_value('ISO-DATE')}; ID = {self.frameID})"
         )
+
+    def plot_spectra(
+        self,
+        which_orders: None | DETECTOR_DEFINITION | list[int] = None,
+        axis=None,
+    ):
+        """Plot the spectra.
+
+        Args:
+            which_orders (None | DETECTOR_DEFINITION | list[int], optional): Either a pre-configured
+            detector definition, a list of orders, or None (plots all orders). Defaults to None.
+            axis (_type_, optional): if None, create a new figure. Otherwise, use this one. Defaults to None.
+
+        """
+        fig = None
+        if axis is None:
+            fig, axis = plt.subplots()
+        wf, ff, ef, mf = self.get_data_from_full_spectrum()
+
+        if which_orders is None:
+            which_orders = DETECTOR_DEFINITION.WHITE_LIGHT
+
+        if isinstance(which_orders, (list, tuple)):
+            orders_to_plot = which_orders
+        else:
+            orders_to_plot = self.order_intervals[which_orders]
+
+        for sl in orders_to_plot:
+            w, f, e, m = wf[sl], ff[sl], ef[sl], mf[sl]
+            axis.errorbar(w[~m], f[~m], e[~m], ls="", marker="x")
+
+        return fig, axis

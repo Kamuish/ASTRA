@@ -104,7 +104,7 @@ class DataClass(BASE):
         super().__init__()
         self.sigma_clip_RVs = sigma_clip_RVs
 
-        self._inst_type = instrument
+        self._inst_type: Frame = instrument
         self.input_file = input_files
 
         # Hold all of the frames
@@ -917,6 +917,6 @@ class DataClass(BASE):
         cls.extra_loading_functions[name] = loader
 
     def __repr__(self) -> str:  # noqa: D105
-        return f"Data Class from {self._inst_type.instrument_properties['name']} holding " + ", ".join(
+        return f"Data Class from {self._inst_type} holding " + ", ".join(
             [f"{len(IDS)} OBS from {name}" for name, IDS in self.frameID_map.items()],
         )

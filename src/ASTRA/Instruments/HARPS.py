@@ -60,9 +60,9 @@ class HARPS(ESO_PIPELINE):
     _default_params = ESO_PIPELINE._default_params
 
     order_intervals: dict[DETECTOR_DEFINITION, slice] = {
-        DETECTOR_DEFINITION.WHITE_LIGHT: slice(0, 71),
-        DETECTOR_DEFINITION.RED_DET: slice(47, 71),
-        DETECTOR_DEFINITION.BLUE_DET: slice(0, 47),
+        DETECTOR_DEFINITION.WHITE_LIGHT: list(range(0, 71)),
+        DETECTOR_DEFINITION.RED_DET: list(range(47, 71)),
+        DETECTOR_DEFINITION.BLUE_DET: list(range(0, 47)),
     }
 
     def __init__(
