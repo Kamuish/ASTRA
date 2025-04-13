@@ -31,7 +31,7 @@ class DB_connection:
         # drop_database(url)
 
         # Base.metadata.drop_all(bind=self.engine)
-        Base.metadata.create_all(bind=self.engine)
+        declarative_Base.metadata.create_all(bind=self.engine)
 
         if not database_exists(url):
             logger.info("Creating database")

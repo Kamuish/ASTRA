@@ -7,10 +7,10 @@ import numpy as np
 from astropy.io import fits
 
 from ASTRA.utils import choices, custom_exceptions
+from ASTRA.utils.parameter_validators import ValueFromDtype
 from ASTRA.utils.UserConfigs import (
     DefaultValues,
     UserParam,
-    ValueFromDtype,
 )
 
 from .Telluric_Template import TelluricTemplate

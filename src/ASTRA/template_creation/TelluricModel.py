@@ -21,7 +21,6 @@ from ASTRA.utils.parameter_validators import ValueFromIterable
 from ASTRA.utils.UserConfigs import DefaultValues, UserParam
 
 from .telluric_templates.telluric_from_OHemission import OHemissionTelluric
-from .telluric_templates.telluric_from_tapas import TapasTelluric
 from .telluric_templates.telluric_from_telfit import TelfitTelluric
 from .telluric_templates.Telluric_Template import TelluricTemplate
 
@@ -54,7 +53,6 @@ class TelluricModel(TemplateFramework):
 
     template_map: ClassVar[dict[TELLURIC_CREATION_MODE, TelluricTemplate]] = {
         TELLURIC_CREATION_MODE.telfit: TelfitTelluric,
-        TELLURIC_CREATION_MODE.tapas: TapasTelluric,
         TELLURIC_CREATION_MODE.OHemission: OHemissionTelluric,
     }
 

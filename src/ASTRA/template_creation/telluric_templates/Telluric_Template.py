@@ -219,15 +219,15 @@ class TelluricTemplate(BaseTemplate):
         # It seems that numpy does not like lists of astropy.units elements
         unitless_max_bervs = [i.value for i in max_bervs]
 
-        if self.work_mode == WORKING_MODE.ROLLING:
-            # No need to repeat BERVS
-            self.BERVS.extend(BERVS)
-            self.BERVS = list(set(self.BERVS))
-            new_berv_max = max_bervs[np.argmax(unitless_max_bervs)]
-            self.MAXBERV = max(new_berv_max, self.MAXBERV)
-        else:
-            self.BERVS.extend(BERVS)
-            self.MAXBERV = max_bervs[np.argmax(np.abs(unitless_max_bervs))]
+        # if self.work_mode == WORKING_MODE.ROLLING:
+        #     # No need to repeat BERVS
+        #     self.BERVS.extend(BERVS)
+        #     self.BERVS = list(set(self.BERVS))
+        #     new_berv_max = max_bervs[np.argmax(unitless_max_bervs)]
+        #     self.MAXBERV = max(new_berv_max, self.MAXBERV)
+        # else:
+        self.BERVS.extend(BERVS)
+        self.MAXBERV = max_bervs[np.argmax(np.abs(unitless_max_bervs))]
 
     def _search_reference_frame(self, dataclass: DataClass) -> Union[int, float]:
         """Select the frame that will be used to construct the telluric template.
