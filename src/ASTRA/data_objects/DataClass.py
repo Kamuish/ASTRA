@@ -526,8 +526,6 @@ class DataClass(BASE):
         shift_RV_by,
         RV_shift_mode,
         include_invalid=False,
-        apply_smooth: FLUX_SMOOTH_CONFIGS | None = None,
-        smooth_configs: dict | None = None,
     ):
         """Interpolate a given order to a new wavelength solution"""
         frame = self.get_frame_by_ID(frameID)
@@ -537,8 +535,6 @@ class DataClass(BASE):
             shift_RV_by=shift_RV_by,
             RV_shift_mode=RV_shift_mode,
             include_invalid=include_invalid,
-            apply_smooth=apply_smooth,
-            smooth_configs=smooth_configs,
         )
 
     def get_frame_arrays_by_ID(self, frameID: int):

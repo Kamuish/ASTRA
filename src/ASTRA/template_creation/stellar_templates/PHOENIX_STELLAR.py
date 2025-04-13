@@ -1,4 +1,6 @@
-from typing import Union, TYPE_CHECKING
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Union
 
 import numpy as np
 from astropy.io import fits

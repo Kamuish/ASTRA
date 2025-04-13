@@ -42,7 +42,6 @@ class STELLAR_CREATION_MODE(Enum):
     """Method for the construction of stellar template."""
 
     Sum = "Sum"
-    Concatenate = "Concatenate"
     OBSERVATION = "OBSERVATION"
     Median = "Median"
     PHOENIX = "PHOENIX"

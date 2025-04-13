@@ -1,5 +1,7 @@
 """Handles the creation of the stellar models."""
 
+from __future__ import annotations
+
 from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar, Optional
 
@@ -22,7 +24,6 @@ from ASTRA.utils.UserConfigs import (
     UserParam,
 )
 
-from .stellar_templates.concatenate import ConcatenateStellar
 from .stellar_templates.median_stellar import MedianStellar
 from .stellar_templates.OBS_stellar import OBS_Stellar
 from .stellar_templates.PHOENIX_STELLAR import PHOENIX
@@ -56,7 +57,6 @@ class StellarModel(TemplateFramework):
         STELLAR_CREATION_MODE.OBSERVATION: OBS_Stellar,
         STELLAR_CREATION_MODE.Median: MedianStellar,
         STELLAR_CREATION_MODE.PHOENIX: PHOENIX,
-        STELLAR_CREATION_MODE.Concatenate: ConcatenateStellar,
     }
 
     _default_params = TemplateFramework._default_params + DefaultValues(

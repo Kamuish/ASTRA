@@ -8,8 +8,9 @@ from loguru import logger
 
 from ASTRA.status.flags import INTERNAL_ERROR
 from ASTRA.status.Mask_class import Mask
-from ASTRA.utils import custom_exceptions, open_buffer
+from ASTRA.utils import custom_exceptions
 from ASTRA.utils.concurrent_tools.close_interfaces import close_buffers, kill_workers
+from ASTRA.utils.concurrent_tools.open_buffers import open_buffer
 from ASTRA.utils.create_spectral_blocks import build_blocks
 from ASTRA.utils.custom_exceptions import (
     BadOrderError,
