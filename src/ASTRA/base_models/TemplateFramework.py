@@ -218,10 +218,10 @@ class TemplateFramework(BASE):
 
             # Ensuring that we are always sharing the same work mode with the templates
             loaded_temp.update_work_mode_level(self.work_mode)
-            if self.work_mode == WORKING_MODE.ROLLING:
-                loaded_temp.generate_root_path(
-                    self._internalPaths.get_path_to(self.__class__.model_type, as_posix=False),
-                )
+            # if self.work_mode == WORKING_MODE.ROLLING:
+            #     loaded_temp.generate_root_path(
+            #         self._internalPaths.get_path_to(self.__class__.model_type, as_posix=False),
+            #     )
 
             self.templates[temp_subInst] = loaded_temp
 
