@@ -194,7 +194,7 @@ class TemplateFramework(BASE):
             template_header = fits.getheader(temp_path)
             config_dict = {}
             for key in self.__class__.template_map[temp_name].control_parameters():
-                if "path" in key or "user_" in key:
+                if "path" in key.lower() or "user_" in key:
                     continue
                 # ! just ignore the FIT keys?
                 if "FIT" in key:
@@ -202,7 +202,6 @@ class TemplateFramework(BASE):
 
                 if key in ["SAVE_DISK_SPACE"]:
                     continue
-
                 if key == "WORKING_MODE":
                     config_dict[key] = getattr(WORKING_MODE, template_header[f"HIERARCH {key}"])
                 else:
