@@ -29,7 +29,9 @@ theme:
     - navigation.path
     - navigation.indexes 
     - toc.integrate 
-    
+    - content.code.copy
+    - content.code.select
+  
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
@@ -38,7 +40,8 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
-
+  - pymdownx.tabbed:
+      alternate_style: true
 nav:
   - HOME: index.md
   - User guides:
@@ -46,13 +49,32 @@ nav:
     - Installation: user_guide/installation.md
     - Contribution: user_guide/contribution.md
     - Reporting issues: user_guide/issues.md
+
+  - Quickstart:
+    - Basic example: user_guide/basic_example.ipynb
+    - Configuration: user_guide/configuration.ipynb
+  
+  - Spectra:
+    - spectra/index.md
+    - spectra/open_spectra.ipynb
+    - spectra/access_spectra.ipynb
+    - spectra/selecting_spectra.ipynb
+  - Templates:
+    - Stellar model: template_creation/stellar.ipynb
+    - Telluric model: template_creation/telluric.ipynb
+
+  - Advanced:
+    - Interpolation: advanced/spectra_interpolation.ipynb
+    - Normalization: advanced/spectra_normalization.ipynb
+  
   - API:
     - api/index.md
     - User configs: api/user_configs.md
-
+    - Frame: api/Frame.md
 
 plugins:
   - search
+  - mkdocs-jupyter
   - mkdocstrings:
       handlers:
         python:
