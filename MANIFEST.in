@@ -3,3 +3,8 @@ include src/ASTRA/utils/cython_codes/cubic_interpolation/second_derivative/secon
 include src/ASTRA/utils/cython_codes/cubic_interpolation/inversion/inverter.c
 
 include src/ASTRA/utils/cython_codes/cubic_interpolation/partial_derivative/partial_derivative.c
+include src/ASTRA/resources/*
+include src/ASTRA/resources/atmosphere_profiles/*
+include src/ASTRA/utils/tapas_downloader/*
+include src/ASTRA/outside_tools/*
+include src/ASTRA/utils/cython_codes/*
