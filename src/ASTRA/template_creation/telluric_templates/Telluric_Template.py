@@ -77,7 +77,7 @@ class TelluricTemplate(BaseTemplate):
         subInst: str,
         extension_mode: TELLURIC_EXTENSION,
         user_configs: Union[None, dict] = None,
-        application_mode: str = TELLURIC_APPLICATION_MODE.removal,
+        application_mode: TELLURIC_APPLICATION_MODE = TELLURIC_APPLICATION_MODE.removal,
         loaded: bool = False,
     ):
         """Construct base telluric template.
@@ -495,7 +495,6 @@ class TelluricTemplate(BaseTemplate):
         """List of contaminated regions."""
         if not self.for_feature_removal:
             raise custom_exceptions.InvalidConfiguration("{} is not a template constructed for telluric removal!")
-
         if not self._computed_wave_blocks:
             logger.debug("No previous computation of wavelength blocks. Doing it now!")
             self._compute_wave_blocks()
@@ -660,7 +659,6 @@ class TelluricTemplate(BaseTemplate):
 
             self._computed_wave_blocks = False
             self._base_mask = hdulist["CONTAM"].data.tolist()
-
         self.add_to_status(DISK_LOADED_DATA(f"Loaded data from {loading_path}"))
 
     def _finish_template_creation(self):

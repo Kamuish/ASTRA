@@ -17,7 +17,7 @@ from ASTRA.internals.cache import DB_connection
 from ASTRA.ModelParameters import ModelComponent
 from ASTRA.status.flags import SUCCESS
 from ASTRA.utils import choices, custom_exceptions
-from ASTRA.utils.choices import DISK_SAVE_MODE
+from ASTRA.utils.choices import DISK_SAVE_MODE, TELLURIC_APPLICATION_MODE, TELLURIC_EXTENSION
 from ASTRA.utils.parameter_validators import (
     BooleanValue,
     NumericValue,
@@ -216,8 +216,8 @@ class TelfitTelluric(TelluricTemplate):
         self,
         subInst: str,
         user_configs: Optional[UI_DICT] = None,
-        extension_mode: str = "lines",
-        application_mode: str = "removal",
+        extension_mode: TELLURIC_EXTENSION = TELLURIC_EXTENSION.LINES,
+        application_mode: TELLURIC_APPLICATION_MODE = TELLURIC_APPLICATION_MODE.removal,
         loaded: bool = False,
     ):
         super().__init__(
