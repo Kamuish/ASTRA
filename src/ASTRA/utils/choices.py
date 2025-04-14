@@ -10,7 +10,7 @@ class WORKING_MODE(Enum):
 
     """
 
-    ONE_SHOT = 1
+    ONE_SHOT = "ONE_SHOT"
 
 
 class DISK_SAVE_MODE(Enum):
