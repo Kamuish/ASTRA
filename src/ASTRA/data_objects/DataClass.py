@@ -243,7 +243,8 @@ class DataClass(BASE):
                         model=model,
                         model_uncertainty=model_uncertainty,
                     )
-
+                else:
+                    raise custom_exceptions.InternalError("Why aren't we correcting or removing tellurics?")
         self._applied_telluric_removal = True
 
     def replace_frames_with_S2D_version(self, new_shape: Optional[Tuple[int, int]] = None):
