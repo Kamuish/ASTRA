@@ -44,11 +44,7 @@ markdown_extensions:
       alternate_style: true
 nav:
   - HOME: index.md
-  - User guides:
-    - user_guide/index.md 
-    - Installation: user_guide/installation.md
-    - Contribution: user_guide/contribution.md
-    - Reporting issues: user_guide/issues.md
+
 
   - Quickstart:
     - Basic example: user_guide/basic_example.ipynb
@@ -59,7 +55,9 @@ nav:
     - spectra/open_spectra.ipynb
     - spectra/access_spectra.ipynb
     - spectra/selecting_spectra.ipynb
+  
   - Templates:
+    - template_creation/index.md
     - Stellar model: template_creation/stellar.ipynb
     - Telluric model: template_creation/telluric.ipynb
 
