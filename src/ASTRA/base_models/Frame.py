@@ -13,10 +13,10 @@ import time
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple
 
-from matplotlib import pyplot as plt
 import numpy as np
 from astropy.io import fits
 from loguru import logger
+from matplotlib import pyplot as plt
 
 from ASTRA.Components.Modelling import Spectral_Modelling
 from ASTRA.Components.Spectral_Normalization import Spectral_Normalization
@@ -57,7 +57,7 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
 
     Providing a shared interface to spectral data and header information.
 
-    This class defines a set of Keywords, consistent for all s-BART supported Instruments, which can be accessed
+    This class defines a set of Keywords, consistent for all ASTRA supported Instruments, which can be accessed
     through the proper methods. The internal keywords are initialized to a default value, which the Frame will use
     if the instrument does  not provide that metric/value. Furthermore, all RV-related metrics are returned as
     astropy.Quantity objects (or lists of such objects). For such cases, one can use
@@ -66,49 +66,48 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
 
     The supported list of keywords, and the default initialization values is:
 
-    ========================= ===========================
-        Internal KW name       Default intialization
-    ========================= ===========================
-    BERV: np.nan * kilometer_second
-    previous_SBART_RV: np.nan * kilometer_second
-    previous_SBART_RV_ERR: np.nan * kilometer_second
-    DRS_CCF_MASK: ""
-    DRS_FLUX_CORRECTION_TEMPLATE: ""
-    DRS_RV: np.nan * kilometer_second
-    DRS_RV_ERR: np.nan * kilometer_second
-    drift: np.nan * kilometer_second
-    drift_ERR: np.nan * kilometer_second
-    relative_humidity: np.nan,  # for telfi
-    ambient_temperature: np.nan,  # for telfi
-    airmass: np.nan
-    orderwise_SNRs: []
-    OBJECT: None
-    MAX_BERV: np.nan * kilometer_second
-    BJD: None
-    MJD: None
-    DRS-VERSION: None
-    MD5-CHECK: None
-    ISO-DATE: None
-    CONTRAST: 0
-    CONTRAST_ERR: 0
-    FWHM: 0,  # Store this as km/
-    FWHM_ERR: 0,  # Store this as km/
-    BIS SPAN: 0,  # Store this as km/
-    BIS SPAN_ERR: 0,  # Store this as km/
-    EXPTIME: 0
-    RA: None
-    DEC: None
-    SPEC_TYPE: "None",  # This keyword is simply loading the CCF mask..
-    DET_BINX: None
-    DET_BINY: None
-    seeing: None
-    MOON PHASE: 0
-    MOON DISTANCE: 0
-    INS MODE: "None"
-    INS NAME: "None"
-    PROG ID: "None"
-    DATE_NIGHT: "None"
-    ========================= ===========================
+
+    Internal KW name     |  Default intialization
+    ------------ | -------------
+        BERV| np.nan * kilometer_second
+    previous_SBART_RV| np.nan * kilometer_second
+    previous_SBART_RV_ERR| np.nan * kilometer_second
+    DRS_CCF_MASK| ""
+    DRS_FLUX_CORRECTION_TEMPLATE| ""
+    DRS_RV| np.nan * kilometer_second
+    DRS_RV_ERR| np.nan * kilometer_second
+    drift| np.nan * kilometer_second
+    drift_ERR| np.nan * kilometer_second
+    relative_humidity| np.nan,  # for telfi
+    ambient_temperature| np.nan,  # for telfi
+    airmass| np.nan
+    orderwise_SNRs| []
+    OBJECT| None
+    MAX_BERV| np.nan * kilometer_second
+    BJD| None
+    MJD| None
+    DRS-VERSION| None
+    MD5-CHECK| None
+    ISO-DATE| None
+    CONTRAST| 0
+    CONTRAST_ERR| 0
+    FWHM| 0,  # Store this as km/
+    FWHM_ERR| 0,  # Store this as km/
+    BIS SPAN| 0,  # Store this as km/
+    BIS SPAN_ERR| 0,  # Store this as km/
+    EXPTIME| 0
+    RA| None
+    DEC| None
+    SPEC_TYPE "None",  # This keyword is simply loading the CCF mask..
+    DET_BINX| None
+    DET_BINY| None
+    seeing| None
+    MOON PHASE| 0
+    MOON DISTANCE| 0
+    INS MODE| "None"
+    INS NAME| "None"
+    PROG ID| "None"
+    DATE_NIGHT| "None"
 
     """
 

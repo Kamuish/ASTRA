@@ -56,7 +56,8 @@ class ESPRESSO(ESO_PIPELINE):
         frameID: Optional[int] = None,
         quiet_user_params: bool = True,
     ):
-        """ESPRESSO interface
+        """ESPRESSO interface.
+
         Parameters
         ----------
         file_path
