@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Union
 
 import numpy as np
 import ujson as json
@@ -35,6 +35,9 @@ from ASTRA.utils.UserConfigs import (
     DefaultValues,
     UserParam,
 )
+
+if TYPE_CHECKING:
+    from ASTRA.base_models.Frame import Frame
 
 
 class StellarTemplate(BaseTemplate, Spectral_Modelling):
@@ -113,7 +116,12 @@ class StellarTemplate(BaseTemplate, Spectral_Modelling):
     #           Template creation   #
     #################################
 
-    def create_stellar_template(self, dataClass, conditions) -> None:
+    def create_stellar_template(
+        self,
+        dataClass,
+        conditions,
+        reference_frame: None | Frame = None,
+    ) -> None:
         """Trigger the start of the creatoin of the stellar template.
 
         Parameters
@@ -122,6 +130,7 @@ class StellarTemplate(BaseTemplate, Spectral_Modelling):
             Data
         conditions: :py:mod:`~ASTRAutils.spectral_conditions`
             Apply conditions over the frames that will be used to create the stellar template
+        reference_frame (None | Frame): if not None, ASTRA frame that will be used as the wavelength reference
 
         Raises
         ------

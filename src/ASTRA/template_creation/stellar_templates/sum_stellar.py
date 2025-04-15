@@ -31,6 +31,7 @@ from ASTRA.utils.UserConfigs import (
 from .Stellar_Template import StellarTemplate
 
 if TYPE_CHECKING:
+    from ASTRA.base_models.Frame import Frame
     from ASTRA.data_objects.DataClass import DataClass
 
 
@@ -70,7 +71,12 @@ class SumStellar(StellarTemplate):
             self._found_error = False
 
     @custom_exceptions.ensure_invalid_template
-    def create_stellar_template(self, dataClass, conditions=None) -> None:
+    def create_stellar_template(
+        self,
+        dataClass,
+        conditions=None,
+        reference_frame: None | Frame = None,
+    ) -> None:
         """Create the stellar template."""
         # removal may change the first common wavelength; make sure
         try:
@@ -93,7 +99,7 @@ class SumStellar(StellarTemplate):
             self.package_pool = Queue()
             self.output_pool = Queue()
 
-            self.launch_parallel(dataClass)
+            self.launch_parallel(dataClass, reference_frame=reference_frame)
             self.evaluate_bad_orders()
             self._finish_template_creation()
 
@@ -103,7 +109,7 @@ class SumStellar(StellarTemplate):
             logger.info("Closing shared memory interfaces of the Stellar template")
             self.cleanup_shared_memory()
 
-    def launch_parallel(self, dataClass: DataClass):
+    def launch_parallel(self, dataClass: DataClass, reference_frame: None | Frame):
         """Launch parallel computation of the stellar template.
 
         Raises:
@@ -113,34 +119,52 @@ class SumStellar(StellarTemplate):
         inst_info = dataClass.get_instrument_information()
         N_orders = inst_info["array_size"][0]
 
-        epoch_BERVs = dataClass.collect_RV_information(
-            KW="BERV",
-            subInst=self._associated_subInst,
-            frameIDs=self.frameIDs_to_use,
-            units=kilometer_second,
-            as_value=True,
-            include_invalid=False,
-        )
+        if reference_frame is not None:
+            logger.warning("Using reference frame as the basis for wavelength grid of template")
+            chosen_epochID = reference_frame.frameID
+            self._reference_filepath = reference_frame.fname
+            self._reference_frameID = chosen_epochID
 
-        chosen_epochID = self.frameIDs_to_use[np.argmin(epoch_BERVs)]
-        self._reference_frameID = chosen_epochID
-        self._reference_filepath = dataClass.get_filename_from_frameID(self._reference_frameID)
+            wave_reference, _, _, _ = reference_frame.get_data_from_full_spectrum()
 
-        wave_reference, _, _, _ = dataClass.get_frame_arrays_by_ID(chosen_epochID)
+            self.wavelengths = remove_RVshift(
+                wave_reference,
+                stellar_RV=convert_data(
+                    reference_frame.get_KW_value(self.RV_keyword),
+                    new_units=kilometer_second,
+                    as_value=True,
+                ),
+            )
 
-        self.wavelengths = remove_RVshift(
-            wave_reference,
-            stellar_RV=convert_data(
-                self.sourceRVs[np.argmin(epoch_BERVs)],
-                new_units=kilometer_second,
+        else:
+            epoch_BERVs = dataClass.collect_RV_information(
+                KW="BERV",
+                subInst=self._associated_subInst,
+                frameIDs=self.frameIDs_to_use,
+                units=kilometer_second,
                 as_value=True,
-            ),
-        )
+                include_invalid=False,
+            )
 
-        logger.info(
-            "Using observation from {} as a basis for stellar template construction",
-            dataClass.get_frame_by_ID(chosen_epochID),
-        )
+            chosen_epochID = self.frameIDs_to_use[np.argmin(epoch_BERVs)]
+            self._reference_frameID = chosen_epochID
+            self._reference_filepath = dataClass.get_filename_from_frameID(self._reference_frameID)
+
+            wave_reference, _, _, _ = dataClass.get_frame_arrays_by_ID(chosen_epochID)
+
+            self.wavelengths = remove_RVshift(
+                wave_reference,
+                stellar_RV=convert_data(
+                    self.sourceRVs[np.argmin(epoch_BERVs)],
+                    new_units=kilometer_second,
+                    as_value=True,
+                ),
+            )
+
+            logger.info(
+                "Using observation from {} as a basis for stellar template construction",
+                dataClass.get_frame_by_ID(chosen_epochID),
+            )
 
         logger.info("Using frameIDs: {}", self.frameIDs_to_use)
 
