@@ -92,7 +92,7 @@ class BaseTemplate(Spectrum):
             raise custom_exceptions.FailedStorage
 
         if not self.is_valid:
-            logger.info("The template was not created. Storing nothing to disk")
+            logger.info(f"The template from {self._associated_subInst} was not created. Storing nothing to disk")
             raise custom_exceptions.FailedStorage
 
         self.store_template(clobber=clobber)
