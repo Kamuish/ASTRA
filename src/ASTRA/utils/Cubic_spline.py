@@ -13,8 +13,8 @@ try:
     )
 
     CYTHON_UNAVAILABLE = False
-except ImportError:
-    logger.critical("Cython interface is not found, please make sure that the installation went smoothly")
+except ImportError as e:
+    logger.critical(f"Cython interface is not found, please make sure that the installation went smoothly (f)")
     CYTHON_UNAVAILABLE = True
 
 # np.seterr(all='raise')
