@@ -10,9 +10,9 @@ if __name__ == "__main__":
     Cython.Compiler.Options.annotate = True
 
     targets = {
-        "cubic_interpolation.inversion.inverter": "cubic_interpolation/inversion/inverter.pyx",
-        "cubic_interpolation.partial_derivative.partial_derivative": "cubic_interpolation/partial_derivative/partial_derivative.pyx",
-        "cubic_interpolation.second_derivative.second_derivative": "cubic_interpolation/second_derivative/second_derivative.pyx",
+        "inverter": "inverter.pyx",
+        "partial_derivative": "partial_derivative.pyx",
+        "second_derivative": "second_derivative.pyx",
     }
 
     ext_modules = [

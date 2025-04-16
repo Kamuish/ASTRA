@@ -6,7 +6,7 @@ from loguru import logger
 from ASTRA.utils import custom_exceptions
 
 try:
-    from ASTRA.utils.cython_codes.cubic_interpolation import (
+    from ASTRA.utils.cython_codes import (
         partial_derivative,
         second_derivative,
         tridiagonal_inverter,
