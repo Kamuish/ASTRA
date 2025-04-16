@@ -1,9 +1,9 @@
 [project]
-name = "ASTRA"
-version = "0.1.0"
-description = "Add your description here"
+name = "ASTRA-spectra"
+version = "0.1.1"
+description = "Interface to open stellar spectra and construct stellar and telluric models"
 readme = "README.md"
-requires-python = "~=3.12.8"
+requires-python = ">=3.11,<=3.12.8"
 dependencies = [
     "astropy>=7.0.1",
     "astroquery>=0.4.10",

@@ -21,7 +21,7 @@ Installation of ASTRA can be made either through Pypi or through github:
 === "Pypi"
 
     ``` bash
-    pip install ASTRA
+    pip install ASTRA-spectra
     ```
 
 === "github"
