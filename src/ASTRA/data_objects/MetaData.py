@@ -69,7 +69,7 @@ class MetaData:
         """
         logger.debug("Storing Metadata to {}", path)
 
-        storage_path = build_filename(path, "MetaData", fmt="json")
+        storage_path = build_filename(path, "MetaData", fmt="json", skip_version=True)
 
         info_to_store = {}
         for key, value in self.information.items():
@@ -113,7 +113,8 @@ class MetaData:
             path,
             "MetaData",
             fmt="json",
-            ASTRA_version=None,  # we always want the latest version
+            ASTRA_version=None,
+            skip_version=True,  # we don't want a version
         )
         try:
             with open(storage_path) as handle:
