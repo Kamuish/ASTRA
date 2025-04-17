@@ -611,13 +611,14 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
             zero_indexes = np.where(self.qual_data != 0)
             self.spectral_mask.add_indexes_to_mask(zero_indexes, QUAL_DATA)
 
-        self.spectral_mask.add_indexes_to_mask(np.where(np.isnan(self.spectra)), MISSING_DATA)
+        self.spectral_mask.add_indexes_to_mask(np.where(~np.isfinite(self.spectra)), MISSING_DATA)
         self.spectral_mask.add_indexes_to_mask(np.where(self.spectra == 0), MISSING_DATA)
 
         if self._internal_configs["REJECT_NEGATIVE_FLUXES"]:
             self.spectral_mask.add_indexes_to_mask(np.where(self.spectra < 0), MISSING_DATA)
 
-        self.spectral_mask.add_indexes_to_mask(np.where(np.isnan(self.uncertainties)), MISSING_DATA)
+        self.spectral_mask.add_indexes_to_mask(np.where(self.uncertainties == 0), MISSING_DATA)
+        self.spectral_mask.add_indexes_to_mask(np.where(~np.isfinite(self.uncertainties)), MISSING_DATA)
 
         order_map = {i: (np.min(self.wavelengths[i]), np.max(self.wavelengths[i])) for i in range(self.N_orders)}
         removal_reasons = [i.name for i in self.wavelengths_to_remove.keys()]
