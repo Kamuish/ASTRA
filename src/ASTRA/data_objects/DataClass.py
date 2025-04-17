@@ -262,7 +262,7 @@ class DataClass(BASE):
             logger.warning("Stellar template has already been ingested. Switching old template by the new one")
 
         # Empty update just to ensure initialization of the modelling interfaces
-        Stellar_Model.update_interpol_properties({})
+        Stellar_Model.initialize_modelling_interfaces({})
 
         self.StellarModel = Stellar_Model
 
@@ -502,7 +502,7 @@ class DataClass(BASE):
             raise custom_exceptions.InvalidConfiguration("The interpolation properties must be passed as a dictionary")
 
         for frame in self.observations:
-            frame.set_interpolation_properties(new_properties)
+            frame.update_user_configs(new_properties)
 
     def update_interpol_properties_of_stellar_model(self, new_properties: Dict[str, Any]):
         if not isinstance(new_properties, dict):
@@ -510,7 +510,7 @@ class DataClass(BASE):
 
         if self.StellarModel is None:
             raise custom_exceptions.NoDataError("The Stellar Model wasn't ingested")
-        self.StellarModel.update_interpol_properties(new_properties)
+        self.StellarModel.update_user_configs(new_properties)
 
     def update_frame_interpol_properties(self, frameID, new_properties) -> None:
         """Allow to update the interpolation settings from the outside, so that any object can configure
