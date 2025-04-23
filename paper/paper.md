@@ -37,7 +37,7 @@ affiliations:
  - name: Département d’astronomie de l’Université de Genève, Chemin Pegasi 51, 1290 Versoix, Switzerland 
    index: 3
 date: 23 April 2025
-bibliography: paper/paper.bib
+bibliography: paper.bib
 ---
 
 # Summary
