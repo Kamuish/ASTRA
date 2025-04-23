@@ -79,7 +79,7 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
     drift| np.nan * kilometer_second
     drift_ERR| np.nan * kilometer_second
     relative_humidity| np.nan,  # for telfi
-    ambient_temperature| np.nan,  # for telfi
+    ambient_temperature| np.nan [Kelvin],  # for telfi
     airmass| np.nan
     orderwise_SNRs| []
     OBJECT| None
