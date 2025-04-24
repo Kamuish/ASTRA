@@ -5,7 +5,7 @@ repos:
     - id: pytest-check
       types: [python]
       name: pytest-check
-      entry: uv run pytest
+      entry: uv run pytest -m "not slow"
       language: system
       pass_filenames: false
       always_run: true
