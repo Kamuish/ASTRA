@@ -20,7 +20,7 @@ from ASTRA.utils.custom_exceptions import (
     BadTemplateError,
     InvalidConfiguration,
 )
-from ASTRA.utils.parameter_validators import Positive_Value_Constraint, ValueFromIterable
+from ASTRA.utils.parameter_validators import BooleanValue, Positive_Value_Constraint, ValueFromIterable
 from ASTRA.utils.shift_spectra import remove_RVshift
 from ASTRA.utils.units import convert_data, kilometer_second
 from ASTRA.utils.UserConfigs import (
@@ -55,6 +55,13 @@ class SumStellar(StellarTemplate):
             constraint=Positive_Value_Constraint,
             description="Flux threshold for masking the spectral template. Set to one to avoid possible numerical"
             " issues with near-zero values",
+        ),
+        ENSURE_COMMON_WAVELENGTHS=UserParam(
+            default_value=True,
+            constraint=BooleanValue,
+            description="If True (default) only keep pixels that are informed by all spectra in use. If False, "
+            "use everything available. This will mean that the final SNR will not have a consistent SNR across"
+            "wavelengths",
         ),
     )
 
@@ -244,7 +251,8 @@ class SumStellar(StellarTemplate):
 
         new_mask = np.zeros(self.spectra.shape, dtype=bool)
 
-        new_mask[np.where(shr_counts != len(self.frameIDs_to_use))] = True
+        if self._internal_configs["ENSURE_COMMON_WAVELENGTHS"]:
+            new_mask[np.where(shr_counts != len(self.frameIDs_to_use))] = True
         new_mask[np.where(self.spectra < self._internal_configs["FLUX_threshold_for_template"])] = True
 
         logger.debug("Ensuring increasing wavelenghs in the stellar template")
