@@ -36,4 +36,4 @@ By default, ASTRA does not install Telfit as it will only be needed for the mask
 
 ## Issues and contribution
 
-Management of any issues to the code, as well as external contribution is managed through the *github* repository
+Management of any issues to the code, as well as external contribution is done through the *github* repository
