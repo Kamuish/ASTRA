@@ -21,6 +21,7 @@ from loguru import logger
 from tabletexifier import Table
 
 from ASTRA import __version__
+from ASTRA.Instruments.CARMENES import load_CARMENES_extra_information
 from ASTRA.data_objects.MetaData import MetaData
 from ASTRA.data_objects.Target import Target
 from ASTRA.status.flags import (  # for entire frame; for individual pixels
@@ -68,7 +69,7 @@ class DataClass(BASE):
     This *data_object* has all the functions that the DataClass object implements!
     """
 
-    extra_loading_functions: Dict[str, Callable] = {}
+    extra_loading_functions: Dict[str, Callable] = {"CARMENES": load_CARMENES_extra_information}
 
     def __init__(
         self,
