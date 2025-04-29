@@ -211,6 +211,7 @@ class Spectral_Normalization(BASE):
                 wavelengths=wavelengths[mask_to_use],
                 flux=flux[mask_to_use],
                 uncertainties=uncerts[mask_to_use],
+                mask=mask,
                 loaded_info=loaded_info,
             )
             self.spectra[order][mask_to_use] = new_flux
