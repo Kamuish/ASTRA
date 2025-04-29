@@ -58,7 +58,7 @@ In recent years, multiple ultra-stable, high-resolution spectrographs capable of
 
 As the backend of the SBART pipeline[^1], it is already in use for scientific production, and is well-positioned to support the broader astrophysical community working with high-resolution spectroscopy.
 
-[^1] https://github.com/iastro-pt/sBART
+[^1]: Publicly available at https://github.com/iastro-pt/sBART
 
 # Acknowledgements
 
