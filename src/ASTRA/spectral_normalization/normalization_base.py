@@ -48,7 +48,7 @@ class NormalizationBase(BASE):
         self._spec_info = obj_info
         self._ran_normalization_fit: bool = False
 
-    def launch_epochwise_normalization(self, wavelengths, flux, uncertainties, loaded_info):
+    def launch_epochwise_normalization(self, wavelengths, flux, uncertainties, mask, loaded_info):
         self._ensure_epochwise_normalizer()
         if len(loaded_info) != 0:
             return (
@@ -62,7 +62,7 @@ class NormalizationBase(BASE):
     def _fit_epochwise_normalization(self, wavelengths, flux, uncertainties):
         self._ran_normalization_fit = True
 
-    def launch_orderwise_normalization(self, wavelengths, flux, uncertainties, loaded_info):
+    def launch_orderwise_normalization(self, wavelengths, flux, uncertainties, mask, loaded_info):
         """Launch a normalizer that will be applied to each spectral order.
 
         This will:

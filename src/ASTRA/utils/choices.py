@@ -93,3 +93,11 @@ class INTERPOLATION_ERR_PROP(Enum):
     interpolation = 1
     propagation = 2
     none = 3
+
+
+class NORMALIZATION_SOURCES(Enum):
+    """how should we propagate uncertainties."""
+
+    RASSINE = "RASSINE"
+    SNT = "SNT"
+    POLY_FIT = "POLY_FIT"

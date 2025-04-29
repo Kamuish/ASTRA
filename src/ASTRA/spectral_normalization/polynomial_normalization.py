@@ -57,7 +57,6 @@ class Polynomial_normalization(NormalizationBase):
         # TODO: see what kind of data we want to use!
 
         keys = {
-            "flux_dispersion_balance_corrected": "flux-balanced",
             "blaze_corrected": "BLAZE corrected",
         }
         for key, value in keys.items():

@@ -11,8 +11,8 @@ from scipy.interpolate import CubicSpline
 
 from ASTRA.spectral_normalization.normalization_base import NormalizationBase
 from ASTRA.utils import custom_exceptions
-from ASTRA.utils.UserConfigs import DefaultValues, UserParam
 from ASTRA.utils.parameter_validators import PathValue
+from ASTRA.utils.UserConfigs import DefaultValues, UserParam
 
 
 class RASSINE_normalization(NormalizationBase):
@@ -77,7 +77,7 @@ class RASSINE_normalization(NormalizationBase):
     """
 
     _default_params = NormalizationBase._default_params + DefaultValues(
-        S1D_folder=UserParam(mandatory=False, constraint=PathValue, default_value=""),
+        S1D_folder=UserParam(mandatory=False, constraint=PathValue, default_value="", description=""),
         RASSINE_path=UserParam(mandatory=True, constraint=PathValue),
     )
 

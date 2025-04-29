@@ -11,7 +11,7 @@ from loguru import logger
 from ASTRA.base_models.UnitModel import UnitModel
 from ASTRA.utils import custom_exceptions
 from ASTRA.utils.json_ready_converter import json_ready_converter
-from ASTRA.utils.paths_tools import build_filename
+from ASTRA.utils.paths_tools.build_filename import build_filename
 
 
 class SpecNorm_Unit(UnitModel):

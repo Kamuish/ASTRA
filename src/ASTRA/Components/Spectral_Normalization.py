@@ -1,15 +1,30 @@
-"""Allow to normalize stellar spectra through different methods."""
+"""Allow to normalize stellar spectra through different methods.
+
+Thhis allows to normalize stellar spectra using three different algorithms:
+
+1) SNT - in-house implementation of alpha-shape algorithms (only S1D)
+2) RASSINE (only S1D)
+3) First degree polynomial fit (S1D and S2D files)
+
+In all cases, ASTRA stores on disk the relevant parameters, so that subsquent
+normalization of a given Frame will be cached and avoid recomputation of continuum
+models.
+
+Currently, SNT and RASSINE can only be applied to the S1D frames.
+
+"""
 
 from pathlib import Path
 from typing import Any, Dict, Optional
 
 from loguru import logger
 
-from ASTRA.DataUnits import SpecNorm_Unit
+from ASTRA.DataUnits.SpecNormUnit import SpecNorm_Unit
 from ASTRA.spectral_normalization import available_normalization_interfaces
 from ASTRA.spectral_normalization.normalization_base import NormalizationBase
 from ASTRA.utils import custom_exceptions
 from ASTRA.utils.BASE import BASE
+from ASTRA.utils.choices import NORMALIZATION_SOURCES
 from ASTRA.utils.parameter_validators import (
     BooleanValue,
     PathValue,
@@ -44,13 +59,34 @@ class Spectral_Normalization(BASE):
 
     # TODO: confirm the kernels that we want to allow
     _default_params = BASE._default_params + DefaultValues(
-        NORMALIZE_SPECTRA=UserParam(False, constraint=BooleanValue),
-        NORMALIZATION_MODE=UserParam(
-            "RASSINE",
-            constraint=ValueFromIterable(list(available_normalization_interfaces.keys())),
+        NORMALIZE_SPECTRA=UserParam(
+            False,
+            constraint=BooleanValue,
+            description=(
+                "If True, enable the normalization interface" "If False, a call to normalize_spectra does nothing"
+            ),
         ),
-        S1D_folder=UserParam(mandatory=False, constraint=PathValue, default_value=""),
-        RASSINE_path=UserParam(mandatory=False, constraint=PathValue, default_value=""),
+        NORMALIZATION_MODE=UserParam(
+            NORMALIZATION_SOURCES.SNT,
+            constraint=ValueFromIterable(NORMALIZATION_SOURCES),
+            description="Normalization method to use, as defined in the enum provided in ASTRA.utils.choices",
+        ),
+        S1D_folder=UserParam(
+            mandatory=False,
+            constraint=PathValue,
+            default_value="",
+            description="Not used for now",
+        ),
+        RASSINE_path=UserParam(
+            mandatory=False,
+            constraint=PathValue,
+            default_value="",
+            description=(
+                "Path to a local clone of the modified RASSINE"
+                "(git@github.com:Kamuish/Rassine_modified.git)"
+                ". Only used if we are using RASSINE as the normalization tool"
+            ),
+        ),
     )
 
     def __init__(self, **kwargs: Any) -> None:  # noqa: D107
@@ -64,7 +100,7 @@ class Spectral_Normalization(BASE):
             raise Exception(msg)
 
         self._already_normalized_data = False
-        self._normalization_interfaces: Dict[str, NormalizationBase] = {}
+        self._normalization_interfaces: Dict[NORMALIZATION_SOURCES, NormalizationBase] = {}
         self._normalization_information: Optional[SpecNorm_Unit] = None
 
     def initialize_normalization_interface(self) -> None:
@@ -82,6 +118,7 @@ class Spectral_Normalization(BASE):
         interface_init["obj_info"]["S1D_name"] = self.get_S1D_name()
         interface_init["obj_info"]["frame_path"] = self.file_path
         interface_init["obj_info"]["Frame_instance"] = type(self)
+        interface_init["obj_info"]["FWHM"] = self.get_KW_value("FWHM")
 
         interface = available_normalization_interfaces[key]
 
@@ -100,13 +137,13 @@ class Spectral_Normalization(BASE):
             self._normalization_information = SpecNorm_Unit.load_from_disk(
                 self._internalPaths.root_storage_path,
                 filename=current_frame_name,
-                algo_name=self._internal_configs["NORMALIZATION_MODE"],
+                algo_name=self._internal_configs["NORMALIZATION_MODE"].name,
             )
         except custom_exceptions.NoDataError:
             logger.warning("Can't find previous normalization parameters on disk!")
             self._normalization_information = SpecNorm_Unit(
                 frame_name=current_frame_name,
-                algo_name=self._internal_configs["NORMALIZATION_MODE"],
+                algo_name=self._internal_configs["NORMALIZATION_MODE"].name,
             )
             self._normalization_information.generate_root_path(self._internalPaths.root_storage_path)
 
@@ -131,7 +168,7 @@ class Spectral_Normalization(BASE):
         name = "S1D"
         loaded_info = self._normalization_information.get_norm_info_from_order(name)
 
-        wavelengths, flux, uncerts, _ = self.get_data_from_full_spectrum()
+        wavelengths, flux, uncerts, mask = self.get_data_from_full_spectrum()
 
         (
             new_waves,
@@ -142,6 +179,7 @@ class Spectral_Normalization(BASE):
             wavelengths=wavelengths,
             flux=flux,
             uncertainties=uncerts,
+            mask=mask,
             loaded_info=loaded_info,
         )
         self.wavelengths = new_waves.reshape(wavelengths.shape)

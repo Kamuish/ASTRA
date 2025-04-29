@@ -1039,3 +1039,7 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
             axis.errorbar(w[~m], f[~m], e[~m], ls="", marker="x")
 
         return fig, axis
+
+    def trigger_data_storage(self, *args, **kwargs):
+        super().trigger_data_storage(*args, **kwargs)
+        print("frame")
