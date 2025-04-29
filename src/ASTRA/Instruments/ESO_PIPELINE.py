@@ -437,3 +437,6 @@ class ESO_PIPELINE(Frame):
     @property
     def bare_fname(self) -> str:
         return self.fname.split("_S")[0]
+
+    def trigger_data_storage(self, *args, **kwargs):
+        super().trigger_data_storage(*args, **kwargs)

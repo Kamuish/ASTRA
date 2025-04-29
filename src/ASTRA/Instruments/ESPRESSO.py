@@ -170,3 +170,7 @@ class ESPRESSO(ESO_PIPELINE):
             self.spectral_mask.add_indexes_to_mask(inds, ERROR_THRESHOLD)
 
         self.assess_bad_orders()
+
+    def trigger_data_storage(self, *args, **kwargs):
+        logger.critical("Calling data storage from ESPRESSO")
+        super().trigger_data_storage(*args, **kwargs)
