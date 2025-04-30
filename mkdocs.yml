@@ -43,7 +43,9 @@ markdown_extensions:
   - pymdownx.tabbed:
       alternate_style: true
 nav:
-  - HOME: index.md
+  - HOME: 
+    - Overview: index.md
+    - Changelog: changelog.md
 
 
   - Quickstart:
