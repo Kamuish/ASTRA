@@ -2,23 +2,21 @@ import datetime
 from pathlib import Path
 from typing import Any, Dict, NoReturn, Optional
 
-from scipy.ndimage import median_filter
-
 import numpy as np
 from astropy.coordinates import EarthLocation
 from astropy.io import fits
 from loguru import logger
 from scipy.constants import convert_temperature
-
+from scipy.ndimage import median_filter
 
 from ASTRA.base_models.Frame import Frame
 from ASTRA.data_objects import DataClass
-from ASTRA.status.Mask_class import Mask
 from ASTRA.status.flags import FATAL_KW, KW_WARNING, MISSING_DATA, MISSING_SHAQ_RVS, QUAL_DATA, Flag
+from ASTRA.status.Mask_class import Mask
 from ASTRA.utils import custom_exceptions
-from ASTRA.utils.UserConfigs import DefaultValues, UserParam
 from ASTRA.utils.parameter_validators import BooleanValue, NumericValue, PathValue
 from ASTRA.utils.units import kilometer_second, meter_second
+from ASTRA.utils.UserConfigs import DefaultValues, UserParam
 
 
 class CARMENES(Frame):
