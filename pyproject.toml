@@ -1,6 +1,6 @@
 [project]
 name = "ASTRA-spectra"
-version = "0.1.3"
+version = "0.1.4"
 description = "Interface to open stellar spectra and construct stellar and telluric models"
 readme = "README.md"
 requires-python = ">=3.11,<=3.12.8"
