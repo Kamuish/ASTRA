@@ -12,7 +12,6 @@ dependencies = [
     "matplotlib>=3.10.1",
     "numpy<2.0.0",
     "pandas>=2.2.3",
-    "pyqt6>=6.9.0",
     "scipy>=1.15.2",
     "sqlalchemy>=2.0.40",
     "sqlalchemy-utils>=0.41.2",
