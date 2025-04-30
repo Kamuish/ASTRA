@@ -37,3 +37,10 @@ By default, ASTRA does not install Telfit as it will only be needed for the mask
 ## Issues and contribution
 
 Management of any issues to the code, as well as external contribution is done through the *github* repository
+
+# Changelog
+
+## V1.0
+
+- Original commit, as transposed from sBART internals
+- Addition of CARMENES and MAROON-X as valid instruments for analysis

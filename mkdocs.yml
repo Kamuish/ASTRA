@@ -43,10 +43,7 @@ markdown_extensions:
   - pymdownx.tabbed:
       alternate_style: true
 nav:
-  - HOME: 
-    - Overview: index.md
-    - Changelog: changelog.md
-
+  - HOME: index.md
 
   - Quickstart:
     - Basic example: user_guide/basic_example.ipynb
