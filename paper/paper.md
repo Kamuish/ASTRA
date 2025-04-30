@@ -20,7 +20,7 @@ authors:
     orcid:  0000-0000-0000-000
     affiliation: "1, 2" 
   - name: J. H. C. Martins
-    orcid:  0000-0000-0000-000
+    orcid:  0000-0002-1532-9082
     affiliation: 1 
 
 affiliations:
@@ -53,7 +53,7 @@ In recent years, multiple ultra-stable, high-resolution spectrographs capable of
 2. Masking of atmospheric features -- When dealing with ground-based spectroscopy, it is important to account for the spectral imprint of our atmosphere (in the form of telluric lines), as well as its yearly variation. *ASTRA* can automatically run *Telfit* [@gulliksonCorrectingTelluricAbsorption2014] to generate a syntethic transmittance model and create a binary mask to reject the position of telluric lines;
 3. Construction of high-SNR stellar models -- The construction of high-SNR stellar templates from observations is pivotal for the extraction of precise radial velocities [@zechmeisterSpectrumRadialVelocity2018; @silvaNovelFrameworkSemiBayesian2022; @artigau_linebyline2022], determination of stellar parameters [@SousaSweetCat; @GomesSilvaStellarChar], and characterization of exoplanetary atmospheres [@azevedo_silva_detection_2022; @Stangret2024 ; @Damasceno2024];
 4. Dynamically group the observations into different sub-datasets -- Over the lifetime of most state-of-the-art spectrographs they are subjected to instrumental interventions, leading to changes in the instrumental profile and offsets in radial velocities. As a consequence, it is often necessary to divide our data in the time-periods before and after such interventions, to construct individual templates in each. *ASTRA* is pre-configured with the dates of such instruments for all supported spectrographs, divides the observations in each dataset (or sub-Instrument) and creates individual stellar and telluric templates for each;
-5. Selection of observations -- When analysing data, we often reject observations based on metadata information (weather conditions, airmass, among others). Within *ASTRA* the user can dynamically set filters on different properties, with the goal of either fully rejecting the observation, or rejecting it from a specific operation. This means that it is possible to reject an observation for the construction of the stellar template, but not reject it from any subsquent analysis.
+5. Filtering of observations -- When analysing data, we often reject observations based on metadata information (weather conditions, airmass, among others). Within *ASTRA* the user can dynamically set filters on different properties, with the goal of either fully rejecting the observation, or rejecting it from a specific operation. This means that it is possible to reject an observation for the construction of the stellar template, but not reject it from any subsquent analysis.
 6. Masking of wavelength regions -- When dealing with stellar spectra we often need to reject wavelength regions due to different contaminating effects. *ASTRA* creates an internal binary mask for all pixels and allows the rejection of i) Telluric-contaminated regions; ii) Activity-sensitive regions; iii) user-provided wavelength intervals.
 
 As the backend of the SBART pipeline[^1], it is already in use for scientific production, and is well-positioned to support the broader astrophysical community working with high-resolution spectroscopy.
