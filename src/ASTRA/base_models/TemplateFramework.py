@@ -209,7 +209,6 @@ class TemplateFramework(BASE):
 
             if self.is_type("Telluric"):
                 config_dict["download_path"] = ""
-
             loaded_temp = self.__class__.template_map[temp_name](temp_subInst, loaded=True, user_configs=config_dict)
 
             with contextlib.suppress(custom_exceptions.NoDataError):
