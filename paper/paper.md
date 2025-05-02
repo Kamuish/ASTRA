@@ -8,7 +8,7 @@ authors:
     orcid: 0000-0003-4920-738X
     affiliation: "1, 2" 
   - name: J. P. Faria
-    orcid: 0000-0000-0000-000
+    orcid:  0000-0002-6728-244X
     affiliation: 3 
   - name: Nuno C. Santos
     orcid:  0000-0003-4422-2919
@@ -62,6 +62,6 @@ As the backend of the SBART pipeline[^1], it is already in use for scientific pr
 
 # Acknowledgements
 
-This work was funded by the European Union (ERC, FIERCE, 101052347). Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union or the European Research Council. Neither the European Union nor the granting authority can be held responsible for them. This work was also supported by FCT - Fundação para a Ciência e a Tecnologia through national funds by these grants: UIDB/04434/2020 DOI: 10.54499/UIDB/04434/2020, UIDP/04434/2020 DOI: 10.54499/UIDP/04434/2020, PTDC/FIS-AST/4862/2020, UID/04434/2025. 
+This work was funded by the European Union (ERC, FIERCE, 101052347). Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union or the European Research Council. Neither the European Union nor the granting authority can be held responsible for them. This work was also supported by FCT - Fundação para a Ciência e a Tecnologia through national funds by these grants: UIDB/04434/2020 DOI: 10.54499/UIDB/04434/2020, UIDP/04434/2020 DOI: 10.54499/UIDP/04434/2020, PTDC/FIS-AST/4862/2020, UID/04434/2025.  JPF acknowledges the financial support of the Swiss National Science Foundation (SNSF), supported since May 2022 over the grant 200020_20501.
 
 # References 
