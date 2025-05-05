@@ -237,12 +237,13 @@ class KEYWORD_condition(ConditionModel):
         keep = False
         KW_val = frame.get_KW_value(self.KW)
         for bound_elem in self._bounds_to_check:
-            if not np.isfinite(KW_val):
+            if KW_val is None or not np.isfinite(KW_val):
                 keep = True
                 logger.warning(
                     "Frame has a NaN value for the KW: {}. Not applying the spectral condition",
                     self.KW,
                 )
+                break
             if self._include_edges:
                 if bound_elem[0] <= KW_val <= bound_elem[1]:
                     keep = True
