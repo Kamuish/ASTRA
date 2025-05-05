@@ -163,6 +163,11 @@ class MAROONX(Frame):
             old_scale="Celsius",
             new_scale="Kelvin",
         )
+
+        # Note: we don't have DRS values for MAROON-X
+        self.observation_info["DRS_RV"] = 0 * meter_second
+        self.observation_info["DRS_RV_ERR"] = 0 * meter_second
+
         self.find_instrument_type()
         self.assess_bad_orders()
 
