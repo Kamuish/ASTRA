@@ -40,7 +40,7 @@ Management of any issues to the code, as well as external contribution is done t
 
 # Changelog
 
-## V1.0
+## V1.0.0 (5th of May 2025)
 
 - Original commit, as transposed from sBART internals
 - Addition of CARMENES and MAROON-X as valid instruments for analysis
