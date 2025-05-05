@@ -287,7 +287,7 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
             "airmass": np.nan,
             "orderwise_SNRs": [],
             "OBJECT": None,
-            "MAX_BERV": np.nan * kilometer_second,
+            "MAX_BERV": 35 * kilometer_second,
             "BJD": None,
             "MJD": None,
             "DRS-VERSION": None,
