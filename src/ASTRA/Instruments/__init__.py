@@ -16,13 +16,21 @@ with all providing the same user-interface (after they load all the necessary in
 __all__ = [
     "ESPRESSO",
     "HARPS",
+    "MAROONX",
+    "CARMENES",
+    "SimulatedSpirou",
 ]
+
+from .CARMENES import CARMENES
 from .ESPRESSO import ESPRESSO
 from .HARPS import HARPS
 from .MAROONX import MAROONX
+from .SimulatedSpirou import SimulatedSpirou
 
 instrument_dict = {
     "ESPRESSO": ESPRESSO,
     "HARPS": HARPS,
     "MAROONX": MAROONX,
+    "CARMENES": CARMENES,
+    "SimulatedSpirou": SimulatedSpirou,
 }
