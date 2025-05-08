@@ -16,7 +16,7 @@ from ASTRA.status.Mask_class import Mask
 from ASTRA.utils import custom_exceptions
 from ASTRA.utils.definitions import DETECTOR_DEFINITION
 from ASTRA.utils.units import kilometer_second, meter_second
-
+from astropy.time import Time
 
 class SimulatedSpirou(Frame):
     """Interface to handle simulated data."""
@@ -94,11 +94,18 @@ class SimulatedSpirou(Frame):
     def load_instrument_specific_KWs(self, header):
         # Load BERV info + previous RV
         self.observation_info["MAX_BERV"] = 30 * kilometer_second
-        self.observation_info["BERV"] = header["HIERARCH CARACAL BERV "] * meter_second
+        self.observation_info["BERV"] = header["BERV"] * meter_second
 
         self.observation_info["DRS_RV"] = header["DRS_RV"] * meter_second
         self.observation_info["DRS_RV_ERR"] = header["DRS_RV_ERR"] * meter_second
         self.observation_info["BJD"] = header["BJD"]
+
+        t = Time(header["BJD"], format='jd', scale='tdb')
+        iso_string = t.iso 
+        self.observation_info["ISO-DATE"] = "T".join(iso_string.split(" "))
+
+        for order in range(self.N_orders):
+            self.observation_info["orderwise_SNRs"].append(header[f"SNR {order}"])
 
     def check_header_QC(self, header: fits.Header):
         """Header QC checks for CARMENES.
