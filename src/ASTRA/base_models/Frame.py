@@ -1042,4 +1042,3 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
 
     def trigger_data_storage(self, *args, **kwargs):
         super().trigger_data_storage(*args, **kwargs)
-        print("frame")
