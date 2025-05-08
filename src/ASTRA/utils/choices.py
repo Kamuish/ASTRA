@@ -55,14 +55,25 @@ class TELLURIC_APPLICATION_MODE(Enum):
 
 
 class SPECTRA_INTERPOL_MODE(Enum):
-    """Enumerator to represent the DISK save mode of a given SBART object."""
+    """Enumerator to represent the DISK save mode of a given ASTRA object."""
 
     SPLINES = 1
     GP = 2
 
 
 class SPLINE_INTERPOL_MODE(Enum):
-    """Enumerator to represent the DISK save mode of a given SBART object."""
+    """Enumerator to represent the interpolation mode of a given ASTRA object.
+
+    Possible values:
+        CUBIC_SPLINE
+        QUADRATIC_SPLINE
+        PCHIP
+        NEAREST
+        RBF
+        SMOOTH_CUBIC_SPLINE
+        AKIMA
+        BARYCENTRIC_INTERPOL
+    """
 
     CUBIC_SPLINE = 1
     QUADRATIC_SPLINE = 2
@@ -70,6 +81,8 @@ class SPLINE_INTERPOL_MODE(Enum):
     NEAREST = 4
     RBF = 5
     SMOOTH_CUBIC_SPLINE = 6
+    AKIMA = 7
+    BARYCENTRIC_INTERPOL = 8
 
 
 class FLUX_SMOOTH_CONFIGS(Enum):

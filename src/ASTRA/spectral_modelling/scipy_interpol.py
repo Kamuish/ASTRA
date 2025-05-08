@@ -5,7 +5,14 @@ from __future__ import annotations
 from typing import NoReturn
 
 import numpy as np
-from scipy.interpolate import CubicSpline, PchipInterpolator, RBFInterpolator, interp1d
+from scipy.interpolate import (
+    CubicSpline,
+    PchipInterpolator,
+    RBFInterpolator,
+    interp1d,
+    Akima1DInterpolator,
+    FloaterHormannInterpolator,
+)
 
 from ASTRA.spectral_modelling.modelling_base import ModellingBase
 from ASTRA.utils import custom_exceptions
@@ -106,6 +113,8 @@ class ScipyInterpolSpecModel(ModellingBase):
             SPLINE_INTERPOL_MODE.QUADRATIC_SPLINE: lambda x, y: interp1d(x, y, kind="quadratic"),
             SPLINE_INTERPOL_MODE.NEAREST: lambda x, y: interp1d(x, y, kind="nearest"),
             SPLINE_INTERPOL_MODE.RBF: lambda x, y: RBFInterpolator(x, y, kernel="cubic"),
+            SPLINE_INTERPOL_MODE.AKIMA: Akima1DInterpolator,
+            SPLINE_INTERPOL_MODE.BARYCENTRIC_INTERPOL: FloaterHormannInterpolator,
         }
 
         if propagate_interpol_errors == INTERPOLATION_ERR_PROP.propagation:
