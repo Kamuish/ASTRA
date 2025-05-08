@@ -71,7 +71,6 @@ class Target:
                     self.KOBE_alias[KOBE_key] = simbad_resolvable
         else:
             logger.warning(f"Target dictionary not found in <{target_dictionary_path}>")
-
         target_list = self.clean_targ_list(target_list)
         self.validate_target_list(target_list)
 
@@ -98,11 +97,15 @@ class Target:
         logger.debug("Parsing through loaded OBJECTs")
         clean_list = []
 
-        for targ in target_list:
-            clean_name = targ
-            for key, replacement in self.to_replace.items():
-                clean_name = clean_name.replace(key, replacement)
-            clean_list.append(clean_name.strip())
+        if len(set(target_list)) == 1 and target_list[0] is None:
+            # The target name took the default value!
+            clean_list = ["Unknow"]
+        else:
+            for targ in target_list:
+                clean_name = targ
+                for key, replacement in self.to_replace.items():
+                    clean_name = clean_name.replace(key, replacement)
+                clean_list.append(clean_name.strip())
         return clean_list
 
     def validate_target_list(self, targets: list[str]) -> None:
