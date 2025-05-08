@@ -29,7 +29,7 @@ class SimulatedSpirou(Frame):
     sub_instruments = {
         "SimulatedSpirou": datetime.datetime.max,
     }
-    _name = "MAROONX"
+    _name = "SimulatedSpirou"
 
     order_intervals: dict[DETECTOR_DEFINITION, slice] = {
         DETECTOR_DEFINITION.WHITE_LIGHT: list(range(48)),
