@@ -40,6 +40,11 @@ Management of any issues to the code, as well as external contribution is done t
 
 # Changelog
 
+## V1.1.0 (dev)
+
+1. Addition of new interpolation algorithms
+2. Inclusion of interface to SPIROU simulated data
+
 ## V1.0.0 (5th of May 2025)
 
 - Original commit, as transposed from sBART internals
