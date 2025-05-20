@@ -5,10 +5,8 @@ from loguru import logger
 
 from ASTRA.status.Mask_class import Mask
 from ASTRA.utils import custom_exceptions
-from ASTRA.utils.parameter_validators import NumericValue
-from ASTRA.utils.UserConfigs import (
-    UserParam,
-)
+from ASTRA.utils.parameter_validators import NumericValue, ValueFromIterable
+from ASTRA.utils.UserConfigs import DefaultValues, UserParam
 
 from .Stellar_Template import StellarTemplate
 
@@ -17,7 +15,9 @@ class OBS_Stellar(StellarTemplate):
     """Stellar template from the observation with the highest SNR (computed as a sum over all spectral orders)."""
 
     method_name = "OBSERVATION"
-    _default_params = StellarTemplate._default_params
+    _default_params = StellarTemplate._default_params + DefaultValues(
+        ALIGNEMENT_RV_SOURCE=UserParam("DRS", constraint=ValueFromIterable(["DRS", "SBART"])),
+    )
 
     _default_params.update(
         "MINIMUM_NUMBER_OBS",
