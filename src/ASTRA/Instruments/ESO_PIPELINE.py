@@ -11,7 +11,7 @@ from ASTRA.status.flags import FATAL_KW, KW_WARNING
 from ASTRA.utils import custom_exceptions
 from ASTRA.utils.parameter_validators import BooleanValue
 from ASTRA.utils.shift_spectra import SPEED_OF_LIGHT
-from ASTRA.utils.units import kilometer_second
+from ASTRA.utils.units import kilometer_second, meter_second
 from ASTRA.utils.UserConfigs import DefaultValues, UserParam
 
 
@@ -171,6 +171,10 @@ class ESO_PIPELINE(Frame):
             if berv_factor is not None:
                 logger.warning("Recomputing the BERV from BERV_factor keyword")
                 new_berv = (berv_factor - 1) * SPEED_OF_LIGHT * kilometer_second
+                diff_berv = (new_berv - self.observation_info["BERV"]).to(meter_second).value
+                if abs(diff_berv) > 10:
+                    logger.warning(f"Difference between BERV and BERV_factor is of {diff_berv} [m/s]")
+
                 self.observation_info["BERV"] = new_berv
 
     def load_S2D_data(self):
