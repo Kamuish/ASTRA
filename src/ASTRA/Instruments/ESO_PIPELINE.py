@@ -167,10 +167,11 @@ class ESO_PIPELINE(Frame):
             # Newer versions don't need the approximated BERV correction
             self.use_approximated_BERV_correction = False
 
-        if self.observation_info["BERV_FACTOR"] is None:
-            # Ensure that the BERV factor exists, even if the header keyword does not exist!
-            berv_factor = 1 + self.observation_info["BERV"].to(kilometer_second).value / SPEED_OF_LIGHT
-            self.observation_info["BERV_FACTOR"] = berv_factor
+            berv_factor = self.observation_info["BERV_FACTOR"]
+            if berv_factor is not None:
+                logger.warning("Recomputing the BERV from BERV_factor keyword")
+                new_berv = (berv_factor - 1) * SPEED_OF_LIGHT * kilometer_second
+                self.observation_info["BERV"] = new_berv
 
     def load_S2D_data(self):
         if self.is_open:
