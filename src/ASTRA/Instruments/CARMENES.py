@@ -15,6 +15,7 @@ from ASTRA.status.flags import FATAL_KW, KW_WARNING, MISSING_DATA, MISSING_SHAQ_
 from ASTRA.status.Mask_class import Mask
 from ASTRA.utils import custom_exceptions
 from ASTRA.utils.parameter_validators import BooleanValue, NumericValue, PathValue
+from ASTRA.utils.shift_spectra import SPEED_OF_LIGHT
 from ASTRA.utils.units import kilometer_second, meter_second
 from ASTRA.utils.UserConfigs import DefaultValues, UserParam
 
@@ -384,6 +385,8 @@ def load_CARMENES_extra_information(self: DataClass) -> None:
                 self.observations[index].import_KW_from_outside(
                     "BERV", float(ll[10]) * kilometer_second, optional=False
                 )
+                berv_factor = 1 + ll[10] / SPEED_OF_LIGHT
+                self.observations[index].import_KW_from_outside("BERV_FACTOR", berv_factor, optional=False)
 
             self.observations[index].import_KW_from_outside("FWHM", float(ll[11]), optional=True)
             self.observations[index].import_KW_from_outside("BIS SPAN", float(ll[13]), optional=True)

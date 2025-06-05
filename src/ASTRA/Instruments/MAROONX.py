@@ -18,7 +18,8 @@ from ASTRA.status.flags import (
 from ASTRA.status.Mask_class import Mask
 from ASTRA.utils import custom_exceptions
 from ASTRA.utils.definitions import DETECTOR_DEFINITION
-from ASTRA.utils.units import meter_second
+from ASTRA.utils.shift_spectra import SPEED_OF_LIGHT
+from ASTRA.utils.units import kilometer_second, meter_second
 
 
 class MAROONX(Frame):
@@ -157,6 +158,9 @@ class MAROONX(Frame):
             self.observation_info[name] = float(header_blue[kw])
 
         self.observation_info["BERV"] = self.observation_info["BERV"] * meter_second
+        self.observation_info["BERV_FACTOR"] = (
+            1 + self.observation_info["BERV"].to(kilometer_second).value / SPEED_OF_LIGHT
+        )
         # Convert ambient temperature to Kelvin
         self.observation_info["ambient_temperature"] = convert_temperature(
             self.observation_info["ambient_temperature"],

@@ -10,6 +10,7 @@ from ASTRA.base_models.Frame import Frame
 from ASTRA.status.flags import FATAL_KW, KW_WARNING
 from ASTRA.utils import custom_exceptions
 from ASTRA.utils.parameter_validators import BooleanValue
+from ASTRA.utils.shift_spectra import SPEED_OF_LIGHT
 from ASTRA.utils.units import kilometer_second
 from ASTRA.utils.UserConfigs import DefaultValues, UserParam
 
@@ -166,6 +167,11 @@ class ESO_PIPELINE(Frame):
             # Newer versions don't need the approximated BERV correction
             self.use_approximated_BERV_correction = False
 
+        if self.observation_info["BERV_FACTOR"] is None:
+            # Ensure that the BERV factor exists, even if the header keyword does not exist!
+            berv_factor = 1 + self.observation_info["BERV"].to(kilometer_second).value / SPEED_OF_LIGHT
+            self.observation_info["BERV_FACTOR"] = berv_factor
+
     def load_S2D_data(self):
         if self.is_open:
             logger.debug("{} has already been opened", self.__str__())
@@ -250,6 +256,9 @@ class ESO_PIPELINE(Frame):
         # Load BERV info + previous RV
         self.observation_info["MAX_BERV"] = header[f"HIERARCH {self.KW_identifier} QC BERVMAX"] * kilometer_second
         self.observation_info["BERV"] = header[f"HIERARCH {self.KW_identifier} QC BERV"] * kilometer_second
+
+        berv_factor = header.get(f"HIERARCH {self.KW_identifier} QC BERV FACTOR", None)
+        self.observation_info["BERV_FACTOR"] = berv_factor
 
         self.observation_info["DRS_RV"] = header[f"HIERARCH {self.KW_identifier} QC CCF RV"] * kilometer_second
         self.observation_info["DRS_RV_ERR"] = (

@@ -274,6 +274,10 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
         # orderwise SNRs OR values with units -> should not be passed inside the KW_map!!!
         self.observation_info = {
             "BERV": np.nan * kilometer_second,
+            # THE BERV value on the ESPRESSO pipeline is not fully correct on BERV, so we need to propagate
+            # the BERV factor. As such, it will be a common property to all frames. Default value of None, so
+            # that we can ensure that it is properly computed when used
+            "BERV_FACTOR": None,
             "previous_SBART_RV": np.nan * kilometer_second,
             "previous_SBART_RV_ERR": np.nan * kilometer_second,
             "DRS_CCF_MASK": "",
