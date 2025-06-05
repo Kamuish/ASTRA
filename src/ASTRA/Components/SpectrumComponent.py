@@ -151,10 +151,13 @@ class Spectrum(BASE):
         if self.is_BERV_corrected:
             return
         berv = BERV_value.to(kilometer_second).value
-        berv_func = (
-            apply_approximated_BERV_correction if self.use_approximated_BERV_correction else apply_BERV_correction
-        )
-        self.wavelengths = berv_func(self.wavelengths, berv)
+
+        if self.use_approximated_BERV_correction:
+            self.wavelengths = apply_approximated_BERV_correction(self.wavelengths, berv)
+        else:
+            # BERV_factor = self.get_KW_value("BERV_FACTOR")
+            self.wavelengths = apply_BERV_correction(self.wavelengths, berv)
+
         self.is_BERV_corrected = True
 
     def remove_BERV_correction(self, BERV_value: RV_measurement) -> None:
@@ -169,11 +172,13 @@ class Spectrum(BASE):
         if not self.is_BERV_corrected:
             return
         berv = BERV_value.to(kilometer_second).value
-        berv_func = (
-            remove_approximated_BERV_correction if self.use_approximated_BERV_correction else remove_BERV_correction
-        )
 
-        self.wavelengths = berv_func(self.wavelengths, berv)
+        if self.use_approximated_BERV_correction:
+            self.wavelengths = remove_approximated_BERV_correction(self.wavelengths, berv)
+        else:
+            # BERV_factor = self.get_KW_value("BERV_FACTOR")
+            self.wavelengths = remove_BERV_correction(self.wavelengths, berv)
+
         self.is_BERV_corrected = False
 
     def apply_telluric_correction(self, model: np.ndarray, model_uncertainty: np.ndarray) -> None:
