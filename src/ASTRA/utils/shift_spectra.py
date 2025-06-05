@@ -65,29 +65,35 @@ def remove_approximated_BERV_correction(wave: np.ndarray, BERV: float) -> np.nda
     return wave / ((1 + 1.55e-8) * (1 + BERV / SPEED_OF_LIGHT))
 
 
-def apply_BERV_correction(wave: np.ndarray, BERV: float) -> np.ndarray:
+def apply_BERV_correction(wave: np.ndarray, BERV: float, BERV_factor: float | None = None) -> np.ndarray:
     """Apply BERV correction to data.
 
     Args:
         wave (np.ndarray): wavelength array
-        BERV (float): BERV value, with the 1.55 * 10**-8 approximation
+        BERV (float): BERV value
+        BERV_factor (float | None): If not None, it will be taken as the value of (1 + BERV/C)
 
     Returns:
         np.ndarray: BERV-corrected wavelength array
 
     """
+    if BERV_factor is not None and np.isfinite(BERV_factor):
+        return wave * BERV_factor
     return wave * (1 + BERV / SPEED_OF_LIGHT)
 
 
-def remove_BERV_correction(wave: np.ndarray, BERV: float) -> np.ndarray:
+def remove_BERV_correction(wave: np.ndarray, BERV: float, BERV_factor: float | None = None) -> np.ndarray:
     """Remove BERV correction to data.
 
     Args:
         wave (np.ndarray): wavelength array
-        BERV (float): BERV value, with the 1.55 * 10**-8 approximation
+        BERV (float): BERV value
+        BERV_factor (float | None): If not None, it will be taken as the value of (1 + BERV/C)
 
     Returns:
         np.ndarray: BERV-corrected wavelength array
 
     """
+    if BERV_factor is not None and np.isfinite(BERV_factor):
+        return wave / BERV_factor
     return wave / (1 + BERV / SPEED_OF_LIGHT)
