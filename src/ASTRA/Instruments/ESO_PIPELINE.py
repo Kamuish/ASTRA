@@ -168,7 +168,7 @@ class ESO_PIPELINE(Frame):
             self.use_approximated_BERV_correction = False
 
             berv_factor = self.observation_info["BERV_FACTOR"]
-            if berv_factor is not None:
+            if berv_factor is not None and False:
                 logger.warning("Recomputing the BERV from BERV_factor keyword")
                 new_berv = (berv_factor - 1) * SPEED_OF_LIGHT * kilometer_second
                 diff_berv = (new_berv - self.observation_info["BERV"]).to(meter_second).value
