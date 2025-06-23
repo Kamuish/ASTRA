@@ -14,14 +14,23 @@ from ASTRA.status.flags import (
 )
 from ASTRA.status.Mask_class import Mask
 from ASTRA.utils import custom_exceptions
+from ASTRA.utils.UserConfigs import DefaultValues, UserParam
 from ASTRA.utils.definitions import DETECTOR_DEFINITION
+from ASTRA.utils.parameter_validators import BooleanValue
 from ASTRA.utils.units import kilometer_second, meter_second
 from astropy.time import Time
+
 
 class SimulatedSpirou(Frame):
     """Interface to handle simulated data."""
 
-    _default_params = Frame._default_params
+    _default_params = Frame._default_params + DefaultValues(
+        IS_BERV_CORRECTED=UserParam(
+            default_value=False,
+            constraint=BooleanValue,
+            description="If False, flags the file as not BERV corrected",
+        )
+    )
 
     # Adding one more day than the official time, so that we ensure to include any observations
     # from the last day
@@ -86,7 +95,7 @@ class SimulatedSpirou(Frame):
         # and convert from Pa to mbar
         self.instrument_properties["site_pressure"] = 599.4049
 
-        self.is_BERV_corrected = False
+        self.is_BERV_corrected = self._internal_configs["IS_BERV_CORRECTED"]
 
     def get_spectral_type(self):
         return "S2D"
@@ -100,8 +109,8 @@ class SimulatedSpirou(Frame):
         self.observation_info["DRS_RV_ERR"] = header["DRS_RV_ERR"] * meter_second
         self.observation_info["BJD"] = header["BJD"]
 
-        t = Time(header["BJD"], format='jd', scale='tdb')
-        iso_string = t.iso 
+        t = Time(header["BJD"], format="jd", scale="tdb")
+        iso_string = t.iso
         self.observation_info["ISO-DATE"] = "T".join(iso_string.split(" "))
 
         for order in range(self.N_orders):
@@ -133,6 +142,9 @@ class SimulatedSpirou(Frame):
             err_data = hdulist["SIG"].data * 100000
             wavelengths = hdulist["WAVE"].data  # vacuum wavelengths; no BERV correction
 
+        # Ensure that the array size matches reality
+        self.array_size = s2d_data.shape
+
         self.wavelengths = wavelengths
         self.spectra = s2d_data
         self.uncertainties = err_data
@@ -154,4 +166,5 @@ class SimulatedSpirou(Frame):
 
     def close_arrays(self):
         super().close_arrays()
-        self.is_BERV_corrected = False
+
+        self.is_BERV_corrected = self._internal_configs["IS_BERV_CORRECTED"]
