@@ -44,6 +44,7 @@ Management of any issues to the code, as well as external contribution is done t
 
 1. Addition of new interpolation algorithms
 2. Inclusion of interface to SPIROU simulated data
+3. Added BERV_factor to ESO pipelines
 
 ## V1.0.0 (5th of May 2025)
 
