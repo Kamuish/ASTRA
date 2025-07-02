@@ -40,7 +40,7 @@ Management of any issues to the code, as well as external contribution is done t
 
 # Changelog
 
-## V1.1.0 (dev)
+## V1.1.0 (2nd July 2025)
 
 1. Addition of new interpolation algorithms
 2. Inclusion of interface to SPIROU simulated data
