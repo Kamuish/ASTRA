@@ -90,6 +90,7 @@ class StellarModel(TemplateFramework):
         conditions: Optional[ConditionModel] = None,
         force_computation: bool = False,
         store_templates: bool = True,
+        previous_sbart_rv=None,
     ) -> None:
         """Apply the spectral conditions to decide which observations to use.
 
@@ -109,6 +110,8 @@ class StellarModel(TemplateFramework):
             If True, recompute the stellar templates, even if they exist on disk. By default False
         store_templates: bool
             If True [default], store the templates to disk
+        previous_sbart_rv: SBART.data_objects.RV_outputs.RV_holder
+            Object that s-BART loaded from disk, containing the RVs from a previous iteration
 
         Notes
         -----
@@ -128,39 +131,19 @@ class StellarModel(TemplateFramework):
                 self.name,
                 self._internal_configs["ALIGNEMENT_RV_SOURCE"],
             )
-            pth = Path(self._internal_configs["PREVIOUS_SBART_PATH"])
-            if not pth.exists():
-                msg = "Previous SBART path does not exist!"
+            if previous_sbart_rv is None:
+                msg = "No previous SBART RVs were provided!"
                 logger.critical(msg)
                 raise custom_exceptions.InvalidConfiguration(msg)
 
-            try:
-                # Attempt to go up to 4 folders up to search for Iteration folders for RVs
-                for _ in range(4):
-                    pth = pth.parent
-                    if "Iteration" in pth.stem:
-                        iter_number = int(pth.stem.split("_")[-1]) + 1
-                    else:
-                        continue
-                    self.iteration_number = iter_number
+            self.iteration_number = previous_sbart_rv.iteration_number + 1
+            self.RV_source = previous_sbart_rv.RV_source
 
-                    self.RV_source = Path(self._internal_configs["PREVIOUS_SBART_PATH"]).parent.stem
-                    break
-                else:
-                    msg = "Couldn't find iteration number from user-provided previous sbart path"
-                    logger.critical(msg)
-                    raise custom_exceptions.InvalidConfiguration(msg)
-                logger.info(f"Found data from previous sBART runs, starting Iteration {iter_number}")
+            dataClass.load_previous_SBART_results(
+                previous_sbart_rv,
+                use_merged_cube=self._internal_configs["USE_MERGED_RVS"],
+            )
 
-                dataClass.load_previous_SBART_results(
-                    self._internal_configs["PREVIOUS_SBART_PATH"],
-                    use_merged_cube=self._internal_configs["USE_MERGED_RVS"],
-                )
-
-            except custom_exceptions.InvalidConfiguration as e:
-                self.add_to_status(INTERNAL_ERROR)
-                logger.exception("SBART RV loading routine failed. Stopping template creation")
-                raise e
         else:
             logger.info("Using CCF RVs as the basis for the creation of the stellar models")
 

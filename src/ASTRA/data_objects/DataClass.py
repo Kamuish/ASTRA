@@ -21,9 +21,9 @@ from loguru import logger
 from tabletexifier import Table
 
 from ASTRA import __version__
-from ASTRA.Instruments.CARMENES import load_CARMENES_extra_information
 from ASTRA.data_objects.MetaData import MetaData
 from ASTRA.data_objects.Target import Target
+from ASTRA.Instruments.CARMENES import load_CARMENES_extra_information
 from ASTRA.status.flags import (  # for entire frame; for individual pixels
     ACTIVITY_LINE,
     SIGMA_CLIP_REJECTION,
@@ -32,9 +32,8 @@ from ASTRA.status.flags import (  # for entire frame; for individual pixels
 from ASTRA.status.Status import Status
 from ASTRA.template_creation.stellar_templates.Stellar_Template import StellarTemplate
 from ASTRA.utils import custom_exceptions
-from ASTRA.utils.ASTRAtypes import RV_measurement
 from ASTRA.utils.BASE import BASE
-from ASTRA.utils.choices import DISK_SAVE_MODE, FLUX_SMOOTH_CONFIGS
+from ASTRA.utils.choices import DISK_SAVE_MODE
 from ASTRA.utils.custom_exceptions import FrameError, InvalidConfiguration, NoDataError
 from ASTRA.utils.units import kilometer_second
 
@@ -187,12 +186,28 @@ class DataClass(BASE):
     def get_extra_loading_functions(self):
         return self.extra_loading_functions
 
-    def load_previous_SBART_results(self, frameID: list[int], sbart_rv: RV_measurement, sbart_err: RV_measurement):
+    def load_previous_SBART_results(self, RV_holder, use_merged_cube: bool = False):
         """Load results of SBART run, store RV and uncertainty inside corresponding Frame object."""
         logger.info("Loading RVs from previous SBART run as the starting-RVs")
 
-        for frameID, sbart_rv, sbart_uncert in zip(frameID, sbart_rv, sbart_err):
+        for _, frameID in enumerate(self.get_valid_frameIDS()):
             frame = self.get_frame_by_ID(frameID)
+            cube = RV_holder.get_RV_cube(frame.sub_instrument, merged=use_merged_cube)
+            _, sbart_rv, sbart_uncert = cube.get_RV_from_ID(
+                frameID=frameID,
+                which="SBART",
+                apply_SA_corr=False,
+                as_value=False,
+                units=None,
+                apply_drift_corr=False,
+            )
+
+            previous_filename = cube.cached_info["date_folders"][cube.frameIDs.index(frameID)]
+
+            if previous_filename != frame.file_path:
+                msg = f"Loading RVs from cube with different frameID layouts of {frame.sub_instrument} ({previous_filename} vs {frame.file_path})"
+                logger.critical(msg)
+                raise InvalidConfiguration(msg)
 
             frame.store_previous_SBART_result(RV=sbart_rv, RV_err=sbart_uncert)
 
