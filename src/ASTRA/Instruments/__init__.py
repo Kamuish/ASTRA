@@ -24,6 +24,7 @@ __all__ = [
 from .ESPRESSO import ESPRESSO
 from .HARPS import HARPS
 from .MAROONX import MAROONX
+from .CARMENES import CARMENES
 from .SimulatedSpirou import SimulatedSpirou
 
 instrument_dict = {
@@ -31,4 +32,5 @@ instrument_dict = {
     "HARPS": HARPS,
     "MAROONX": MAROONX,
     "SimulatedSpirou": SimulatedSpirou,
+    "CARMENES": CARMENES
 }
