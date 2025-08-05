@@ -65,7 +65,7 @@ class Status:
         try:
             self._stored_flags.remove(flag)
         except KeyError:
-            logger.warning("Trying to remove flag that doesn't exist (flag)")
+            logger.warning(f"Trying to remove flag that doesn't exist ({flag})")
 
     ###
     #   Adding new flags
