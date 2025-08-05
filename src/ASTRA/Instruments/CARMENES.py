@@ -223,10 +223,12 @@ class CARMENES(Frame):
         rv = self.observation_info["DRS_RV"]
         berv = self.observation_info["BERV"]
         fwhm = self.observation_info["FWHM"]
+
+        curr_rv_diff = (rv-berv).to(kilometer_second).value
         conditions = (
             moon_sep > 80,
             (30 < moon_sep < 80) and moon_illum < 0.6,
-            abs(rv - berv) > 5 * fwhm,
+            abs(curr_rv_diff) > 5 * fwhm,
         )
         if not any(conditions):
             logger.warning("Target is close to the moon, setting warning flag")
@@ -385,7 +387,7 @@ def load_CARMENES_extra_information(self: DataClass) -> None:
                 self.observations[index].import_KW_from_outside(
                     "BERV", float(ll[10]) * kilometer_second, optional=False
                 )
-                berv_factor = 1 + ll[10] / SPEED_OF_LIGHT
+                berv_factor = 1 + float(ll[10]) / SPEED_OF_LIGHT
                 self.observations[index].import_KW_from_outside("BERV_FACTOR", berv_factor, optional=False)
 
             self.observations[index].import_KW_from_outside("FWHM", float(ll[11]), optional=True)
