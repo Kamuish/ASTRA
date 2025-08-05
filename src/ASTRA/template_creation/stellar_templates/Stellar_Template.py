@@ -359,6 +359,7 @@ class StellarTemplate(BaseTemplate, Spectral_Modelling):
 
         with open(miscinfo, mode="w") as file:
             json.dump(self.get_miscInfo_of_template(), file, indent=4)
+        logger.debug("Finished storage of template flags to disk")
 
     def get_miscInfo_of_template(self) -> Dict[str, Any]:
         """Get miscellaneous information from the stellar template, to be stored in output directory.
@@ -383,6 +384,7 @@ class StellarTemplate(BaseTemplate, Spectral_Modelling):
 
     def store_template(self, clobber: bool) -> None:
         # TODO: store the frameIDS that were used!
+        logger.info("Starting template storage to disk")
         super().store_template(clobber)
 
         header = fits.Header()
@@ -436,7 +438,7 @@ class StellarTemplate(BaseTemplate, Spectral_Modelling):
             to_write.write(f"\n\nEpochs in use (Total = {len(self.frameIDs_to_use)}): \n")
             for path in self.used_fpaths:
                 to_write.write(f"\n{path}")
-
+        logger.info("Finished template storage to disk")
     def store_metrics(self) -> None:
         metrics_path = self._internalPaths.get_path_to("metrics", as_posix=False)
         mask = self.spectral_mask.get_custom_mask().astype(int)
