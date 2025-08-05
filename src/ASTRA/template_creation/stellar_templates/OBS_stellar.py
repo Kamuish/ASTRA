@@ -28,11 +28,13 @@ class OBS_Stellar(StellarTemplate):
         super().__init__(subInst=subInst, user_configs=user_configs, loaded=loaded)
         self._selected_frameID = None
         self._found_error = False
-
+        
     @custom_exceptions.ensure_invalid_template
     def create_stellar_template(self, dataClass, conditions=None) -> None:
         """Create the stellar template."""
         # removal may change the first common wavelength; make sure
+        
+
         try:
             super().create_stellar_template(dataClass, conditions)
         except custom_exceptions.StopComputationError:
@@ -52,5 +54,9 @@ class OBS_Stellar(StellarTemplate):
         self.uncertainties = uncertainties
 
         self.spectral_mask = Mask(mask, mask_type="binary")
+        
+        instrument_information = dataClass.get_instrument_information()
+        epoch_shape = instrument_information["array_size"]
+        self.rejection_array = np.zeros((1, epoch_shape[0]))
 
         self._finish_template_creation()
