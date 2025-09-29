@@ -1,6 +1,7 @@
 import datetime
 import glob
 import os
+from pathlib import Path
 from typing import Any, Dict, Optional
 
 import numpy as np
@@ -224,13 +225,13 @@ class HARPS(ESO_PIPELINE):
 
             found_CCF = False
             found_BIS = False
-            ccf_files = glob.glob(os.path.join(folder_name, "*ccf*A.fits"), recursive=True)
             bis_files = glob.glob(os.path.join(folder_name, "*bis*A.fits"), recursive=True)
+            ccf_files = Path(folder_name).glob("*ccf*A.fits")
+            
             for file in ccf_files:
-                if file_start in file:
+                if file_start in file.as_posix():
                     ccf_path = file
                     found_CCF = True
-
             for file in bis_files:
                 if file_start in file:
                     bis_path = file
