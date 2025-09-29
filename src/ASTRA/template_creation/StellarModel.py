@@ -137,7 +137,7 @@ class StellarModel(TemplateFramework):
                 raise custom_exceptions.InvalidConfiguration(msg)
 
             self.iteration_number = previous_sbart_rv.iteration_number + 1
-            self.RV_source = previous_sbart_rv.RV_source
+            self.RV_source = "SBART"
 
             dataClass.load_previous_SBART_results(
                 previous_sbart_rv,
