@@ -46,7 +46,7 @@ if TYPE_CHECKING:
     from ASTRA.utils.ASTRAtypes import UI_PATH
     from ASTRA.utils.spectral_conditions import ConditionModel as CondModel
 
-def hash_path_to_int(fname: Path, algo: str = "sha256", bits: int = 64) -> int:
+def hash_path_to_int(fname: Path, algo: str = "sha256", bits: int = 32) -> int:
     """
     Deterministic integer hash of a filesystem path.
     - Uses hashlib (default sha256)
@@ -164,6 +164,9 @@ class DataClass(BASE):
                 ),
             )
 
+        all_ids = [i.frameID for i in self.observations]
+        if len(all_ids) != len(set(all_ids)):
+            raise custom_exceptions.InternalError("Clash in frameID, repeated numbers")
         self.generate_root_path(storage_path)
 
         N_files = len(self.observations)
