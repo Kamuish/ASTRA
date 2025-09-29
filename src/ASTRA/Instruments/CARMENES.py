@@ -157,8 +157,12 @@ class CARMENES(Frame):
         for order in range(self.N_orders):
             self.observation_info["orderwise_SNRs"].append(header[f"HIERARCH CARACAL FOX SNR {order}"])
 
-        self.observation_info["MOON PHASE"] = header["HIERARCH CAHA INS SCHEDULER MOON PHASE"]
-        self.observation_info["MOON DISTANCE"] = header["HIERARCH CAHA INS SCHEDULER MOON DISTANCE"]
+        try:
+            self.observation_info["MOON PHASE"] = header["HIERARCH CAHA INS SCHEDULER MOON PHASE"]
+            self.observation_info["MOON DISTANCE"] = header["HIERARCH CAHA INS SCHEDULER MOON DISTANCE"]
+        except KeyError:
+            self.observation_info["MOON PHASE"] = 0
+            self.observation_info["MOON DISTANCE"] = 0
 
     def check_header_QC(self, header: fits.Header):
         """Header QC checks for CARMENES.
