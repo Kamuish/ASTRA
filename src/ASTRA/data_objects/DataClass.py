@@ -212,7 +212,6 @@ class DataClass(BASE):
         for _, frameID in enumerate(self.get_valid_frameIDS()):
             frame = self.get_frame_by_ID(frameID)
             cube = RV_holder.get_RV_cube(frame.sub_instrument, merged=use_merged_cube)
-            print("Got cube", cube)
             _, sbart_rv, sbart_uncert = cube.get_RV_from_ID(
                 frameID=frameID,
                 which="SBART",
