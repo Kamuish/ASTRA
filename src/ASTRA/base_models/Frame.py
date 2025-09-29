@@ -968,6 +968,12 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
 
         """
         return self.sub_instrument == sub_instrument
+    
+    def store_previous_SBART_result(self, RV, RV_err) -> None:
+        """Store a previous RV value under the previous_SBART_RV keyword"""
+        self.observation_info["previous_SBART_RV"] = RV
+        self.observation_info["previous_SBART_RV_ERR"] = RV_err
+        
 
     @property
     def previous_RV_measurements(self) -> tuple[RV_measurement, RV_measurement]:
