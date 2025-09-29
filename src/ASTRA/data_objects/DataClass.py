@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from collections.abc import Iterable
+import hashlib
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -45,6 +46,21 @@ if TYPE_CHECKING:
     from ASTRA.utils.ASTRAtypes import UI_PATH
     from ASTRA.utils.spectral_conditions import ConditionModel as CondModel
 
+def hash_path_to_int(fname: Path, algo: str = "sha256", bits: int = 64) -> int:
+    """
+    Deterministic integer hash of a filesystem path.
+    - Uses hashlib (default sha256)
+    - Returns an integer, truncated to `bits` if specified
+    """
+
+    h = hashlib.new(algo)
+    h.update(fname.encode("utf-8"))
+    digest_int = int.from_bytes(h.digest(), "big")
+
+    if bits is not None:
+        mask = (1 << bits) - 1
+        return digest_int & mask
+    return digest_int
 
 class DataClass(BASE):
     """Standard interface to handle data.
@@ -137,7 +153,7 @@ class DataClass(BASE):
             raise InvalidConfiguration(msg)
 
         for filepath in OBS_list:
-            frameID = hash(filepath.stem)
+            frameID = hash_path_to_int(filepath.stem)
             self.observations.append(
                 self._inst_type(
                     filepath,
@@ -193,6 +209,7 @@ class DataClass(BASE):
         for _, frameID in enumerate(self.get_valid_frameIDS()):
             frame = self.get_frame_by_ID(frameID)
             cube = RV_holder.get_RV_cube(frame.sub_instrument, merged=use_merged_cube)
+            print("Got cube", cube)
             _, sbart_rv, sbart_uncert = cube.get_RV_from_ID(
                 frameID=frameID,
                 which="SBART",
