@@ -225,7 +225,7 @@ class StellarTemplate(BaseTemplate, Spectral_Modelling):
         self.flux_dispersion_balance_corrected = first_frame.check_if_data_correction_enabled(
             "flux_dispersion_balance_corrected",
         )
-
+        logger.info(f"Collecting RVs for the stellar tempalte with {self.RV_keyword=}")
         if self._internal_configs["CONSTANT_RV_GUESS"]:
             logger.warning(
                 "Setting initial guess for template alignement to zero! Thread carefully in those uncharted areas",
