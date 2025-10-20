@@ -69,9 +69,11 @@ class SimulatedSpirou(Frame):
         """
         self._blaze_corrected = True
 
+        head = fits.getheader(file_path, ext=1)
+        arr_size = [head["NAXIS2"], head["NAXIS1"]]
         super().__init__(
             inst_name=self._name,
-            array_size={"S2D": [48, 4088]},
+            array_size={"S2D": arr_size},
             file_path=file_path,
             frameID=frameID,
             KW_map=self.KW_map,
@@ -141,9 +143,6 @@ class SimulatedSpirou(Frame):
             s2d_data = hdulist["SPEC"].data * 100000  # spetra from all olders
             err_data = hdulist["SIG"].data * 100000
             wavelengths = hdulist["WAVE"].data  # vacuum wavelengths; no BERV correction
-
-        # Ensure that the array size matches reality
-        self.array_size = s2d_data.shape
 
         self.wavelengths = wavelengths
         self.spectra = s2d_data
