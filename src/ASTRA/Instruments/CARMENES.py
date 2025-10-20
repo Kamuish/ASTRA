@@ -1,6 +1,7 @@
+from __future__ import annotations
 import datetime
 from pathlib import Path
-from typing import Any, Dict, NoReturn, Optional
+from typing import Any, Dict, NoReturn, Optional, TYPE_CHECKING
 
 import numpy as np
 from astropy.coordinates import EarthLocation
@@ -10,7 +11,9 @@ from scipy.constants import convert_temperature
 from scipy.ndimage import median_filter
 
 from ASTRA.base_models.Frame import Frame
-from ASTRA.data_objects import DataClass
+
+if TYPE_CHECKING:
+    from ASTRA.data_objects import DataClass
 from ASTRA.status.flags import FATAL_KW, KW_WARNING, MISSING_DATA, MISSING_SHAQ_RVS, QUAL_DATA, Flag
 from ASTRA.status.Mask_class import Mask
 from ASTRA.utils import custom_exceptions
