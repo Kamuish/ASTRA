@@ -20,7 +20,13 @@ from ASTRA.utils.custom_exceptions import (
     BadTemplateError,
     InvalidConfiguration,
 )
-from ASTRA.utils.parameter_validators import BooleanValue, Positive_Value_Constraint, ValueFromIterable
+from ASTRA.utils.parameter_validators import (
+    BooleanValue,
+    Positive_Value_Constraint,
+    ValueFromDtype,
+    ValueFromIterable,
+    ValueInInterval,
+)
 from ASTRA.utils.shift_spectra import remove_RVshift
 from ASTRA.utils.units import convert_data, kilometer_second
 from ASTRA.utils.UserConfigs import (
@@ -63,6 +69,11 @@ class SumStellar(StellarTemplate):
             "use everything available. This will mean that the final SNR will not have a consistent SNR across"
             "wavelengths",
         ),
+        OVERSAMPLE_TEMPLATE=UserParam(
+            default_value=1,
+            constraint=ValueInInterval(interval=[1, 10000], include_edges=True) + ValueFromDtype(dtype_list=(int,)),
+            description="If different than one, oversample the observations by this amount",
+        ),
     )
 
     def __init__(self, subInst: str, user_configs: Optional[Dict] = None, loaded: bool = False):
@@ -94,6 +105,11 @@ class SumStellar(StellarTemplate):
         instrument_information = dataClass.get_instrument_information()
 
         epoch_shape = instrument_information["array_size"]
+
+        if self._internal_configs["OVERSAMPLE_TEMPLATE"] > 1:
+            logger.warning("Oversampling template wavelengths")
+            epoch_shape = (epoch_shape[0], epoch_shape[1] * self._internal_configs["OVERSAMPLE_TEMPLATE"])
+
         # Create arrays of zeros in order to open in shared memory and change their values!
         self.spectra = np.zeros(epoch_shape)
         self.rejection_array = np.zeros((len(self.frameIDs_to_use), epoch_shape[0]))
@@ -159,7 +175,7 @@ class SumStellar(StellarTemplate):
 
             wave_reference, _, _, _ = dataClass.get_frame_arrays_by_ID(chosen_epochID)
 
-            self.wavelengths = remove_RVshift(
+            wavelengths = remove_RVshift(
                 wave_reference,
                 stellar_RV=convert_data(
                     self.sourceRVs[np.argmin(epoch_BERVs)],
@@ -173,8 +189,18 @@ class SumStellar(StellarTemplate):
                 dataClass.get_frame_by_ID(chosen_epochID),
             )
 
-        logger.info("Using frameIDs: {}", self.frameIDs_to_use)
+        for order_index, wave_order in enumerate(wavelengths):
+            if self._internal_configs["OVERSAMPLE_TEMPLATE"] > 1:
+                new_wave = np.linspace(
+                    wave_order[0],
+                    wave_order[-1],
+                    wavelengths.shape[1] * self._internal_configs["OVERSAMPLE_TEMPLATE"],
+                )
+                self.wavelengths[order_index] = new_wave
+            else:
+                self.wavelengths[order_index] = wavelengths[order_index]
 
+        logger.info("Using frameIDs: {}", self.frameIDs_to_use)
         kwargs = {
             "valid_epochIDs": self.frameIDs_to_use,
             "chosen_epochID": chosen_epochID,
