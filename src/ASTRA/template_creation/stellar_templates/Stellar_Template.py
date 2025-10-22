@@ -145,7 +145,8 @@ class StellarTemplate(BaseTemplate, Spectral_Modelling):
         )
 
         array_size = dataClass.get_instrument_information()["array_size"]
-        self.array_size = array_size
+        self.array_size = [array_size[0], array_size[1] * self._internal_configs["OVERSAMPLE_TEMPLATE"]]
+        
         self._OrderStatus = OrderStatus(array_size[0])
         try:
             self.frameIDs_to_use = dataClass.get_frameIDs_from_subInst(self._associated_subInst)
