@@ -14,7 +14,14 @@ from ASTRA.base_models.Frame import Frame
 
 if TYPE_CHECKING:
     from ASTRA.data_objects import DataClass
-from ASTRA.status.flags import FATAL_KW, KW_WARNING, MISSING_DATA, MISSING_SHAQ_RVS, QUAL_DATA, Flag
+from ASTRA.status.flags import (
+    FATAL_KW,
+    KW_WARNING,
+    MISSING_DATA,
+    MISSING_SHAQ_RVS,
+    QUAL_DATA,
+    Flag,
+)
 from ASTRA.status.Mask_class import Mask
 from ASTRA.utils import custom_exceptions
 from ASTRA.utils.parameter_validators import BooleanValue, NumericValue, PathValue
@@ -227,11 +234,11 @@ class CARMENES(Frame):
 
         moon_sep = self.observation_info["MOON DISTANCE"]
         moon_illum = self.observation_info["MOON PHASE"]
-        rv = self.observation_info["DRS_RV"]
-        berv = self.observation_info["BERV"]
+        rv = self.observation_info["DRS_RV"].to(kilometer_second).value
+        berv = self.observation_info["BERV"].to(kilometer_second).value
         fwhm = self.observation_info["FWHM"]
 
-        curr_rv_diff = (rv-berv).to(kilometer_second).value
+        curr_rv_diff = (rv - berv).to(kilometer_second).value
         conditions = (
             moon_sep > 80,
             (30 < moon_sep < 80) and moon_illum < 0.6,

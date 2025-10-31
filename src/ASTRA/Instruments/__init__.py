@@ -26,11 +26,12 @@ from .HARPS import HARPS
 from .MAROONX import MAROONX
 from .CARMENES import CARMENES
 from .SimulatedSpirou import SimulatedSpirou
+from .CARMENES import CARMENES
 
 instrument_dict = {
     "ESPRESSO": ESPRESSO,
     "HARPS": HARPS,
     "MAROONX": MAROONX,
     "SimulatedSpirou": SimulatedSpirou,
-    "CARMENES": CARMENES
+    "CARMENES": CARMENES,
 }
