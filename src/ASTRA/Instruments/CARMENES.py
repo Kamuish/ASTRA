@@ -6,11 +6,11 @@ from typing import Any, Dict, NoReturn, Optional, TYPE_CHECKING
 import numpy as np
 from astropy.coordinates import EarthLocation
 from astropy.io import fits
-from loguru import logger
 from scipy.constants import convert_temperature
 from scipy.ndimage import median_filter
 
 from ASTRA.base_models.Frame import Frame
+from ASTRA import astra_logger as logger
 
 if TYPE_CHECKING:
     from ASTRA.data_objects import DataClass

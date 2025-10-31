@@ -6,8 +6,8 @@ from collections.abc import Generator
 from typing import TYPE_CHECKING, Any, NoReturn, Set
 
 import numpy as np
-from loguru import logger
 
+from ASTRA import astra_logger as logger
 from ASTRA.status.OrderStatus import OrderStatus
 from ASTRA.utils import custom_exceptions
 from ASTRA.utils.ASTRAtypes import RV_measurement

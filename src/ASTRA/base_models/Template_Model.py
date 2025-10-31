@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from typing import Any, Union
 
-from loguru import logger
+from ASTRA import astra_logger as logger
 
 from ASTRA.Components.SpectrumComponent import Spectrum
 from ASTRA.status.flags import (

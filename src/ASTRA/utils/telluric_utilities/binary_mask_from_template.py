@@ -1,5 +1,6 @@
 import numpy as np
-from loguru import logger
+
+from ASTRA import astra_logger as logger
 
 
 def create_binary_template(transmittance, continuum_level, percentage_drop) -> None:

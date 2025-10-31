@@ -5,10 +5,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar, Optional
 
-from loguru import logger
-
+from ASTRA import astra_logger as logger
 from ASTRA.base_models.TemplateFramework import TemplateFramework
-from ASTRA.status.flags import INTERNAL_ERROR
 from ASTRA.utils import custom_exceptions
 from ASTRA.utils.ASTRAtypes import UI_DICT, UI_PATH
 from ASTRA.utils.choices import STELLAR_CREATION_MODE

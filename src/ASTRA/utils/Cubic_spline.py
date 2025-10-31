@@ -1,8 +1,8 @@
 """Custom cubic spline, as defined in Silva et al, 2022."""
 
 import numpy as np
-from loguru import logger
 
+from ASTRA import astra_logger as logger
 from ASTRA.utils import custom_exceptions
 
 try:

@@ -2,8 +2,8 @@ from pathlib import Path
 from typing import Dict, List, NoReturn, Tuple, Union
 
 import ujson as json
-from loguru import logger
 
+from ASTRA import astra_logger as logger
 from ASTRA.status.flags import Flag
 from ASTRA.utils import custom_exceptions
 from ASTRA.utils.ASTRAtypes import RV_measurement

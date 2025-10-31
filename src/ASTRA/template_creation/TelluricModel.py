@@ -5,8 +5,7 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING, ClassVar, Type
 
-from loguru import logger
-
+from ASTRA import astra_logger as logger
 from ASTRA.base_models.Template_Model import BaseTemplate
 from ASTRA.base_models.TemplateFramework import TemplateFramework
 from ASTRA.utils.ASTRAtypes import UI_DICT, UI_PATH

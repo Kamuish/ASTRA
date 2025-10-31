@@ -19,10 +19,10 @@ from typing import (
 
 import numpy as np
 import ujson as json
-from loguru import logger
 from tabletexifier import Table
 
 from ASTRA import __version__
+from ASTRA import astra_logger as logger
 from ASTRA.data_objects.MetaData import MetaData
 from ASTRA.data_objects.Target import Target
 from ASTRA.Instruments.CARMENES import load_CARMENES_extra_information

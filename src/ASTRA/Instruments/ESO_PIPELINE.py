@@ -3,9 +3,9 @@ from typing import Any, Dict, Iterable, Optional
 
 import numpy as np
 from astropy.io import fits
-from loguru import logger
 from scipy.constants import convert_temperature
 
+from ASTRA import astra_logger as logger
 from ASTRA.base_models.Frame import Frame
 from ASTRA.status.flags import FATAL_KW, KW_WARNING
 from ASTRA.utils import custom_exceptions

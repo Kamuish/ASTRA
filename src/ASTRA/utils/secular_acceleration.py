@@ -6,8 +6,8 @@ import warnings
 import numpy as np
 from astropy import units as u
 from astroquery.simbad import Simbad
-from loguru import logger
 
+from ASTRA import astra_logger as logger
 from ASTRA.internals.cache import DB_connection
 from ASTRA.utils.units import meter_second
 
@@ -42,8 +42,8 @@ def build_query(star: str):
     WHERE CONTAINS(
                 POINT('ICRS',gaiadr2.gaia_source.ra,gaiadr2.gaia_source.dec),
                 CIRCLE('ICRS',
-                    COORD1(EPOCH_PROP_POS({r['RA_d']},{r['DEC_d']},{r['PLX_VALUE']},{r['PMRA']},{r['PMDEC']},{r['RV_VALUE']},2000,2015.5)),
-                    COORD2(EPOCH_PROP_POS({r['RA_d']},{r['DEC_d']},{r['PLX_VALUE']},{r['PMRA']},{r['PMDEC']},{r['RV_VALUE']},2000,2015.5)),
+                    COORD1(EPOCH_PROP_POS({r["RA_d"]},{r["DEC_d"]},{r["PLX_VALUE"]},{r["PMRA"]},{r["PMDEC"]},{r["RV_VALUE"]},2000,2015.5)),
+                    COORD2(EPOCH_PROP_POS({r["RA_d"]},{r["DEC_d"]},{r["PLX_VALUE"]},{r["PMRA"]},{r["PMDEC"]},{r["RV_VALUE"]},2000,2015.5)),
                     0.001388888888888889))=1
     """
 

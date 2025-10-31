@@ -6,8 +6,8 @@ from multiprocessing import Process, Queue
 from typing import TYPE_CHECKING, Dict, Optional
 
 import numpy as np
-from loguru import logger
 
+from ASTRA import astra_logger as logger
 from ASTRA.base_models.Frame import Frame
 from ASTRA.status.flags import INTERNAL_ERROR, MISSING_DATA
 from ASTRA.status.Mask_class import Mask

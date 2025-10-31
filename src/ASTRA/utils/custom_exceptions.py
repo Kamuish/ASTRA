@@ -1,6 +1,6 @@
 """Defines the exceptions that ASTRA will raise."""
 
-from loguru import logger
+from ASTRA import astra_logger as logger
 
 
 class Error(Exception):

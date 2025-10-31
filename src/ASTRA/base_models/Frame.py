@@ -15,9 +15,9 @@ from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple
 
 import numpy as np
 from astropy.io import fits
-from loguru import logger
 from matplotlib import pyplot as plt
 
+from ASTRA import astra_logger as logger
 from ASTRA.Components.Modelling import Spectral_Modelling
 from ASTRA.Components.Spectral_Normalization import Spectral_Normalization
 from ASTRA.Components.SpectrumComponent import Spectrum

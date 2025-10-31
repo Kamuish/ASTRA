@@ -15,8 +15,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict
 
 import numpy as np
-from loguru import logger
 
+from ASTRA import astra_logger as logger
 from ASTRA.spectral_modelling import ScipyInterpolSpecModel
 from ASTRA.utils import custom_exceptions
 from ASTRA.utils.BASE import BASE

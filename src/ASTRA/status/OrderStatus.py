@@ -24,8 +24,8 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import ujson as json
-from loguru import logger
 
+from ASTRA import astra_logger as logger
 from ASTRA.status.flags import SUCCESS, VALID, Flag
 from ASTRA.status.Status import Status
 from ASTRA.utils import custom_exceptions

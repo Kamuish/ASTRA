@@ -5,9 +5,9 @@ from __future__ import annotations
 from typing import Any, Dict
 
 import numpy as np
-from loguru import logger
 from scipy.signal import savgol_filter
 
+from ASTRA import astra_logger as logger
 from ASTRA.ModelParameters import Model, ModelComponent
 from ASTRA.utils import custom_exceptions
 from ASTRA.utils.BASE import BASE

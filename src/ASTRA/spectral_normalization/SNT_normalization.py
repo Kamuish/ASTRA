@@ -1,14 +1,10 @@
-import pickle
-import subprocess
 from copy import deepcopy
 from pathlib import Path
-from typing import NoReturn
 
-import matplotlib.pyplot as plt
 import numpy as np
-from loguru import logger
 from scipy.interpolate import CubicSpline
 
+from ASTRA import astra_logger as logger
 from ASTRA.spectral_normalization.normalization_base import NormalizationBase
 from ASTRA.utils import custom_exceptions
 from ASTRA.utils.parameter_validators import PathValue

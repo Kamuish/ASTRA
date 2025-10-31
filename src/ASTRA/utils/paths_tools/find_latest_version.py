@@ -3,9 +3,8 @@
 import os
 from pathlib import Path
 
-from loguru import logger
-
 from ASTRA import __version__, __version_info__
+from ASTRA import astra_logger as logger
 from ASTRA.utils.custom_exceptions import NoDataError
 
 

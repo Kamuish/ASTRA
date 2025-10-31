@@ -9,8 +9,8 @@ from __future__ import annotations
 from collections.abc import Iterable
 
 import numpy as np
-from loguru import logger
 
+from ASTRA import astra_logger as logger
 from ASTRA.status.flags import MULTIPLE_REASONS, Flag
 
 

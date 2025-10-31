@@ -4,8 +4,8 @@ from pathlib import Path
 from typing import Any, Dict
 
 import numpy as np
-from loguru import logger
 
+from ASTRA import astra_logger as logger
 from ASTRA.utils import custom_exceptions
 from ASTRA.utils.ASTRAtypes import RV_measurement
 from ASTRA.utils.secular_acceleration import secular_acceleration

@@ -7,7 +7,7 @@ import os
 from typing import TYPE_CHECKING, Optional, Type
 
 from astropy.io import fits
-from loguru import logger
+from ASTRA import astra_logger as logger
 
 from ASTRA.base_models.Template_Model import BaseTemplate
 from ASTRA.template_creation.telluric_templates.Telluric_Template import TelluricTemplate

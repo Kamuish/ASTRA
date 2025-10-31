@@ -13,8 +13,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from typing import Any, Dict, NoReturn, Optional
 
-from loguru import logger
-
+from ASTRA import astra_logger as logger
 from ASTRA.utils.custom_exceptions import InternalError, InvalidConfiguration
 from ASTRA.utils.parameter_validators import Constraint
 

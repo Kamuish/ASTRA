@@ -6,8 +6,8 @@ from pathlib import Path
 from typing import Any, Dict
 
 import ujson as json
-from loguru import logger
 
+from ASTRA import astra_logger as logger
 from ASTRA.base_models.UnitModel import UnitModel
 from ASTRA.utils import custom_exceptions
 from ASTRA.utils.json_ready_converter import json_ready_converter

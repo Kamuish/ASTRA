@@ -9,11 +9,11 @@ from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Union
 import numpy as np
 import ujson as json
 from astropy.io import fits
-from loguru import logger
 from matplotlib import pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 
 from ASTRA import __version__
+from ASTRA import astra_logger as logger
 from ASTRA.base_models.Frame import Frame
 from ASTRA.base_models.Template_Model import BaseTemplate
 from ASTRA.Components import Spectral_Modelling
@@ -146,7 +146,7 @@ class StellarTemplate(BaseTemplate, Spectral_Modelling):
 
         array_size = dataClass.get_instrument_information()["array_size"]
         self.array_size = [array_size[0], array_size[1] * self._internal_configs["OVERSAMPLE_TEMPLATE"]]
-        
+
         self._OrderStatus = OrderStatus(array_size[0])
         try:
             self.frameIDs_to_use = dataClass.get_frameIDs_from_subInst(self._associated_subInst)

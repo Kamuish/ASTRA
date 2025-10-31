@@ -4,8 +4,8 @@ from multiprocessing import Process, Queue
 from typing import Dict, Optional
 
 import numpy as np
-from loguru import logger
 
+from ASTRA import astra_logger as logger
 from ASTRA.status.flags import INTERNAL_ERROR
 from ASTRA.status.Mask_class import Mask
 from ASTRA.utils import custom_exceptions
@@ -200,7 +200,7 @@ class MedianStellar(StellarTemplate):
                 frameID, order, rejection = comm_out
                 self.rejection_array[self.frameIDs_to_use.index(frameID), order] = rejection
                 received += 1
-            logger.debug(f"Frame took {time.time() - t :0f} seconds")
+            logger.debug(f"Frame took {time.time() - t:0f} seconds")
 
             if self._internal_configs["MEMORY_SAVE_MODE"]:
                 _ = dataClass.close_frame_by_ID(frameID)

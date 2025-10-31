@@ -7,9 +7,9 @@ from typing import Any, Dict, Optional
 import numpy as np
 from astropy.coordinates import EarthLocation
 from astropy.io import fits
-from loguru import logger
 from scipy.constants import convert_temperature
 
+from ASTRA import astra_logger as logger
 from ASTRA.status.flags import (
     ERROR_THRESHOLD,
     KW_WARNING,

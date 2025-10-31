@@ -1,7 +1,6 @@
 """Ensure that a value is inside its correct bounds."""
 
-from loguru import logger
-
+from ASTRA import astra_logger as logger
 from ASTRA.utils import custom_exceptions
 
 

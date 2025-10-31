@@ -6,9 +6,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from astropy.io import fits
 from astropy.time import Time
-from loguru import logger
 
 from ASTRA import __version__
+from ASTRA import astra_logger as logger
 from ASTRA.base_models.Template_Model import BaseTemplate
 from ASTRA.ModelParameters import Model
 from ASTRA.status.flags import DISK_LOADED_DATA, MISSING_DATA, SUCCESS
@@ -331,7 +331,7 @@ class TelluricTemplate(BaseTemplate):
         self._base_checks_for_template_creation()
 
         if not self._loaded_dataclass_info:
-            raise custom_exceptions.InvalidConfiguration(f"{ self.name} did not load dataClass information")
+            raise custom_exceptions.InvalidConfiguration(f"{self.name} did not load dataClass information")
 
         logger.info(
             "Starting telluric template creation, with reference ID = {}",

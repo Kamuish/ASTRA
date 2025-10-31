@@ -1,62 +1,68 @@
 """Setup the logger, handling terminal and disk output."""
 
-import os
 import sys
 
 from loguru import logger
 
+# Keep a reference to ASTRA's sink IDs so we can remove them later if needed
+_AST_SINKS = []
+_AST_INITIALIZED = False
 
-def setup_ASTRA_logger(
-    storage_path: str,
-    log_to_terminal: bool = True,
-    terminal_log_level: str = "DEBUG",
-    write_to_file: bool = True,
-    append_to_file: bool = True,
-) -> None:
-    """Setups the logger of ASTRA.
+# Default logger (can be reconfigured later)
+astra_logger = logger.bind(module="ASTRA")
+logger.disable("ASTRA")
 
-    Args:
-        storage_path (str): FOlder in which the logger should be stored
-        log_to_terminal (bool, optional): If True, logs to terminal. Defaults to True.
-        terminal_log_level (str, optional): Log level of terminal. Defaults to "DEBUG".
-        write_to_file (bool, optional): If True, write logs to disk. Defaults to True.
-        append_to_file (bool, optional): If True, append to file, rather than creating a new one. Defaults to True.
 
+def setup_astra_logger(log_path=None, level="INFO", log_to_terminal=True, write_to_file=True, append_to_file=True):
+    """Configure ASTRA's logger dynamically.
+
+    Parameters
+    ----------
+    log_path : str or Path or None
+        Path to the log file. If None, file logging is skipped.
+    level : str
+        Minimum level to log ("DEBUG", "INFO", "WARNING", etc.)
+    console : bool
+        Whether to also log to stdout.
     """
+    global _AST_INITIALIZED, _AST_SINKS
+
+    if _AST_INITIALIZED:
+        # Clean up previous sinks (safe for reconfiguration)
+        for sink_id in _AST_SINKS:
+            logger.remove(sink_id)
+        _AST_SINKS.clear()
+
+    # Define filter so only ASTRA messages appear
+    def astra_filter(record):
+        return record["extra"].get("module") == "ASTRA"
+
+    astra_logger = logger.bind(module="ASTRA")
     logger.enable("ASTRA")
-    logger.complete()
+    # Optional console logging
 
-    logger.remove()
-
-    logger.level("DEBUG", color="<fg #d0d3d4>")
-    logger.level("INFO", color="<fg #28b463>")
-    logger.level("WARNING", color="<fg #f1c40f>")
-    logger.level("CRITICAL", color="<fg #e74c3c>")
-
-    fmt = "{time:YYYY-MM-DDTHH:mm:ss} - {name} - {level} - {message}"
     if log_to_terminal:
-        logger.add(
-            sys.stdout,
-            level=terminal_log_level,
-            colorize=True,
-            format="{time:YYYY-MM-DDTHH:mm:ss} - <level>{level:8s}</> - <c>{name}</> - {message}",
+        _AST_SINKS.append(
+            astra_logger.add(
+                sys.stdout,
+                level=level,
+                filter=astra_filter,
+                format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> {name} <level>{message}</level>",
+            )
         )
-        # but we do want to see the values, so I don't really care about this!
-        logger.add(sys.stderr, level="ERROR", format=fmt)
 
-    if not write_to_file:
-        logger.warning("Not storing logs to disk")
-        return
+    # Optional file logging
+    if log_path is not None and write_to_file:
+        _AST_SINKS.append(
+            astra_logger.add(
+                (log_path / "ASTRA.log").as_posix(),
+                level=level,
+                filter=astra_filter,
+                format="{time:YYYY-MM-DD HH:mm:ss} | {name} {level} | {message}",
+                enqueue=True,
+                mode="a" if append_to_file else "w",
+            )
+        )
 
-    logger.add(
-        os.path.join(storage_path, "ASTRA.log"),
-        level="DEBUG",
-        format=fmt,
-        enqueue=True,
-        filter="ASTRA",
-        backtrace=False,
-        diagnose=True,
-        mode="a" if append_to_file else "w",
-    )
-
-    return
+    _AST_INITIALIZED = True
+    return astra_logger

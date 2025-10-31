@@ -10,8 +10,8 @@ try:
 except ImportError:
     MISSING_JAX_DEPENDENCY = True
 
-from loguru import logger
 
+from ASTRA import astra_logger as logger
 from ASTRA.Quality_Control.ensure_value_in_limits import ensure_value_in_window
 from ASTRA.utils import custom_exceptions
 from ASTRA.utils.ASTRAtypes import RV_measurement

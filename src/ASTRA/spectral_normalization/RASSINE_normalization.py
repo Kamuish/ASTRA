@@ -6,9 +6,9 @@ from typing import NoReturn
 
 import matplotlib.pyplot as plt
 import numpy as np
-from loguru import logger
 from scipy.interpolate import CubicSpline
 
+from ASTRA import astra_logger as logger
 from ASTRA.spectral_normalization.normalization_base import NormalizationBase
 from ASTRA.utils import custom_exceptions
 from ASTRA.utils.parameter_validators import PathValue
@@ -131,7 +131,7 @@ class RASSINE_normalization(NormalizationBase):
         filename = self._spec_info["S1D_name"]
         filename = filename.replace("fits", "csv")
         logger.debug(
-            f'Storing RASSINE input data to {self._internalPaths.get_path_to("RASSINE_IN", as_posix=False) / filename}',
+            f"Storing RASSINE input data to {self._internalPaths.get_path_to('RASSINE_IN', as_posix=False) / filename}",
         )
         # Ensure the format that is expected by RASSINE
         np.savetxt(
@@ -151,8 +151,8 @@ cwd = os.getcwd()
 #  ENTRIES
 # ==========================================================================
 """
-            + f'spectrum_name = \'{(self._internalPaths.get_path_to("RASSINE_IN", as_posix=False) / filename).absolute()}\''
-            + f'\noutput_dir  = \'{self._internalPaths.get_path_to("RASSINE_OUT", as_posix=False).absolute()}\'  '
+            + f"spectrum_name = '{(self._internalPaths.get_path_to('RASSINE_IN', as_posix=False) / filename).absolute()}'"
+            + f"\noutput_dir  = '{self._internalPaths.get_path_to('RASSINE_OUT', as_posix=False).absolute()}'  "
             + """
 synthetic_spectrum = False   # True if working with a noisy-free synthetic spectra 
 anchor_file = ''             # Put a RASSINE output file that will fix the value of the 7 parameters to the same value than in the anchor file

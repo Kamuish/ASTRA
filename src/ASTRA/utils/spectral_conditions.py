@@ -90,9 +90,9 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, List, Tuple
 
 import numpy as np
-from loguru import logger
 from typing_extensions import override
 
+from ASTRA import astra_logger as logger
 from ASTRA.status.flags import KW_WARNING, USER_BLOCKED, VALID, Flag
 from ASTRA.utils import custom_exceptions
 from ASTRA.utils.ASTRAtypes import UI_PATH

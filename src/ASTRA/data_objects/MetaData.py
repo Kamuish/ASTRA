@@ -5,8 +5,8 @@ from __future__ import annotations
 from pathlib import Path
 
 import ujson as json
-from loguru import logger
 
+from ASTRA import astra_logger as logger
 from ASTRA.utils import custom_exceptions
 from ASTRA.utils.json_ready_converter import json_ready_converter
 from ASTRA.utils.paths_tools.build_filename import build_filename

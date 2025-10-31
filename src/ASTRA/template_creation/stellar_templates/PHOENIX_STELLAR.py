@@ -4,8 +4,8 @@ from typing import TYPE_CHECKING, Union
 
 import numpy as np
 from astropy.io import fits
-from loguru import logger
 
+from ASTRA import astra_logger as logger
 from ASTRA.status.Mask_class import Mask
 from ASTRA.utils import custom_exceptions
 from ASTRA.utils.parameter_validators import PathValue

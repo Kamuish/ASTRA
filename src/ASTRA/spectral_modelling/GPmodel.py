@@ -3,11 +3,11 @@ from functools import partial
 from typing import NoReturn
 
 import numpy as np
-from loguru import logger
-
 from ASTRAModelParameters.Parameter import JaxComponent
 from ASTRAutils import custom_exceptions
 from ASTRAutils.paths_tools import build_filename
+
+from ASTRA import astra_logger as logger
 
 try:
     import jax

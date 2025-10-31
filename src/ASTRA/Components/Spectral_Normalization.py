@@ -17,8 +17,7 @@ Currently, SNT and RASSINE can only be applied to the S1D frames.
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from loguru import logger
-
+from ASTRA import astra_logger as logger
 from ASTRA.DataUnits.SpecNormUnit import SpecNorm_Unit
 from ASTRA.spectral_normalization import available_normalization_interfaces
 from ASTRA.spectral_normalization.normalization_base import NormalizationBase
@@ -63,7 +62,7 @@ class Spectral_Normalization(BASE):
             False,
             constraint=BooleanValue,
             description=(
-                "If True, enable the normalization interface" "If False, a call to normalize_spectra does nothing"
+                "If True, enable the normalization interfaceIf False, a call to normalize_spectra does nothing"
             ),
         ),
         NORMALIZATION_MODE=UserParam(

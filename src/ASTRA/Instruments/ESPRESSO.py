@@ -3,9 +3,9 @@ from typing import Any, Dict, Iterable, Optional
 
 import numpy as np
 from astropy.coordinates import EarthLocation
-from loguru import logger
 from scipy.constants import convert_temperature
 
+from ASTRA import astra_logger as logger
 from ASTRA.Instruments.ESO_PIPELINE import ESO_PIPELINE
 from ASTRA.status.flags import ERROR_THRESHOLD, KW_WARNING
 from ASTRA.utils.definitions import DETECTOR_DEFINITION

@@ -17,8 +17,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from typing import Any
 
-from loguru import logger
-
+from ASTRA import astra_logger as logger
 from ASTRA.status.flags import SUCCESS, VALID, Flag
 
 

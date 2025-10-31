@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Optional
 
 import numpy as np
-from loguru import logger
+from ASTRA import astra_logger as logger
 
 from ASTRA.internals.cache import DB_connection
 from ASTRA.ModelParameters import ModelComponent

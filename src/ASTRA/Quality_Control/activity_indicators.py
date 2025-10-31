@@ -3,9 +3,9 @@
 from typing import List
 
 import numpy as np
-from loguru import logger
 from tabletexifier import Table
 
+from ASTRA import astra_logger as logger
 from ASTRA.utils.air_to_vac import airtovac
 from ASTRA.utils.ASTRAtypes import RV_measurement
 from ASTRA.utils.shift_spectra import apply_RVshift
