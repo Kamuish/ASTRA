@@ -3,6 +3,7 @@
 import sys
 
 from loguru import logger
+from pathlib import Path
 
 # Keep a reference to ASTRA's sink IDs so we can remove them later if needed
 _AST_SINKS = []
@@ -13,7 +14,13 @@ astra_logger = logger.bind(module="ASTRA")
 logger.disable("ASTRA")
 
 
-def setup_astra_logger(log_path=None, level="INFO", log_to_terminal=True, write_to_file=True, append_to_file=True):
+def setup_ASTRA_logger(
+    storage_path=None,
+    level="INFO",
+    log_to_terminal=True,
+    write_to_file=True,
+    append_to_file=True,
+):
     """Configure ASTRA's logger dynamically.
 
     Parameters
@@ -52,10 +59,11 @@ def setup_astra_logger(log_path=None, level="INFO", log_to_terminal=True, write_
         )
 
     # Optional file logging
-    if log_path is not None and write_to_file:
+    if storage_path is not None and write_to_file:
+        storage_path = Path(storage_path)
         _AST_SINKS.append(
             astra_logger.add(
-                (log_path / "ASTRA.log").as_posix(),
+                (storage_path / "ASTRA.log").as_posix(),
                 level=level,
                 filter=astra_filter,
                 format="{time:YYYY-MM-DD HH:mm:ss} | {name} {level} | {message}",
