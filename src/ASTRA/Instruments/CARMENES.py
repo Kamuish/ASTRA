@@ -64,7 +64,9 @@ class CARMENES(Frame):
             description="If positive, then sigma clip the flux",
         ),
     )
-    _default_params.update("IS_SA_CORRECTED", UserParam(True, constraint=BooleanValue, mandatory=False))
+    _default_params.update(
+        "IS_SA_CORRECTED", UserParam(True, constraint=BooleanValue, mandatory=False)
+    )
 
     sub_instruments = {
         "CARMENES": datetime.datetime.max,
@@ -127,7 +129,9 @@ class CARMENES(Frame):
         # lat/lon from: https://geohack.toolforge.org/geohack.php?pagename=Calar_Alto_Observatory&params=37_13_25_N_2_32_46_W_type:landmark_region:ES
         # height from: https://en.wikipedia.org/wiki/Calar_Alto_Observatory
         lat, lon = 37.223611, -2.546111
-        self.instrument_properties["EarthLocation"] = EarthLocation.from_geodetic(lat=lat, lon=lon, height=2168)
+        self.instrument_properties["EarthLocation"] = EarthLocation.from_geodetic(
+            lat=lat, lon=lon, height=2168
+        )
 
         # from https://www.mide.com/air-pressure-at-altitude-calculator
         # and convert to Pa to mbar
@@ -149,7 +153,9 @@ class CARMENES(Frame):
 
         # Load BERV info + previous RV
         self.observation_info["MAX_BERV"] = 30 * kilometer_second
-        self.observation_info["BERV"] = header["HIERARCH CARACAL BERV "] * kilometer_second
+        self.observation_info["BERV"] = (
+            header["HIERARCH CARACAL BERV "] * kilometer_second
+        )
 
         # TODO: check ambient temperature on CARMENES data TO SEE IF IT IS THE "REAL ONE"
         # Environmental KWs for telfit (also needs airmassm previously loaded)
@@ -165,11 +171,17 @@ class CARMENES(Frame):
                     self.observation_info[name], old_scale="Celsius", new_scale="Kelvin"
                 )
         for order in range(self.N_orders):
-            self.observation_info["orderwise_SNRs"].append(header[f"HIERARCH CARACAL FOX SNR {order}"])
+            self.observation_info["orderwise_SNRs"].append(
+                header[f"HIERARCH CARACAL FOX SNR {order}"]
+            )
 
         try:
-            self.observation_info["MOON PHASE"] = header["HIERARCH CAHA INS SCHEDULER MOON PHASE"]
-            self.observation_info["MOON DISTANCE"] = header["HIERARCH CAHA INS SCHEDULER MOON DISTANCE"]
+            self.observation_info["MOON PHASE"] = header[
+                "HIERARCH CAHA INS SCHEDULER MOON PHASE"
+            ]
+            self.observation_info["MOON DISTANCE"] = header[
+                "HIERARCH CAHA INS SCHEDULER MOON DISTANCE"
+            ]
         except KeyError:
             self.observation_info["MOON PHASE"] = 0
             self.observation_info["MOON DISTANCE"] = 0
@@ -195,11 +207,15 @@ class CARMENES(Frame):
 
             night_drift = drift_file.split("s-")[0].split("car-")[-1]
             night_drift = datetime.datetime.strptime(night_drift, r"%Y%m%dT%Hh%Mm%S")
-            night_data = datetime.datetime.strptime(header["CARACAL DATE-OBS"], r"%Y-%m-%dT%H:%M:%S")
+            night_data = datetime.datetime.strptime(
+                header["CARACAL DATE-OBS"], r"%Y-%m-%dT%H:%M:%S"
+            )
             msg = f"\tDistance between calibration (FP) and OB has surpassed the limit of {self._internal_configs['max_hours_to_calibration']}"
             if (
                 abs(night_drift - night_data).total_seconds()
-                > datetime.timedelta(hours=self._internal_configs["max_hours_to_calibration"]).total_seconds()
+                > datetime.timedelta(
+                    hours=self._internal_configs["max_hours_to_calibration"]
+                ).total_seconds()
             ):
                 kill_messages.append(msg)
 
@@ -234,8 +250,8 @@ class CARMENES(Frame):
 
         moon_sep = self.observation_info["MOON DISTANCE"]
         moon_illum = self.observation_info["MOON PHASE"]
-        rv = self.observation_info["DRS_RV"].to(kilometer_second).value
-        berv = self.observation_info["BERV"].to(kilometer_second).value
+        rv = self.observation_info["DRS_RV"]
+        berv = self.observation_info["BERV"]
         fwhm = self.observation_info["FWHM"]
 
         curr_rv_diff = (rv - berv).to(kilometer_second).value
@@ -256,9 +272,13 @@ class CARMENES(Frame):
         super().build_mask(bypass_QualCheck, assess_bad_orders=False)
 
         bpmap0 = np.zeros((61, 4096), dtype=np.uint64)
-        bpmap0[14:38, [2453 - 3, 2453 - 2, 2453 - 1, 2453, 2453 + 1, 2453 + 2, 2453 + 3]] |= 1
+        bpmap0[
+            14:38, [2453 - 3, 2453 - 2, 2453 - 1, 2453, 2453 + 1, 2453 + 2, 2453 + 3]
+        ] |= 1
         bpmap0[14:38, 1643] |= 1  # ghost of hotspot tail
-        bpmap0[14:38, 2459] |= 1  # spikes of hotspot satellite (bug not correct due to bug in v2.00)
+        bpmap0[14:38, 2459] |= (
+            1  # spikes of hotspot satellite (bug not correct due to bug in v2.00)
+        )
         bpmap0[15:41, 3374] |= 1  # displaced column; ignore by marking as nan
         bpmap0[28, 3395:3400] |= 1  # car-20160701T00h49m36s-sci-gtoc-vis.fits
         bpmap0[34, 838:850] |= 1  # car-20160803T22h46m41s-sci-gtoc-vis.fits
@@ -324,13 +344,20 @@ class CARMENES(Frame):
             sigma = self._internal_configs["sigma_clip_flux"]
             for order_number in range(self.N_orders):
                 cont = median_filter(self.spectra[order_number], size=500)
-                inds = np.where(self.spectra[order_number] >= cont + sigma * self.uncertainties[order_number])
+                inds = np.where(
+                    self.spectra[order_number]
+                    >= cont + sigma * self.uncertainties[order_number]
+                )
                 bpmap0[order_number, inds] |= 1
         self.spectral_mask.add_indexes_to_mask(np.where(bpmap0 != 0), QUAL_DATA)
 
         # remove extremely negative points!
-        self.spectral_mask.add_indexes_to_mask(np.where(self.spectra < -3 * self.uncertainties), MISSING_DATA)
-        self.spectral_mask.add_indexes_to_mask(np.where(self.uncertainties == 0), MISSING_DATA)
+        self.spectral_mask.add_indexes_to_mask(
+            np.where(self.spectra < -3 * self.uncertainties), MISSING_DATA
+        )
+        self.spectral_mask.add_indexes_to_mask(
+            np.where(self.uncertainties == 0), MISSING_DATA
+        )
 
         self.assess_bad_orders()
 
@@ -352,9 +379,13 @@ def load_CARMENES_extra_information(self: DataClass) -> None:
 
     if self.observations[0]._internal_configs["is_KOBE_data"]:
         if "KOBE-" not in name_to_search:
-            name_to_search = "KOBE-" + name_to_search  # temporary fix for naming problem!
+            name_to_search = (
+                "KOBE-" + name_to_search
+            )  # temporary fix for naming problem!
     else:
-        logger.info(f"Not loading KOBE data, searching for {name_to_search} dat file with Rvs")
+        logger.info(
+            f"Not loading KOBE data, searching for {name_to_search} dat file with Rvs"
+        )
 
     shaq_folder = Path(self.observations[0]._internal_configs["shaq_output_folder"])
     override_BERV = self.observations[0]._internal_configs["override_BERV"]
@@ -387,13 +418,17 @@ def load_CARMENES_extra_information(self: DataClass) -> None:
             bjd = round(float(ll[1]) - 2400000.0, 7)  # we have the full bjd date
 
             try:
-                index = loaded_BJDs.index(bjd)  # to make sure that everything is loaded in the same order
+                index = loaded_BJDs.index(
+                    bjd
+                )  # to make sure that everything is loaded in the same order
                 locs.append(index)
             except ValueError:
                 logger.warning("RV shaq has entry that does not exist in the S2D files")
                 continue
 
-            self.observations[index].import_KW_from_outside("DRS_RV", float(ll[5]) * kilometer_second, optional=False)
+            self.observations[index].import_KW_from_outside(
+                "DRS_RV", float(ll[5]) * kilometer_second, optional=False
+            )
             self.observations[index].import_KW_from_outside(
                 "DRS_RV_ERR", float(ll[3]) * kilometer_second, optional=False
             )
@@ -402,19 +437,31 @@ def load_CARMENES_extra_information(self: DataClass) -> None:
                     "BERV", float(ll[10]) * kilometer_second, optional=False
                 )
                 berv_factor = 1 + float(ll[10]) / SPEED_OF_LIGHT
-                self.observations[index].import_KW_from_outside("BERV_FACTOR", berv_factor, optional=False)
+                self.observations[index].import_KW_from_outside(
+                    "BERV_FACTOR", berv_factor, optional=False
+                )
 
-            self.observations[index].import_KW_from_outside("FWHM", float(ll[11]), optional=True)
-            self.observations[index].import_KW_from_outside("BIS SPAN", float(ll[13]), optional=True)
+            self.observations[index].import_KW_from_outside(
+                "FWHM", float(ll[11]), optional=True
+            )
+            self.observations[index].import_KW_from_outside(
+                "BIS SPAN", float(ll[13]), optional=True
+            )
 
             drift_val = np.nan_to_num(float(ll[7])) * meter_second
             drift_err = np.nan_to_num(float(ll[8])) * meter_second
             drift_flag = float(ll[9])
             if drift_flag > 1:
-                self.observations[index].add_to_status(KW_WARNING("Drift flag of KOBE is greater than 1"))
+                self.observations[index].add_to_status(
+                    KW_WARNING("Drift flag of KOBE is greater than 1")
+                )
 
-            self.observations[index].import_KW_from_outside("drift", drift_val, optional=False)
-            self.observations[index].import_KW_from_outside("drift_ERR", drift_err, optional=False)
+            self.observations[index].import_KW_from_outside(
+                "drift", drift_val, optional=False
+            )
+            self.observations[index].import_KW_from_outside(
+                "drift_ERR", drift_err, optional=False
+            )
 
             number_loads += 1
             self.observations[index].finalized_external_data_load()

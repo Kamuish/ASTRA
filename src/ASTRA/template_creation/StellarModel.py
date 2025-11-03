@@ -58,13 +58,20 @@ class StellarModel(TemplateFramework):
     }
 
     _default_params = TemplateFramework._default_params + DefaultValues(
-        CREATION_MODE=UserParam(STELLAR_CREATION_MODE.Sum, constraint=ValueFromIterable(STELLAR_CREATION_MODE)),
-        ALIGNEMENT_RV_SOURCE=UserParam("DRS", constraint=ValueFromIterable(["DRS", "SBART"])),
+        CREATION_MODE=UserParam(
+            STELLAR_CREATION_MODE.Sum,
+            constraint=ValueFromIterable(STELLAR_CREATION_MODE),
+        ),
+        ALIGNEMENT_RV_SOURCE=UserParam(
+            "DRS", constraint=ValueFromIterable(["DRS", "SBART"])
+        ),
         PREVIOUS_SBART_PATH=UserParam("", constraint=ValueFromDtype((str, Path))),
         USE_MERGED_RVS=UserParam(False, constraint=BooleanValue),
     )
 
-    def __init__(self, root_folder_path: UI_PATH, user_configs: Optional[UI_DICT] = None):
+    def __init__(
+        self, root_folder_path: UI_PATH, user_configs: Optional[UI_DICT] = None
+    ):
         """Instantiate the object.
 
         Parameters
@@ -75,7 +82,9 @@ class StellarModel(TemplateFramework):
             Dictionary with the keys and values of the user parameters that have been described above
 
         """
-        super().__init__(mode="", root_folder_path=root_folder_path, user_configs=user_configs)
+        super().__init__(
+            mode="", root_folder_path=root_folder_path, user_configs=user_configs
+        )
 
         self._creation_conditions = Empty_condition()
         self.iteration_number = 0
@@ -137,13 +146,19 @@ class StellarModel(TemplateFramework):
             self.iteration_number = previous_sbart_rv.iteration_number + 1
             self.RV_source = "SBART"
 
-            dataClass.load_previous_SBART_results(
-                previous_sbart_rv,
-                use_merged_cube=self._internal_configs["USE_MERGED_RVS"],
-            )
+            try:
+                dataClass.load_previous_SBART_results(
+                    previous_sbart_rv,
+                    use_merged_cube=self._internal_configs["USE_MERGED_RVS"],
+                )
+            except Exception as e:
+                logger.opt(exception=True).critical("Failed")
+                raise e
 
         else:
-            logger.info("Using CCF RVs as the basis for the creation of the stellar models")
+            logger.info(
+                "Using CCF RVs as the basis for the creation of the stellar models"
+            )
 
         self.add_relative_path("Stellar", f"Stellar/Iteration_{self.iteration_number}")
 
@@ -171,16 +186,24 @@ class StellarModel(TemplateFramework):
     def get_interpol_modes(self) -> set[str]:
         return set(temp.interpol_mode for temp in self.templates.values())
 
-    def _compute_template(self, data: DataClass, subInstrument: str, user_configs: dict) -> None:
+    def _compute_template(
+        self, data: DataClass, subInstrument: str, user_configs: dict
+    ) -> None:
         chosen_template = self.template_map[self._internal_configs["CREATION_MODE"]]
         key = "ALIGNEMENT_RV_SOURCE"
         if key in user_configs:
-            logger.warning(f"Key <{key}> from Stellar Model over-riding the one from the template configs")
+            logger.warning(
+                f"Key <{key}> from Stellar Model over-riding the one from the template configs"
+            )
         user_configs[key] = self._internal_configs[key]
-        stellar_template = chosen_template(subInst=subInstrument, user_configs=user_configs)
+        stellar_template = chosen_template(
+            subInst=subInstrument, user_configs=user_configs
+        )
 
         try:
-            stellar_template.create_stellar_template(dataClass=data, conditions=self._creation_conditions)
+            stellar_template.create_stellar_template(
+                dataClass=data, conditions=self._creation_conditions
+            )
         except NoDataError:
             logger.info(
                 "{} has no available data. The template will be created as an array of zeros",
@@ -208,7 +231,9 @@ class StellarModel(TemplateFramework):
             bad_orders: set[int] = set()
             for temp in self.templates.values():
                 if not temp.is_valid:
-                    logger.critical("Invalid template <{}> does not have orders to skip", temp)
+                    logger.critical(
+                        "Invalid template <{}> does not have orders to skip", temp
+                    )
                     continue
                 bad_orders.union(temp.bad_orders)
         else:
