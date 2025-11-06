@@ -77,7 +77,7 @@ wheels = [
 
 [[package]]
 name = "astra-spectra"
-version = "1.1.0"
+version = "1.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "astropy" },
@@ -118,7 +118,7 @@ requires-dist = [
     { name = "h5py", specifier = ">=3.13.0" },
     { name = "loguru", specifier = ">=0.7.3" },
     { name = "matplotlib", specifier = ">=3.10.1" },
-    { name = "numpy", specifier = "<2.0.0" },
+    { name = "numpy", specifier = ">=1.23.2,<2.0.0" },
     { name = "pandas", specifier = ">=2.2.3" },
     { name = "scipy", specifier = ">=1.15.2" },
     { name = "sqlalchemy", specifier = ">=2.0.40" },

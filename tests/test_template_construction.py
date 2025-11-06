@@ -1,5 +1,9 @@
+"""Test the construction of the stellar template."""
+
 import os
 from pathlib import Path
+
+import pytest
 
 from ASTRA.data_objects import DataClassManager
 from ASTRA.Instruments import instrument_dict as instrument_name_map
@@ -11,9 +15,16 @@ from ASTRA.utils.custom_exceptions import InvalidConfiguration
 from ASTRA.utils.spectral_conditions import Empty_condition
 
 
-def test_template_construction(
-    input_fpath: Path, storage_path: Path, user_configs: dict, instrument_name: str, skip_telluric_mask: bool
-) -> None:
+@pytest.mark.slow
+def test_template_construction() -> None:
+    """Test construction of stellar template."""
+    user_conf = {"STELLAR_TEMPLATE_CONFIGS": {"OVERSAMPLE_TEMPLATE": 1}}
+    input_fpath = list(Path("/home/amiguel/spectra_collection/ESPRESSO/proxima").glob("*S2D_A.fits"))
+    instrument_name = "ESPRESSO"
+    user_configs = user_conf
+    storage_path = Path(__file__).parent.parent / "tmp"
+    skip_telluric_mask = True
+
     instrument = instrument_name_map[instrument_name]
 
     instrument_configs = user_configs.get("INSTRUMENT_CONFIGS", {})
@@ -95,15 +106,4 @@ def test_template_construction(
         stellar_template_configs,
         StellarTemplateConditions,
         force_computation=False,
-    )
-
-
-if __name__ == "__main__":
-    user_conf = {"STELLAR_TEMPLATE_CONFIGS": {"OVERSAMPLE_TEMPLATE": 1}}
-    test_template_construction(
-        input_fpath=list(Path("/home/amiguel/spectra_collection/ESPRESSO/proxima").glob("*S2D_A.fits")),
-        instrument_name="ESPRESSO",
-        user_configs=user_conf,
-        storage_path=Path(__file__).parent.parent / "tmp",
-        skip_telluric_mask=True,
     )
