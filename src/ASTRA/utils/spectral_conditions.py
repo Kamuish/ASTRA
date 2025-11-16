@@ -1,6 +1,6 @@
 """Selection of observations based on conditions.
 
-When using SBART we can reject observations in two different ways:
+When using ASTRA we can reject observations in two different ways:
 
 - globally - they are effectivelly discarded for all SBART operations
 - temporarily -Only disable them for the creation of the Stellar Templates
