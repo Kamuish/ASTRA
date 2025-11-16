@@ -68,6 +68,8 @@ nav:
     - api/index.md
     - User configs: api/user_configs.md
     - Frame: api/Frame.md
+    - Spectrographs: api/spectrographs.md
+
 
 plugins:
   - search
