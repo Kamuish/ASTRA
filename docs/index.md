@@ -15,7 +15,7 @@ ASTRA is now working as the low-level data-interface of the [s-BART](https://git
 
 ## Installation
 
-Installation of ASTRA can be made either through Pypi or through github:
+ASTRA is currently available in python 3.11 and python 3.12, and it can be installed either through Pypi or github:
 
 
 === "Pypi"
