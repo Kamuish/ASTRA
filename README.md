@@ -10,3 +10,27 @@ The main goal of this project is to standardize the handling of stellar spectra 
 4) Implement utility methods to interpolate, normalize and smooth stellar spectra
 
 For information on installation, usage, and contribution check the official [documentation](https://kamuish.github.io/ASTRA/)
+
+
+## Installation
+
+ASTRA is currently available in python 3.11 and python 3.12, and it can be installed either through
+
+1) Pypi
+``` bash
+pip install ASTRA-spectra
+```
+
+2) Github
+
+``` sh
+git clone git@github.com:Kamuish/ASTRA.git
+cd ASTRA
+pip install . 
+```
+By default, ASTRA does not install Telfit as it will only be needed for the masking of the telluric features. If this is the goal, it must be installed manually.
+
+## Contribution guidelines
+
+
+Management of any issues to the code, as well as external contribution is done through the *github* repository
