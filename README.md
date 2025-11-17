@@ -9,4 +9,4 @@ The main goal of this project is to standardize the handling of stellar spectra 
 3) Framework to mask telluric features from stellar spectra
 4) Implement utility methods to interpolate, normalize and smooth stellar spectra
 
-For information on installation and usage, check the official [documentation](https://kamuish.github.io/ASTRA/)
+For information on installation, usage, and contribution check the official [documentation](https://kamuish.github.io/ASTRA/)
