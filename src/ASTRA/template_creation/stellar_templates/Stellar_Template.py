@@ -28,6 +28,8 @@ from ASTRA.utils.parameter_validators import (
     BooleanValue,
     IntegerValue,
     Positive_Value_Constraint,
+    ValueFromDtype,
+    ValueInInterval,
 )
 from ASTRA.utils.paths_tools.build_filename import build_filename
 from ASTRA.utils.units import convert_data, kilometer_second
@@ -82,6 +84,11 @@ class StellarTemplate(BaseTemplate, Spectral_Modelling):
         NUMBER_WORKERS=UserParam(1, IntegerValue + Positive_Value_Constraint),
         MEMORY_SAVE_MODE=UserParam(False, constraint=BooleanValue),  # if True, close the S2D files after using them!
         MINIMUM_NUMBER_OBS=UserParam(3, constraint=IntegerValue),  # minimum number of OBS to create stellar template
+        OVERSAMPLE_TEMPLATE=UserParam(
+            default_value=1,
+            constraint=ValueInInterval(interval=[1, 10000], include_edges=True) + ValueFromDtype(dtype_list=(int,)),
+            description="If different than one, oversample the observations by this amount",
+        ),
     )
 
     template_type = "Stellar"
@@ -440,6 +447,7 @@ class StellarTemplate(BaseTemplate, Spectral_Modelling):
             for path in self.used_fpaths:
                 to_write.write(f"\n{path}")
         logger.info("Finished template storage to disk")
+
     def store_metrics(self) -> None:
         metrics_path = self._internalPaths.get_path_to("metrics", as_posix=False)
         mask = self.spectral_mask.get_custom_mask().astype(int)

@@ -69,11 +69,6 @@ class SumStellar(StellarTemplate):
             "use everything available. This will mean that the final SNR will not have a consistent SNR across"
             "wavelengths",
         ),
-        OVERSAMPLE_TEMPLATE=UserParam(
-            default_value=1,
-            constraint=ValueInInterval(interval=[1, 10000], include_edges=True) + ValueFromDtype(dtype_list=(int,)),
-            description="If different than one, oversample the observations by this amount",
-        ),
     )
 
     def __init__(self, subInst: str, user_configs: Optional[Dict] = None, loaded: bool = False):

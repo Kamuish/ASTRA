@@ -28,12 +28,11 @@ class OBS_Stellar(StellarTemplate):
         super().__init__(subInst=subInst, user_configs=user_configs, loaded=loaded)
         self._selected_frameID = None
         self._found_error = False
-        
+
     @custom_exceptions.ensure_invalid_template
     def create_stellar_template(self, dataClass, conditions=None) -> None:
         """Create the stellar template."""
         # removal may change the first common wavelength; make sure
-        
 
         try:
             super().create_stellar_template(dataClass, conditions)
@@ -49,12 +48,22 @@ class OBS_Stellar(StellarTemplate):
         logger.info("Selected frameID={}", self._selected_frameID)
         wavelenghts, spectra, uncertainties, mask = dataClass.get_frame_arrays_by_ID(self._selected_frameID)
 
-        self.wavelengths = wavelenghts
-        self.spectra = spectra
-        self.uncertainties = uncertainties
+        if self._internal_configs["OVERSAMPLE_TEMPLATE"] > 1:
+            raise custom_exceptions.InternalError("OBS stellar does not yet support oversampling")
+            # new_wave = np.linspace(
+            #     wave_order[0],
+            #     wave_order[-1],
+            #     wavelenghts.shape[1] * self._internal_configs["OVERSAMPLE_TEMPLATE"],
+            # )
+            # self.wavelengths[order_index] = new_wave
+
+        else:
+            self.wavelengths = wavelenghts
+            self.spectra = spectra
+            self.uncertainties = uncertainties
 
         self.spectral_mask = Mask(mask, mask_type="binary")
-        
+
         instrument_information = dataClass.get_instrument_information()
         epoch_shape = instrument_information["array_size"]
         self.rejection_array = np.zeros((1, epoch_shape[0]))
