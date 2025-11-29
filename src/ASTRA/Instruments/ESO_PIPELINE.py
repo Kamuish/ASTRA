@@ -146,6 +146,14 @@ class ESO_PIPELINE(Frame):
             # The S2D_BLAZE_A files do not have the blaze correction!
             self.is_blaze_corrected = False
 
+        if not self._internal_configs["use_old_pipeline"]:
+            logger.debug("Checking for validity of file reduced with new pipeline")
+            for key in ["S2D_A", "S2D_BLAZE_A", "S2D_BLAZE_TELL_CORR_A", "S2D_TELL_CORR_A", "S1D_A"]:
+                if key in self.file_path.stem():
+                    break
+            else:
+                raise custom_exceptions.InvalidConfiguration(f"{self.name} can't recognize {self.file_path}")
+
     def load_instrument_specific_KWs(self, header) -> None:
         if self._internal_configs["use_old_pipeline"]:
             self._load_old_DRS_KWs(header)
