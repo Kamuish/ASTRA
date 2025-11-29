@@ -1,4 +1,6 @@
 # ASTRA
+[![status](https://joss.theoj.org/papers/d60b535393334128194448349206de6e/status.svg)](https://joss.theoj.org/papers/d60b535393334128194448349206de6e)
+
 
 Welcome to the repository of ASTRA (Astrophysical Spectral Tools for Retrieval &amp; Analysis). 
 
