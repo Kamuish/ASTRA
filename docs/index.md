@@ -38,16 +38,46 @@ By default, ASTRA does not install Telfit as it will only be needed for the mask
 
 Management of any issues to the code, as well as external contribution is done through the *github* repository
 
-# Changelog
+## Troubleshooting
 
-## V1.1.0 (2nd July 2025)
+### Installation of TelFit
+
+Depending on the python version that is in use, the installation of TelFit might not be straightforward. For the currently ASTRA_supported python versions, one can apply the following steps to install Telfit:
+
+1. Download TelFit from github
+    ``` sh
+    git clone [git@github.com:Kamuish/ASTRA.git](https://github.com/kgullikson88/Telluric-Fitter)
+    cd Telluric-Fitter
+    ```
+2. Ensure that the "develop" libraries for the selected python version are installated. For Fedora, this would be
+    ``` sh
+    dnf install python3.11-devel
+    ```
+3. Install necessary python libraries for TelFit installation
+    ``` sh
+    pip install cython requests numpy pysynphot lockfile fortranformat
+    ```
+5. Install Telfit through
+    ``` sh
+    python setup.py install
+    ```
+
+
+## Changelog
+
+### V1.2.3 (5th December 2025)
+
+1. Addition of new routines to oversample the stellar template
+2. Sanity check of the input observations, ensuring that they match the expected format
+
+### V1.1.0 (2nd July 2025)
 
 1. Addition of new interpolation algorithms
 2. Inclusion of interface to SPIROU simulated data
 3. Added BERV_factor to ESO pipelines
 4. Improvement of data interface to iterate over template construction
 
-## V1.0.0 (5th of May 2025)
+### V1.0.0 (5th of May 2025)
 
 - Original commit, as transposed from sBART internals
 - Addition of CARMENES and MAROON-X as valid instruments for analysis
