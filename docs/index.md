@@ -12,6 +12,7 @@ ASTRA is now working as the low-level data-interface of the [s-BART](https://git
 - Built-in interpolation of stellar spectra to new wavelength grids
 - Smoothing of stellar spectra
 
+ASTRA supports the 2D stellar spectra format for all supported instruments (S2D_A, S2D_BLAZE_A, S2D_TELL_CORR_A,S2D_TELL_CORR_BLAZE_A for the ESO-based pipelines) and in some cases the S1D format.
 
 ## Installation
 
