@@ -90,6 +90,10 @@ class HARPS(ESO_PIPELINE):
         """
         logger.info(f"Creating frame from: {file_path}")
 
+        if "use_old_pipeline" not in user_configs:
+            # We need to do this, since we need to override the array size and header keywords
+            user_configs["use_old_pipeline"] = self._default_params["use_old_pipeline"].default_value
+
         coverage = [350, 700]
         # Note: 46 blue orders and 26 red orders. From Table 2.2 of:
         # https://www.eso.org/sci/facilities/lasilla/instruments/harps/doc/manual/HARPS-UserManual2.4.pdf
@@ -227,7 +231,7 @@ class HARPS(ESO_PIPELINE):
             found_BIS = False
             bis_files = glob.glob(os.path.join(folder_name, "*bis*A.fits"), recursive=True)
             ccf_files = Path(folder_name).glob("*ccf*A.fits")
-            
+
             for file in ccf_files:
                 if file_start in file.as_posix():
                     ccf_path = file
