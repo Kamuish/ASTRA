@@ -47,7 +47,7 @@ Depending on the python version that is in use, the installation of TelFit might
 
 1. Download TelFit from github
     ``` sh
-    git clone [git@github.com:Kamuish/ASTRA.git](https://github.com/kgullikson88/Telluric-Fitter)
+    git clone https://github.com/kgullikson88/Telluric-Fitter
     cd Telluric-Fitter
     ```
 2. Ensure that the "develop" libraries for the selected python version are installated. For Fedora, this would be
