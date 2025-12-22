@@ -19,7 +19,7 @@ from ASTRA.utils.spectral_conditions import Empty_condition
 def test_template_construction() -> None:
     """Test construction of stellar template."""
     user_conf = {"STELLAR_TEMPLATE_CONFIGS": {"OVERSAMPLE_TEMPLATE": 1}}
-    input_fpath = list(Path("/home/amiguel/spectra_collection/ESPRESSO/proxima").glob("*S2D_A.fits"))
+    input_fpath = list((Path(__file__).parent / "mock_data").glob("*S2D_A.fits"))
     instrument_name = "ESPRESSO"
     user_configs = user_conf
     storage_path = Path(__file__).parent.parent / "tmp"
