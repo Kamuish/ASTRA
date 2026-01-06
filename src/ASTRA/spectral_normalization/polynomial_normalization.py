@@ -54,7 +54,6 @@ class Polynomial_normalization(NormalizationBase):
 
     def _normalization_sanity_checks(self):
         super()._normalization_sanity_checks()
-        # TODO: see what kind of data we want to use!
 
         keys = {
             "blaze_corrected": "BLAZE corrected",
