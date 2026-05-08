@@ -30,6 +30,13 @@ Based on Header values
     valid_error_condition = KEYWORD_condition(KW="previousRV_ERR",
                                               bounds = [0, 50*meter_second])
 
+- It is possible to match the Keyword values to a specific one:
+.. code-block:: python
+
+
+    valid_error_condition = KEYWORD_condition(KW="OBS NAME",
+                                              value = "OB NAME as defined in the header"
+                                              )
 
 Rejection based on filenames
 ================================
@@ -149,7 +156,6 @@ class ConditionModel:
             if output_flag != VALID:
                 flags.append(output_flag)
                 valid_OBS = False
-
         return valid_OBS, flags
 
     def select_spectra(self, frame: Frame) -> Flag:
@@ -176,6 +182,28 @@ class ConditionModel:
         file.write("Constraints on observations:\n")
         for condition in self._cond_information:
             file.write("\t" + "".join(condition) + "\n")
+
+class KEYWORD_value(ConditionModel):
+    """Limit the kW to be a specific value."""
+    def __init__(self, KW: str, value: Any) -> None:
+        self.KW = KW
+        self.value = value 
+        super().__init__()
+
+
+    def select_spectra(self, frame) -> Flag:
+        """Reject if from a given sub-instrument."""
+ 
+        KW_val = frame.get_KW_value(self.KW)
+        if KW_val != self.value:
+            flag = USER_BLOCKED(f"{self.KW} value ({KW_val}) does not match the required one ({self.value})")
+        else:
+            flag = VALID
+        return flag
+
+    @property
+    def cond_info(self) -> str:  # noqa: D102
+        return f"Keyword {self.KW} has value {self.value}"
 
 
 class KEYWORD_condition(ConditionModel):
