@@ -113,6 +113,7 @@ class ESO_PIPELINE(Frame):
             "INS NAME": "INSTRUME",
             "INS MODE": f"HIERARCH {KW_identifier} INS MODE",
             "PROG ID": f"HIERARCH {KW_identifier} OBS PROG ID",
+            "OBS NAME": "HIERARCH ESO OBS NAME",
         }
         if override_KW_map is not None:
             for key, value in override_KW_map.items():

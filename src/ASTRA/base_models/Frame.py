@@ -316,6 +316,8 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
             "INS NAME": "None",
             "PROG ID": "None",
             "DATE_NIGHT": "None",
+            "OBS NAME": "",
+            "POET_APERTURE": None,
         }
 
         # Used to allow to reject a wavelength region from one order and keep any overlap that might exist on others
