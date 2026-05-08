@@ -93,24 +93,37 @@ class ESPRESSO(ESO_PIPELINE):
         # https://www.eso.org/sci/facilities/paranal/astroclimate/site.html
         self.instrument_properties["site_pressure"] = 750
 
+        self.is_poet_data = None 
+        self.UT_number = None
+
+    def _load_ESO_DRS_KWs(self, header):
+        super()._load_ESO_DRS_KWs(header)
+        self.is_poet_data = header.get("ESO INS POET MODE",False) 
+        if self.is_poet_data:
+            logger.info("Detected PoET frame")
+            self.UT_number = 5 
+            self.observation_info["POET_APERTURE"] = header.get("ESO POET APER", "UNKNOWN")
     def load_telemetry_info(self, header):
         # Find the UT number and load the airmass
-        for i in range(1, 5):
+        for i in range(1, 6):
             try:
                 self.observation_info["airmass"] = header[f"HIERARCH ESO TEL{i} AIRM START"]
                 self.UT_number = i
                 break
             except KeyError as e:
-                if i == 4:
+                if i == 5:
                     msg = "\tCannot find ESO TELx AIRM START key"
                     raise KeyError(msg) from e
-
+        
         # Environmental KWs for telfit (also needs airmassm previously loaded)
         ambi_KWs = {
             "relative_humidity": "AMBI RHUM",
             "ambient_temperature": "AMBI TEMP",
             "seeing": "AMBI FWHM START",
         }
+
+        if self.is_poet_data:
+            ambi_KWs["seeing"] = "AMBI FWHM"
 
         for name, endKW in ambi_KWs.items():
             self.observation_info[name] = float(header[f"HIERARCH ESO TEL{self.UT_number} {endKW}"])
