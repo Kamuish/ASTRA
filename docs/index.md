@@ -66,6 +66,25 @@ Depending on the python version that is in use, the installation of TelFit might
 
 ## Changelog
 
+### V1.2.7 (current)
+
+1) Added HARPS-N support 
+2) Updated plotting capabilities of DataClass
+
+
+### V1.2.6
+
+
+1. Added preliminary support for PoET data
+2. Updated spawn method of multiprocessing pools
+3. Improved frame-rejection tools
+
+
+### V1.2.4
+
+1. Update init of ESO based pipelines
+
+
 ### V1.2.3 (5th December 2025)
 
 1. Addition of new routines to oversample the stellar template
