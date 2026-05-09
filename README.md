@@ -11,8 +11,30 @@ The main goal of this project is to standardize the handling of stellar spectra 
 3) Framework to mask telluric features from stellar spectra
 4) Implement utility methods to interpolate, normalize and smooth stellar spectra
 
-For information on installation, usage, and contribution check the official [documentation](https://kamuish.github.io/ASTRA/)
+For information on installation, usage, and contribution check the official [documentation](https://kamuish.github.io/ASTRA/). 
 
+If you use it, please cite the paper:
+
+```
+@ARTICLE{2026JOSS...11.9413S,
+       author = {{Silva}, Andr{\'e} and {Faria}, J. and {Santos}, Nuno and {Sousa}, S{\'e}rgio and {Viana}, Pedro and {Martins}, J.},
+        title = "{ASTRA: A Python Package for Cross-Instrument Stellar and Telluric Template Construction}",
+      journal = {The Journal of Open Source Software},
+     keywords = {astronomy, Python, Cython, Instrumentation and Methods for Astrophysics, Earth and Planetary Astrophysics, Solar and Stellar Astrophysics},
+         year = 2026,
+        month = jan,
+       volume = {11},
+       number = {117},
+          eid = {9413},
+        pages = {9413},
+          doi = {10.21105/joss.09413},
+archivePrefix = {arXiv},
+       eprint = {2601.10439},
+ primaryClass = {astro-ph.IM},
+       adsurl = {https://ui.adsabs.harvard.edu/abs/2026JOSS...11.9413S},
+      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}
+```
 
 ## Installation
 
