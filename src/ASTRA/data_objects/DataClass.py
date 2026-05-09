@@ -3,7 +3,6 @@ from __future__ import annotations
 import hashlib
 from collections import defaultdict
 from collections.abc import Iterable
-import hashlib
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -17,6 +16,8 @@ from typing import (
     Union,
 )
 
+import astropy.units as u
+import matplotlib.pyplot as plt
 import numpy as np
 import ujson as json
 from tabletexifier import Table
@@ -37,7 +38,7 @@ from ASTRA.utils import custom_exceptions
 from ASTRA.utils.BASE import BASE
 from ASTRA.utils.choices import DISK_SAVE_MODE
 from ASTRA.utils.custom_exceptions import FrameError, InvalidConfiguration, NoDataError
-from ASTRA.utils.units import kilometer_second
+from ASTRA.utils.units import convert_data, kilometer_second, meter_second
 
 if TYPE_CHECKING:
     from ASTRA.base_models.Frame import Frame
@@ -807,7 +808,9 @@ class DataClass(BASE):
 
         return out
 
-    def get_invalid_frameIDs(self, subinstrument: None | str = None) -> list[int]:  # noqa: N802
+    def get_invalid_frameIDs(
+        self, subinstrument: None | str = None
+    ) -> list[int]:  # noqa: N802
         """Get a list of the invalid frameIDs (by default, all of them).
 
         Args:
@@ -981,6 +984,47 @@ class DataClass(BASE):
         logger.info(tab)
 
         return tab
+
+    def plot_quantity(
+        self,
+        xx_var: str,
+        yy_var: str,
+        axis=None,
+        return_fig_and_axis: bool = False,
+        show: bool = False,
+    ):
+        """Plot any quantity from the frames against each other."""
+
+        if axis is None:
+            N = len(self.get_available_subInstruments())
+            fig, axis = plt.subplots(
+                nrows=N,
+                sharex=True,
+            )
+            if N == 1:
+                axis = [axis]
+
+        for index, inst in enumerate(self.get_available_subInstruments()):
+            xx = self.collect_KW_observations(xx_var, [inst])
+            yy = self.collect_KW_observations(yy_var, [inst])
+            if len(xx) > 0:
+                if isinstance(xx[0], u.Quantity):
+                    xx = convert_data(xx, as_value=True)
+            if len(yy) > 0:
+                if isinstance(yy[0], u.Quantity):
+                    yy = convert_data(yy, as_value=True)
+
+            axis[index].set_title(inst)
+            axis[index].scatter(xx, yy)
+            axis[index].set_xlabel(xx_var)
+            axis[index].set_ylabel(yy_var)
+
+        fig.tight_layout()
+        if show:
+            plt.show()
+
+        if return_fig_and_axis:
+            return fig, axis
 
     def load_instrument_extra_information(self) -> None:
         """See if the given instrument is one of the ones that has extra information to load.
