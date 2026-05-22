@@ -631,9 +631,12 @@ class DataClass(BASE):
         frame = self.get_frame_by_ID(frameID)
         return frame.get_data_from_full_spectrum()
 
-    def get_KW_from_frameID(self, KW: str, frameID: int):
+    def get_KW_from_frameID(self, KW: str, frameID: int, use_header: bool = False):
         frame = self.get_frame_by_ID(frameID)
-        return frame.get_KW_value(KW)
+        if use_header:
+            return frame.get_header_value(KW)
+        else:
+            return frame.get_KW_value(KW)
 
     def get_filename_from_frameID(self, frameID: int, full_path: bool = False) -> str:
         frame = self.get_frame_by_ID(frameID)
