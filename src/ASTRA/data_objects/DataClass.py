@@ -77,12 +77,13 @@ class DataClass(BASE):
 
         SBART already provides a DataClass object that is wrapped by a proxyObject:
 
-    .. code-block:: python
+    ```py
 
         from ASTRAdata_objects import DataClassManager
         manager = DataClassManager()
         manager.start()
         data_object = manager.DataClass(*args, **kwargs)
+    ```
 
     This *data_object* has all the functions that the DataClass object implements!
     """
@@ -631,20 +632,67 @@ class DataClass(BASE):
         frame = self.get_frame_by_ID(frameID)
         return frame.get_data_from_full_spectrum()
 
-    def get_KW_from_frameID(self, KW: str, frameID: int, use_header: bool = False):
+    def get_KW_from_frameID(
+        self, KW: str, frameID: int, use_header: bool = False
+    ) -> Any:
+        """Get Keywrod value from a given frame
+
+        Parameters
+        ----------
+        KW : str
+            ASTRA compatible keyword, as defined in the [Frame][ASTRA.base_models.Frame] class
+        frameID : int
+            Selected ID of teh frame
+        use_header : bool, optional
+            If True, searches for the KW in the header of the fits file, by default False
+
+        Returns
+        -------
+        Any
+            Value from the header
+        """
+
         frame = self.get_frame_by_ID(frameID)
         if use_header:
             return frame.get_header_value(KW)
         else:
             return frame.get_KW_value(KW)
 
-    def get_filename_from_frameID(self, frameID: int, full_path: bool = False) -> str:
+    def get_filename_from_frameID(
+        self, frameID: int, full_path: bool = False
+    ) -> str | Path:
+        """Get the filename from a frame
+
+        Parameters
+        ----------
+        frameID : int
+            ID of the frame that we want to select
+        full_path : bool, optional
+            If True, returns the full disk file, by default False
+
+        Returns
+        -------
+        str | Path
+            Either the filename (string) of the full path (Path)
+        """
         frame = self.get_frame_by_ID(frameID)
         if full_path:
             return frame.file_path
         return frame.fname
 
     def get_status_by_frameID(self, frameID: int) -> Status:
+        """Get status of a given frame
+
+        Parameters
+        ----------
+        frameID : int
+            FrameID that we want to check the status of
+
+        Returns
+        -------
+        Status
+            Object that reflect the status
+        """
         frame = self.get_frame_by_ID(frameID)
         return frame.status
 
@@ -719,7 +767,7 @@ class DataClass(BASE):
 
     def collect_RV_information(
         self,
-        KW,
+        KW: str,
         subInst: str,
         frameIDs=None,
         include_invalid: bool = False,
@@ -816,9 +864,16 @@ class DataClass(BASE):
     ) -> list[int]:  # noqa: N802
         """Get a list of the invalid frameIDs (by default, all of them).
 
-        Args:
-            subinstrument (None | str): If not None, returrns only for this subInstrument
+        Parameters
+        ----------
+        subinstrument : None | str, optional
+             subinstrument (None | str): If not None, returrns only for this
+                    subInstrument, by default None
 
+        Returns
+        -------
+        list[int]
+            List of invalid frameIDs
         """
         out = []
         for subInst in self._inst_type.sub_instruments:  # noqa: N806
@@ -851,7 +906,7 @@ class DataClass(BASE):
         Returns
         -------
         list
-            [description]
+            List of frameIDs from the instrument
 
         """
         frameIDS = [
@@ -866,11 +921,22 @@ class DataClass(BASE):
         return list(frameIDS)
 
     def get_frame_by_ID(self, frameID: int) -> Frame:
-        """Return the frame object that is associated with a given ID.
+        """Get a frame by its ID
 
-        Raises:
-            NoDataError: if the frameID doesn't exist
+        Parameters
+        ----------
+        frameID : int
+            ID of the frame
 
+        Returns
+        -------
+        Frame
+            Desired Frame
+
+        Raises
+        ------
+        custom_exceptions.NoDataError
+            If the frameID doesn't exist
         """
         for i in self.observations:
             if i.frameID == frameID:

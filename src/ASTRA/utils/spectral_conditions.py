@@ -34,7 +34,7 @@ Based on Header values
 .. code-block:: python
 
 
-    valid_error_condition = KEYWORD_condition(KW="OBS NAME",
+    valid_error_condition = KEYWORD_value(KW="OBS NAME",
                                               value = "OB NAME as defined in the header"
                                               )
 
@@ -183,20 +183,23 @@ class ConditionModel:
         for condition in self._cond_information:
             file.write("\t" + "".join(condition) + "\n")
 
+
 class KEYWORD_value(ConditionModel):
     """Limit the kW to be a specific value."""
+
     def __init__(self, KW: str, value: Any) -> None:
         self.KW = KW
-        self.value = value 
+        self.value = value
         super().__init__()
-
 
     def select_spectra(self, frame) -> Flag:
         """Reject if from a given sub-instrument."""
- 
+
         KW_val = frame.get_KW_value(self.KW)
         if KW_val != self.value:
-            flag = USER_BLOCKED(f"{self.KW} value ({KW_val}) does not match the required one ({self.value})")
+            flag = USER_BLOCKED(
+                f"{self.KW} value ({KW_val}) does not match the required one ({self.value})"
+            )
         else:
             flag = VALID
         return flag
@@ -209,7 +212,9 @@ class KEYWORD_value(ConditionModel):
 class KEYWORD_condition(ConditionModel):
     """Limit the KW to be inside the defined interval (edges included)."""
 
-    def __init__(self, KW: str, bounds: List[tuple[Any, Any]], include_edges: bool = True):
+    def __init__(
+        self, KW: str, bounds: List[tuple[Any, Any]], include_edges: bool = True
+    ):
         """Define conditions.
 
         Args:
@@ -242,7 +247,9 @@ class KEYWORD_condition(ConditionModel):
         self._standardize_bounds()
         for bound_entry in bounds_to_check:
             if bound_entry[0] > bound_entry[1]:
-                raise InvalidConfiguration("The lower bound must be smaller than the upper one")
+                raise InvalidConfiguration(
+                    "The lower bound must be smaller than the upper one"
+                )
 
     def _standardize_bounds(self) -> None:
         """Transform None into np.infs."""
@@ -400,13 +407,17 @@ class FNAME_condition(ConditionModel):
     ):
         self._load_from_file = load_from_file
         if self._load_from_file:
-            logger.info(f"Loading files to 'condition' from a disk file: {filename_list}")
+            logger.info(
+                f"Loading files to 'condition' from a disk file: {filename_list}"
+            )
             files_to_reject = []
             for entry in filename_list:
                 if not isinstance(entry, Path):
                     entry = Path(entry)
                 if not entry.name.endswith("txt"):
-                    raise custom_exceptions.InvalidConfiguration("File to load must be txt")
+                    raise custom_exceptions.InvalidConfiguration(
+                        "File to load must be txt"
+                    )
                 with open(entry) as file:
                     files_to_reject.extend(file.readlines())
 
@@ -457,7 +468,11 @@ class SNR_condition(ConditionModel):
         KW = np.asarray(frame.get_KW_value("orderwise_snrs"))
         valid_orders = list(frame.valid_orders())
         message = f"Did not pass SNR cutoff: {self.minimum_SNR:}"
-        flag = VALID if np.any(KW[valid_orders] < self.minimum_SNR) else USER_BLOCKED(message)
+        flag = (
+            VALID
+            if np.any(KW[valid_orders] < self.minimum_SNR)
+            else USER_BLOCKED(message)
+        )
         return flag
 
     @property
