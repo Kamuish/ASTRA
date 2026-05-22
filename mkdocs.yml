@@ -65,19 +65,32 @@ nav:
     - Normalization: advanced/spectra_normalization.ipynb
   
   - API:
-    - api/index.md
+    - api/index.md 
     - User configs: api/user_configs.md
+    - DataClass: api/DataClass.md
+    - Template construction: api/template_creation.md
+    - Instruments: api/spectrographs.md
     - Frame: api/Frame.md
-    - Spectrographs: api/spectrographs.md
+    - utils: api/utils.md
 
 
 plugins:
   - search
   - mkdocs-jupyter
+  - autorefs 
   - mkdocstrings:
       handlers:
         python:
           paths: [src]
+          inventories:
+            - https://docs.python.org/3/objects.inv
           options:
             filters:
               - "!^_"
+            show_if_no_docstring: true
+            show_signature_annotations: true
+            members_order: source
+            annotations_path: brief
+            docstring_style: numpy
+            backlinks: tree
+            show_cases: true

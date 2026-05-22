@@ -1,6 +1,6 @@
-# Currently available interfaces to spectrographs
+# Data_objects
 
-::: ASTRA.Instruments
+::: ASTRA.utils
     options:
       show_root_toc_entry: false
       show_submodules: true

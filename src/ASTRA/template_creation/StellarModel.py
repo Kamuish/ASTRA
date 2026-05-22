@@ -35,8 +35,7 @@ if TYPE_CHECKING:
 class StellarModel(TemplateFramework):
     """The StellarModel is responsible for the creation of the stellar template for each sub-Instrument.
 
-    It allows the user to apply :py:mod:`~ASTRAutils.spectral_conditions` to select the observations that will
-    be in use for this process.
+    It allows the user to apply [`spectral_conditions`][ASTRA.utils.spectral_conditions] to select the observations that will be in use for this process.
 
     This object supports the following user parameters:
 
