@@ -160,19 +160,26 @@ class DataClass(BASE):
             logger.critical(msg)
             raise InvalidConfiguration(msg)
 
-        for filepath in OBS_list:
+        def build_obs(args):
+            index, filepath = args
             frameID = hash_path_to_int(filepath.stem)
-            self.observations.append(
-                self._inst_type(
+            try:
+                return self._inst_type(
                     filepath,
                     instrument_options,
                     reject_subInstruments,
                     frameID=frameID,
                     quiet_user_params=frameID
                     != 0,  # Only the first frame will output logs
-                ),
-            )
+                )
+            except Exception as e:
+                logger.critical(f"Failed in {filepath} due to {e}")
+                raise e
 
+        from concurrent.futures import ThreadPoolExecutor
+
+        with ThreadPoolExecutor() as ex:
+            self.observations = list(ex.map(build_obs, enumerate(OBS_list)))
         all_ids = [i.frameID for i in self.observations]
         if len(all_ids) != len(set(all_ids)):
             raise custom_exceptions.InternalError("Clash in frameID, repeated numbers")
@@ -704,6 +711,7 @@ class DataClass(BASE):
         conditions: CondModel = None,
         return_frameIDs: bool = False,
         from_header: bool = False,
+        pad_condition_rejected: bool = True,
     ) -> Union[list, Tuple[List[float], List[int]]]:
         """Parse through the loaded observations and retrieve a specific KW from all of them.
 
@@ -747,7 +755,8 @@ class DataClass(BASE):
                 if conditions is not None:
                     keep, flags = conditions.evaluate(self.get_frame_by_ID(frameID))
                     if not keep:
-                        output.append(None)
+                        if pad_condition_rejected:
+                            output.append(None)
                         continue
 
                 frame = self.get_frame_by_ID(frameID)
@@ -1061,11 +1070,12 @@ class DataClass(BASE):
         axis=None,
         return_fig_and_axis: bool = False,
         show: bool = False,
+        condition: None | CondModel = None,
     ):
         """Plot any quantity from the frames against each other."""
 
         if axis is None:
-            N = len(self.get_available_subInstruments())
+            N = len(self.get_subInstruments_with_valid_frames())
             fig, axis = plt.subplots(
                 nrows=N,
                 sharex=True,
@@ -1073,9 +1083,20 @@ class DataClass(BASE):
             if N == 1:
                 axis = [axis]
 
-        for index, inst in enumerate(self.get_available_subInstruments()):
-            xx = self.collect_KW_observations(xx_var, [inst])
-            yy = self.collect_KW_observations(yy_var, [inst])
+        for index, inst in enumerate(self.get_subInstruments_with_valid_frames()):
+            xx = self.collect_KW_observations(
+                xx_var,
+                [inst],
+                conditions=condition,
+                pad_condition_rejected=False,
+            )
+            yy = self.collect_KW_observations(
+                yy_var,
+                [inst],
+                conditions=condition,
+                pad_condition_rejected=False,
+            )
+
             if len(xx) > 0:
                 if isinstance(xx[0], u.Quantity):
                     xx = convert_data(xx, as_value=True)
