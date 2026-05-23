@@ -56,7 +56,7 @@ Depending on the python version that is in use, the installation of TelFit might
     ```
 3. Install necessary python libraries for TelFit installation
     ``` sh
-    pip install cython requests numpy pysynphot lockfile fortranformat
+    pip install cython requests numpy==1.26.4 setuptools==80.3.1 lockfile fortranformat
     ```
 5. Install Telfit through
     ``` sh
