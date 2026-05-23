@@ -110,6 +110,8 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
     DATE_NIGHT| "None"
     OBS NAME | ""
     POET_APERTURE | None
+    FIBER_A | ""
+    FIBER_B | ""
     """
 
     _object_type = "Frame"
@@ -327,6 +329,8 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
             "DATE_NIGHT": "None",
             "OBS NAME": "",
             "POET_APERTURE": None,
+            "FIBER_A": "",
+            "FIBER_B": "",
         }
 
         # Used to allow to reject a wavelength region from one order and keep any overlap that might exist on others

@@ -87,34 +87,41 @@ class ESPRESSO(ESO_PIPELINE):
 
         self.instrument_properties["wavelength_coverage"] = coverage
         self.instrument_properties["resolution"] = 140_000
-        self.instrument_properties["EarthLocation"] = EarthLocation.of_site("Cerro Paranal")
+        self.instrument_properties["EarthLocation"] = EarthLocation.of_site(
+            "Cerro Paranal"
+        )
         self.instrument_properties["is_drift_corrected"] = True
 
         # https://www.eso.org/sci/facilities/paranal/astroclimate/site.html
         self.instrument_properties["site_pressure"] = 750
 
-        self.is_poet_data = None 
+        self.is_poet_data = None
         self.UT_number = None
 
     def _load_ESO_DRS_KWs(self, header):
         super()._load_ESO_DRS_KWs(header)
-        self.is_poet_data = header.get("ESO INS POET MODE",False) 
+        self.is_poet_data = header.get("ESO INS POET MODE", False)
         if self.is_poet_data:
             logger.info("Detected PoET frame")
-            self.UT_number = 5 
-            self.observation_info["POET_APERTURE"] = header.get("ESO POET APER", "UNKNOWN")
+            self.UT_number = 5
+            self.observation_info["POET_APERTURE"] = header.get(
+                "ESO POET APER", "UNKNOWN"
+            )
+
     def load_telemetry_info(self, header):
         # Find the UT number and load the airmass
         for i in range(1, 6):
             try:
-                self.observation_info["airmass"] = header[f"HIERARCH ESO TEL{i} AIRM START"]
+                self.observation_info["airmass"] = header[
+                    f"HIERARCH ESO TEL{i} AIRM START"
+                ]
                 self.UT_number = i
                 break
             except KeyError as e:
                 if i == 5:
                     msg = "\tCannot find ESO TELx AIRM START key"
                     raise KeyError(msg) from e
-        
+
         # Environmental KWs for telfit (also needs airmassm previously loaded)
         ambi_KWs = {
             "relative_humidity": "AMBI RHUM",
@@ -126,7 +133,9 @@ class ESPRESSO(ESO_PIPELINE):
             ambi_KWs["seeing"] = "AMBI FWHM"
 
         for name, endKW in ambi_KWs.items():
-            self.observation_info[name] = float(header[f"HIERARCH ESO TEL{self.UT_number} {endKW}"])
+            self.observation_info[name] = float(
+                header[f"HIERARCH ESO TEL{self.UT_number} {endKW}"]
+            )
             if "temperature" in name:  # store temperature in KELVIN for TELFIT
                 self.observation_info[name] = convert_temperature(
                     self.observation_info[name],
@@ -136,6 +145,8 @@ class ESPRESSO(ESO_PIPELINE):
 
         self.observation_info["DET_BINX"] = header["HIERARCH ESO DET BINX"]
         self.observation_info["DET_BINY"] = header["HIERARCH ESO DET BINY"]
+        self.observation_info["FIBER_A"] = header[f"ESO INS{self.UT_number} LSELA NAME"]
+        self.observation_info["FIBER_B"] = header[f"ESO INS{self.UT_number} LSELB NAME"]
 
     def check_header_QC_ESO_DRS(self, header):
         nonfatal_QC_flags = {
@@ -160,7 +171,9 @@ class ESPRESSO(ESO_PIPELINE):
                 except:
                     pass
             if not found_UT:
-                logger.critical(f"Did not find the entry for the following UT related metric: {flag}")
+                logger.critical(
+                    f"Did not find the entry for the following UT related metric: {flag}"
+                )
 
         if found_ADC_issue:
             self._status.store_warning(KW_WARNING("ADC2 issues found"))
