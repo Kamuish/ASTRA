@@ -154,8 +154,10 @@ class ESO_PIPELINE(Frame):
         if not self._internal_configs["use_old_pipeline"]:
             logger.debug("Checking for validity of file reduced with new pipeline")
             extra_names = ["BLAZE", "SKYSUB", "BLAZE_TELL_CORR", "TELL_CORR"]
-            valid = [f"S2D_{mod}_A" for mod in extra_names]
-            valid.extend(["S2D_A", "S1D_A"])
+            valid = []
+            for fib in ["A", "B"]:
+                valid.extend([f"S2D_{mod}_{fib}" for mod in extra_names])
+                valid.extend([f"S2D_{fib}", f"S1D_{fib}"])
             for key in valid:
                 if key in self.file_path.stem:
                     break
