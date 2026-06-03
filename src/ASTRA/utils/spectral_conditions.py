@@ -184,6 +184,30 @@ class ConditionModel:
             file.write("\t" + "".join(condition) + "\n")
 
 
+class KEYWORD_in_iterable(ConditionModel):
+    """Limit the kW to be a specific value."""
+
+    def __init__(self, KW: str, possible_value: Iterable) -> None:
+        self.KW = KW
+        self.possible_value = possible_value
+        super().__init__()
+
+    def select_spectra(self, frame) -> Flag:
+        """Reject if from a given sub-instrument."""
+
+        KW_val = frame.get_KW_value(self.KW)
+        if KW_val not in self.possible_value:
+            flag = USER_BLOCKED(
+                f"{self.KW} value ({KW_val}) is not inside({self.possible_value})"
+            )
+        else:
+            flag = VALID
+        return flag
+
+    @property
+    def cond_info(self) -> str:  # noqa: D102
+        return f"Keyword {self.KW} has value {self.possible_value}"
+
 class KEYWORD_value(ConditionModel):
     """Limit the kW to be a specific value."""
 
