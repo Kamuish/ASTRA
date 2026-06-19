@@ -982,8 +982,14 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
             logger.critical(msg)
             return
 
-        for internal_KW, S2D_KW in self._KW_map.items():
-            self.observation_info[internal_KW] = hdu[S2D_KW]
+        try:
+            for internal_KW, S2D_KW in self._KW_map.items():
+                self.observation_info[internal_KW] = hdu[S2D_KW]
+        except KeyError as e:
+            msg = f"File <{self.file_path}> does have all internal Kws ({e})"
+            self.add_to_status(MISSING_FILE(msg))
+            logger.critical(msg)
+            return
 
         self.load_instrument_specific_KWs(hdu)
         self.check_header_QC(hdu)

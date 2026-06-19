@@ -1022,6 +1022,9 @@ class DataClass(BASE):
     def _build_frameID_map(self) -> None:
         """Populate the self.frameID_map with the frameIDs available for each subInstrument."""
         for frame in self.observations:
+            if frame.sub_instrument is None:
+                logger.critical(f"{frame} does not have a subInstrument")
+                continue
             self.frameID_map[frame.sub_instrument].append(frame.frameID)
 
     def show_loadedData_table(self) -> Table:
