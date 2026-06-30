@@ -107,7 +107,9 @@ class MAROONX(Frame):
 
         # lat/lon from: https://geohack.toolforge.org/geohack.php?params=19_49_25_N_155_28_9_W
         lat, lon = 19.820667, -155.468056
-        self.instrument_properties["EarthLocation"] = EarthLocation.from_geodetic(lat=lat, lon=lon, height=4214)
+        self.instrument_properties["EarthLocation"] = EarthLocation.from_geodetic(
+            lat=lat, lon=lon, height=4214
+        )
 
         # from https://www.mide.com/air-pressure-at-altitude-calculator
         # and convert from Pa to mbar
@@ -118,7 +120,9 @@ class MAROONX(Frame):
     def get_spectral_type(self) -> str:
         """Get the spectral type from the filename."""
         if not self.file_path.name.endswith("hd5"):
-            raise custom_exceptions.InternalError("MAROON-X interface only recognizes hd5 files")
+            raise custom_exceptions.InternalError(
+                "MAROON-X interface only recognizes hd5 files"
+            )
         return "S2D"
 
     def load_instrument_specific_KWs(self, header) -> None:
@@ -140,7 +144,9 @@ class MAROONX(Frame):
             (orders_red, header_red),
         ]:
             for order in order_set:
-                self.observation_info["orderwise_SNRs"].append(float(header_det[f"SNR_{order}"]))
+                self.observation_info["orderwise_SNRs"].append(
+                    float(header_det[f"SNR_{order}"])
+                )
         for name, kw in [
             ("ISO-DATE", "MAROONX TELESCOPE TIME"),
             ("OBJECT", "MAROONX TELESCOPE TARGETNAME"),
@@ -159,7 +165,8 @@ class MAROONX(Frame):
 
         self.observation_info["BERV"] = self.observation_info["BERV"] * meter_second
         self.observation_info["BERV_FACTOR"] = (
-            1 + self.observation_info["BERV"].to(kilometer_second).value / SPEED_OF_LIGHT
+            1
+            + self.observation_info["BERV"].to(kilometer_second).value / SPEED_OF_LIGHT
         )
         # Convert ambient temperature to Kelvin
         self.observation_info["ambient_temperature"] = convert_temperature(
@@ -180,7 +187,13 @@ class MAROONX(Frame):
         if self.is_open:
             return
         super().load_S2D_data()
-        store = pd.HDFStore(self.file_path, "r+")
+
+        try:
+            store = pd.HDFStore(self.file_path.as_posix(), "r+")
+        except Exception as e:
+            print(e)
+            breakpoint()
+
         spec_red = store["spec_red"]
         spec_blue = store["spec_blue"]
         store.close()
@@ -190,9 +203,13 @@ class MAROONX(Frame):
         blue_pad = red_pix - blue_pix
 
         blue_det_flux = np.vstack(spec_blue["optimal_extraction"][6])
-        p_blue_det_flux = np.pad(blue_det_flux, ((0, 0), (0, blue_pad)), mode="constant")
+        p_blue_det_flux = np.pad(
+            blue_det_flux, ((0, 0), (0, blue_pad)), mode="constant"
+        )
         blue_det_wave = np.vstack(spec_blue["wavelengths"][6])
-        p_blue_det_wave = np.pad(blue_det_wave, ((0, 0), (0, blue_pad)), mode="constant")
+        p_blue_det_wave = np.pad(
+            blue_det_wave, ((0, 0), (0, blue_pad)), mode="constant"
+        )
         blue_det_err = np.vstack(spec_blue["optimal_var"][6])
         p_blue_det_err = np.pad(blue_det_err, ((0, 0), (0, blue_pad)), mode="constant")
 
@@ -222,13 +239,21 @@ class MAROONX(Frame):
             sigma = self._internal_configs["SIGMA_CLIP_FLUX_VALUES"]
             for order_number in range(self.N_orders):
                 cont = median_filter(self.spectra[order_number], size=500)
-                inds = np.where(self.spectra[order_number] >= cont + sigma * self.uncertainties[order_number])
+                inds = np.where(
+                    self.spectra[order_number]
+                    >= cont + sigma * self.uncertainties[order_number]
+                )
                 bpmap0[order_number, inds] |= 1
         self.spectral_mask.add_indexes_to_mask(np.where(bpmap0 != 0), QUAL_DATA)
 
         # remove extremely negative points!
-        self.spectral_mask.add_indexes_to_mask(np.where(self.spectra < -3 * self.uncertainties), MISSING_DATA)
+        self.spectral_mask.add_indexes_to_mask(
+            np.where(self.spectra < -3 * self.uncertainties), MISSING_DATA
+        )
 
+        self.spectral_mask.add_indexes_to_mask(
+            np.where(self.uncertainties > 1e5), MISSING_DATA
+        )
         self.assess_bad_orders()
 
     def close_arrays(self) -> None:

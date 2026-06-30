@@ -27,6 +27,7 @@ from ASTRA import astra_logger as logger
 from ASTRA.data_objects.MetaData import MetaData
 from ASTRA.data_objects.Target import Target
 from ASTRA.Instruments.CARMENES import load_CARMENES_extra_information
+from ASTRA.Instruments.MAROONX import MAROONX
 from ASTRA.status.flags import (  # for entire frame; for individual pixels
     ACTIVITY_LINE,
     SIGMA_CLIP_REJECTION,
@@ -178,8 +179,11 @@ class DataClass(BASE):
 
         from concurrent.futures import ThreadPoolExecutor
 
-        with ThreadPoolExecutor() as ex:
-            self.observations = list(ex.map(build_obs, enumerate(OBS_list)))
+        if instrument is not MAROONX:
+            with ThreadPoolExecutor() as ex:
+                self.observations = list(ex.map(build_obs, enumerate(OBS_list)))
+        else:
+            self.observations = list(map(build_obs, enumerate(OBS_list)))
         all_ids = [i.frameID for i in self.observations]
         if len(all_ids) != len(set(all_ids)):
             raise custom_exceptions.InternalError("Clash in frameID, repeated numbers")
