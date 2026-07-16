@@ -129,7 +129,10 @@ class ESPRESSO(ESO_PIPELINE):
             "seeing": "AMBI FWHM START",
         }
 
-        if self.is_poet_data:
+        if self.is_poet_data and f"ESO TEL5 {ambi_KWs["seeing"]}" not in header:
+            # Backup since some files had the wrong keyword
+            logger.critical("seeing KW not in header, falling back to old KW")
+            logger.warning(header["*AMBI FWHM"])
             ambi_KWs["seeing"] = "AMBI FWHM"
 
         for name, endKW in ambi_KWs.items():
