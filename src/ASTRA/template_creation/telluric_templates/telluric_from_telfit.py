@@ -17,7 +17,11 @@ from ASTRA.internals.cache import DB_connection
 from ASTRA.ModelParameters import ModelComponent
 from ASTRA.status.flags import SUCCESS
 from ASTRA.utils import choices, custom_exceptions
-from ASTRA.utils.choices import DISK_SAVE_MODE, TELLURIC_APPLICATION_MODE, TELLURIC_EXTENSION
+from ASTRA.utils.choices import (
+    DISK_SAVE_MODE,
+    TELLURIC_APPLICATION_MODE,
+    TELLURIC_EXTENSION,
+)
 from ASTRA.utils.parameter_validators import (
     BooleanValue,
     NumericValue,
@@ -46,6 +50,7 @@ atmospheric_profiles_coords_dict = {
     "HARPSN": "-17.9+28.8",
     "CARMENES": "-2.5+37.2",
     "CALIB_CARMENES": "-2.5+37.2",
+    "MAROONX": "-155.5+19.8",
 }
 
 
@@ -174,40 +179,41 @@ class TelfitTelluric(TelluricTemplate):
 
     """
 
-    _default_params = (
-        TelluricTemplate._default_params
-        + DefaultValues(
-            atmosphere_profile=UserParam("GDAS", constraint=StringValue),  # GDAS / default / path
-            FIT_MODEL=UserParam(False, constraint=BooleanValue),
-            TELFIT_HUMIDITY_THRESHOLD=UserParam(default_value=-1, constraint=NumericValue),
-            FIT_WAVELENGTH_STEP_SIZE=UserParam(0.001, constraint=Positive_Value_Constraint),
-            # step size for telluric model wavelengths
-            PARAMS_TO_FIT=UserParam(
-                ["pressure", "humidity"],
-                constraint=ValueFromIterable(["temperature", "pressure", "humidity", "co2", "ch4", "n2o"]),
+    _default_params = TelluricTemplate._default_params + DefaultValues(
+        atmosphere_profile=UserParam(
+            "GDAS", constraint=StringValue
+        ),  # GDAS / default / path
+        FIT_MODEL=UserParam(False, constraint=BooleanValue),
+        TELFIT_HUMIDITY_THRESHOLD=UserParam(default_value=-1, constraint=NumericValue),
+        FIT_WAVELENGTH_STEP_SIZE=UserParam(0.001, constraint=Positive_Value_Constraint),
+        # step size for telluric model wavelengths
+        PARAMS_TO_FIT=UserParam(
+            ["pressure", "humidity"],
+            constraint=ValueFromIterable(
+                ["temperature", "pressure", "humidity", "co2", "ch4", "n2o"]
             ),
-            USE_GRID_OF_TRANSMITTANCE=UserParam(
-                default_value=False,
-                constraint=BooleanValue,
-                description=(
-                    "If True (default False), uses a grid of pre-computed Telfit transmittances to generate"
-                    "the telluric model. If the grid doesn't exist, it will generate a new one"
-                ),
+        ),
+        USE_GRID_OF_TRANSMITTANCE=UserParam(
+            default_value=False,
+            constraint=BooleanValue,
+            description=(
+                "If True (default False), uses a grid of pre-computed Telfit transmittances to generate"
+                "the telluric model. If the grid doesn't exist, it will generate a new one"
             ),
-            GRID_MAIN_PATH=UserParam(
-                default_value=None,
-                constraint=ValueFromDtype((str, Path, type(None))),
-                description=(
-                    "If not None, it will be used to store the transmittance grid. If None"
-                    "stores in s_BART 'resources' folder in the location of installation"
-                ),
+        ),
+        GRID_MAIN_PATH=UserParam(
+            default_value=None,
+            constraint=ValueFromDtype((str, Path, type(None))),
+            description=(
+                "If not None, it will be used to store the transmittance grid. If None"
+                "stores in s_BART 'resources' folder in the location of installation"
             ),
-            IND_WATER_MASK_THRESHOLD=UserParam(  # Ensuring that things don't blow up when storing the fits files (inf will do that)
-                default_value=1e8,
-                constraint=Positive_Value_Constraint,
-                description="Independent masking of water features, using a different threshold than for other molecules",
-            ),
-        )
+        ),
+        IND_WATER_MASK_THRESHOLD=UserParam(  # Ensuring that things don't blow up when storing the fits files (inf will do that)
+            default_value=1e8,
+            constraint=Positive_Value_Constraint,
+            description="Independent masking of water features, using a different threshold than for other molecules",
+        ),
     )
 
     method_name = choices.TELLURIC_CREATION_MODE.telfit.value
@@ -285,12 +291,18 @@ class TelfitTelluric(TelluricTemplate):
 
         if self._internal_configs["atmosphere_profile"] == "GDAS":
             logger.info("Launching GDAS profile downloader")
-            instrument, date = selected_frame.inst_name, selected_frame.get_KW_value("ISO-DATE")
+            instrument, date = selected_frame.inst_name, selected_frame.get_KW_value(
+                "ISO-DATE"
+            )
 
             # JD for '2004-12-01T00:00:00', which is the same as the first profile from GDAS
-            self._metric_selection_conditions += KEYWORD_condition("BJD", [2453340.5, np.inf])
+            self._metric_selection_conditions += KEYWORD_condition(
+                "BJD", [2453340.5, np.inf]
+            )
 
-            logger.warning("Iterating over other possible frames to search for a working reference")
+            logger.warning(
+                "Iterating over other possible frames to search for a working reference"
+            )
             failed_tests = [self._reference_frameID]
             for kw in ["relative_humidity", "airmass"]:
                 metric_to_select, frameIDs = dataClass.collect_KW_observations(
@@ -301,9 +313,13 @@ class TelfitTelluric(TelluricTemplate):
                     return_frameIDs=True,
                 )
                 metric_to_select = np.asarray(metric_to_select, dtype=float)
-                metric_to_select = list(i if i is not None else np.nan for i in metric_to_select)
+                metric_to_select = list(
+                    i if i is not None else np.nan for i in metric_to_select
+                )
                 if not any(np.isfinite(metric_to_select)):
-                    logger.warning(f"Metric {kw} is not finite. Can't use it to select observatioons")
+                    logger.warning(
+                        f"Metric {kw} is not finite. Can't use it to select observatioons"
+                    )
                     continue
                 # Stop if we have finite values!
                 break
@@ -322,7 +338,9 @@ class TelfitTelluric(TelluricTemplate):
 
                 date = dataClass.get_KW_from_frameID(frameID=selected_ID, KW="ISO-DATE")
 
-                gdas_filename = construct_gdas_filename(instrument=instrument, datetime=date)
+                gdas_filename = construct_gdas_filename(
+                    instrument=instrument, datetime=date
+                )
                 try:
                     data = conn.get_GDAS_profile(gdas_filename=gdas_filename)
                     logger.info("Using cached version of the GDAS profile")
@@ -331,11 +349,17 @@ class TelfitTelluric(TelluricTemplate):
                     pass
 
                 try:
-                    with get_atmospheric_profile(instrument, date, resources_folder) as gdas:
+                    with get_atmospheric_profile(
+                        instrument, date, resources_folder
+                    ) as gdas:
                         data = np.loadtxt(gdas).copy()
                     self._reference_frameID = selected_ID
-                    self._associated_BERV = dataClass.get_KW_from_frameID(KW="BERV", frameID=selected_ID)
-                    conn.add_new_profile(gdas_filename=gdas_filename, data=data, instrument=instrument)
+                    self._associated_BERV = dataClass.get_KW_from_frameID(
+                        KW="BERV", frameID=selected_ID
+                    )
+                    conn.add_new_profile(
+                        gdas_filename=gdas_filename, data=data, instrument=instrument
+                    )
                     break  # If we found it, no need to continue
                 except KeyError:
                     logger.info(
@@ -344,12 +368,16 @@ class TelfitTelluric(TelluricTemplate):
                     failed_tests.append(selected_ID)
                     frames_to_search = frames_to_search[1:]
             else:
-                logger.warning("Couldn't download any of the GDAS profiles. Moving on for the default profile")
+                logger.warning(
+                    "Couldn't download any of the GDAS profiles. Moving on for the default profile"
+                )
                 found = False
 
         if self._internal_configs["atmosphere_profile"] == "default" or not found:
             logger.warning("Using the default atmosphere profile!")
-            atmos_profile_file = resources_folder / f"{selected_frame.inst_name}_atmosphere_profile.txt"
+            atmos_profile_file = (
+                resources_folder / f"{selected_frame.inst_name}_atmosphere_profile.txt"
+            )
             data = np.loadtxt(atmos_profile_file)
 
         elif os.path.exists(self._internal_configs["atmosphere_profile"]) and not len(
@@ -365,7 +393,9 @@ class TelfitTelluric(TelluricTemplate):
         """See https://www.eso.org/sci/software/pipelines/skytools/molecfit#gdas"""
         selected_frame = dataclass.get_frame_by_ID(self._reference_frameID)
         logger.info("Configuring the Telfit modeler for {}", selected_frame)
-        data = self._prepare_GDAS_data(dataClass=dataclass, selected_frame=selected_frame)
+        data = self._prepare_GDAS_data(
+            dataClass=dataclass, selected_frame=selected_frame
+        )
 
         # hPa       m     K       %
         Pres, height, Temp, _ = data.T
@@ -462,7 +492,9 @@ class TelfitTelluric(TelluricTemplate):
             else:
                 loc = RESOURCES_PATH / "atmosphere_grid" / instrument
                 if not loc.exists() or len(list(loc.iterdir())) == 0:
-                    logger.warning("Folder with grids is not available. Generating it now")
+                    logger.warning(
+                        "Folder with grids is not available. Generating it now"
+                    )
                     loc.mkdir(exist_ok=True, parents=True)
                     # Not the greatest code, but this ensures that the modeler
                     # is ready to go when we launch the telfit grid computation
@@ -489,9 +521,14 @@ class TelfitTelluric(TelluricTemplate):
             # This needs to be updated if the grid changes
             closest_temp = int(np.ceil(control_dict["temperature"] / 2) * 2)
             closest_rhum = int(np.ceil(control_dict["humidity"] / 5) * 5)
-            closest_airmass = np.round(np.ceil(OBS_properties["airmass"] / 0.1) * 0.1, 2)
+            closest_airmass = np.round(
+                np.ceil(OBS_properties["airmass"] / 0.1) * 0.1, 2
+            )
 
-            desired_file = loc / f"transmittance_{closest_airmass}_{closest_rhum}_{closest_temp}.txt"
+            desired_file = (
+                loc
+                / f"transmittance_{closest_airmass}_{closest_rhum}_{closest_temp}.txt"
+            )
             if not desired_file.exists():
                 params = (closest_temp, closest_rhum, closest_airmass)
 
@@ -533,7 +570,9 @@ class TelfitTelluric(TelluricTemplate):
         # If we update the grid steps, we will need to also change the search for the closest file
         airmass_values = np.arange(start=1, stop=2.1, step=0.1)
         humidity_values = np.arange(start=0, stop=35, step=5, dtype=int)
-        temperature_values = np.arange(278, 294.1, step=2, dtype=int)  # from 5 to 20 Celsius
+        temperature_values = np.arange(
+            278, 294.1, step=2, dtype=int
+        )  # from 5 to 20 Celsius
 
         combinations = product(airmass_values, humidity_values, temperature_values)
 
@@ -551,7 +590,9 @@ class TelfitTelluric(TelluricTemplate):
             p.map(target, combinations)
 
     @custom_exceptions.ensure_invalid_template
-    def create_telluric_template(self, dataClass: DataClass, custom_frameID: Optional[int] = None) -> None:
+    def create_telluric_template(
+        self, dataClass: DataClass, custom_frameID: Optional[int] = None
+    ) -> None:
         """Create a telluric template from a TelFit transmission spectra [1].
 
         The model is created for the date in which the reference observation was made.
@@ -585,7 +626,9 @@ class TelfitTelluric(TelluricTemplate):
             return
 
         OBS_properties = {
-            "airmass": dataClass.get_KW_from_frameID("airmass", self._reference_frameID),
+            "airmass": dataClass.get_KW_from_frameID(
+                "airmass", self._reference_frameID
+            ),
             **dataClass.get_instrument_information(),
         }
 
@@ -682,7 +725,9 @@ class TelfitTelluric(TelluricTemplate):
 
         """
         super()._generate_model_parameters(dataClass)
-        for frameID in dataClass.get_frameIDs_from_subInst(self._associated_subInst, include_invalid=False):
+        for frameID in dataClass.get_frameIDs_from_subInst(
+            self._associated_subInst, include_invalid=False
+        ):
             frame = dataClass.get_frame_by_ID(frameID)
             initial_guess = {
                 "humidity": frame.get_KW_value("relative_humidity"),
@@ -697,8 +742,14 @@ class TelfitTelluric(TelluricTemplate):
                     initial_guess["humidity"],
                 )
 
-            if 0 <= self._internal_configs["TELFIT_HUMIDITY_THRESHOLD"] < initial_guess["humidity"]:
-                initial_guess["humidity"] = self._internal_configs["TELFIT_HUMIDITY_THRESHOLD"]
+            if (
+                0
+                <= self._internal_configs["TELFIT_HUMIDITY_THRESHOLD"]
+                < initial_guess["humidity"]
+            ):
+                initial_guess["humidity"] = self._internal_configs[
+                    "TELFIT_HUMIDITY_THRESHOLD"
+                ]
                 user_cap = self._internal_configs["TELFIT_HUMIDITY_THRESHOLD"]
                 curr_val = initial_guess["humidity"]
                 logger.warning(
@@ -712,11 +763,18 @@ class TelfitTelluric(TelluricTemplate):
                     initial_guess["temperature"],
                 )
 
-            self._fitModel.update_params_initial_guesses(frameID=frame.frameID, guesses=initial_guess)
+            self._fitModel.update_params_initial_guesses(
+                frameID=frame.frameID, guesses=initial_guess
+            )
 
             if self.for_feature_removal:
-                finals = [comps.get_initial_guess(frameID, True) for comps in self._fitModel.get_enabled_components()]
-                self._fitModel.store_frameID_results(frameID, finals, result_flag=SUCCESS)
+                finals = [
+                    comps.get_initial_guess(frameID, True)
+                    for comps in self._fitModel.get_enabled_components()
+                ]
+                self._fitModel.store_frameID_results(
+                    frameID, finals, result_flag=SUCCESS
+                )
 
         for param_name in self._fitModel.get_enabled_params():
             if param_name not in self._internal_configs["PARAMS_TO_FIT"]:
@@ -730,7 +788,10 @@ class TelfitTelluric(TelluricTemplate):
     def store_metrics(self):
         super().store_metrics()
 
-        if self.for_feature_correction or self.disk_save_level == DISK_SAVE_MODE.DISABLED:
+        if (
+            self.for_feature_correction
+            or self.disk_save_level == DISK_SAVE_MODE.DISABLED
+        ):
             metrics_path = self._internalPaths.get_path_to("metrics", as_posix=False)
             parameter_values = self._fitModel.get_fit_results_from_frameID(
                 frameID=self._reference_frameID,
@@ -738,6 +799,8 @@ class TelfitTelluric(TelluricTemplate):
             )
             names = self._fitModel.get_component_names(include_disabled=True)
 
-            with open(metrics_path / f"telfit_info_{self._associated_subInst}.txt", mode="w") as to_write:
+            with open(
+                metrics_path / f"telfit_info_{self._associated_subInst}.txt", mode="w"
+            ) as to_write:
                 for nam, val in zip(names, parameter_values):
                     to_write.write(f"{nam}:  {val}\n")

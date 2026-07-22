@@ -164,6 +164,9 @@ class MAROONX(Frame):
             self.observation_info[name] = float(header_blue[kw])
 
         self.observation_info["BERV"] = self.observation_info["BERV"] * meter_second
+        self.observation_info["drift"] = 0 * meter_second
+        self.observation_info["drift_ERR"] = 0 * meter_second
+
         self.observation_info["BERV_FACTOR"] = (
             1
             + self.observation_info["BERV"].to(kilometer_second).value / SPEED_OF_LIGHT
@@ -177,7 +180,9 @@ class MAROONX(Frame):
 
         # Note: we don't have DRS values for MAROON-X
         self.observation_info["DRS_RV"] = 0 * meter_second
-        self.observation_info["DRS_RV_ERR"] = 0 * meter_second
+
+        # Can't have zero uncertainties!!
+        self.observation_info["DRS_RV_ERR"] = 0.1 * meter_second
 
         self.find_instrument_type()
         self.assess_bad_orders()

@@ -305,6 +305,7 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
             "MAX_BERV": 35 * kilometer_second,
             "BJD": None,
             "MJD": None,
+            "JD": None,
             "DRS-VERSION": None,
             "MD5-CHECK": None,
             "ISO-DATE": None,
