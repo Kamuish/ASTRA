@@ -256,7 +256,7 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
 
         self.file_path: Path = file_path
         if init_log:
-            logger.info(f"Creating frame from: {self.file_path}")
+            logger.info(f"Creating frame from: {self.file_path} with {frameID=}")
         self.inst_name = inst_name
 
         self.sub_instrument = None
@@ -331,6 +331,7 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
             "POET_APERTURE": None,
             "FIBER_A": "",
             "FIBER_B": "",
+            "filename": file_path.stem,
         }
 
         # Used to allow to reject a wavelength region from one order and keep any overlap that might exist on others
