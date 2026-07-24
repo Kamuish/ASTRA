@@ -770,7 +770,7 @@ class DataClass(BASE):
                 all_frameIDs.append(frameID)
 
         if return_frameIDs:
-            return output, available_frameIDs
+            return output, all_frameIDs
 
         return output
 
