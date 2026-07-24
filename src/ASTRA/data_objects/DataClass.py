@@ -233,21 +233,26 @@ class DataClass(BASE):
         for _, frameID in enumerate(self.get_valid_frameIDS()):
             frame = self.get_frame_by_ID(frameID)
             cube = RV_holder.get_RV_cube(frame.sub_instrument, merged=use_merged_cube)
-            _, sbart_rv, sbart_uncert = cube.get_RV_from_ID(
-                frameID=frameID,
-                which="SBART",
-                apply_SA_corr=False,
-                as_value=False,
-                units=None,
-                apply_drift_corr=False,
-            )
-            previous_filename = cube.cached_info["date_folders"][
-                cube.frameIDs.index(frameID)
-            ]
-            if previous_filename != frame.file_path:
-                msg = f"Loading RVs from cube with different frameID layouts of {frame.sub_instrument} ({previous_filename} vs {frame.file_path})"
-                logger.critical(msg)
-                raise InvalidConfiguration(msg)
+
+            try:
+                _, sbart_rv, sbart_uncert = cube.get_RV_from_ID(
+                    frameID=frameID,
+                    which="SBART",
+                    apply_SA_corr=False,
+                    as_value=False,
+                    units=None,
+                    apply_drift_corr=False,
+                )
+                previous_filename = cube.cached_info["date_folders"][
+                    cube.frameIDs.index(frameID)
+                ]
+                if previous_filename != frame.file_path:
+                    msg = f"Loading RVs from cube with different frameID layouts of {frame.sub_instrument} ({previous_filename} vs {frame.file_path})"
+                    logger.critical(msg)
+                    raise InvalidConfiguration(msg)
+            except ValueError:
+                sbart_rv = 0 * meter_second
+                sbart_uncert = 10 * meter_second
 
             frame.store_previous_SBART_result(RV=sbart_rv, RV_err=sbart_uncert)
         logger.info("Finished loading of previous s-BART RVs")
