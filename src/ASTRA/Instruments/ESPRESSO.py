@@ -9,6 +9,8 @@ from ASTRA import astra_logger as logger
 from ASTRA.Instruments.ESO_PIPELINE import ESO_PIPELINE
 from ASTRA.status.flags import ERROR_THRESHOLD, KW_WARNING
 from ASTRA.utils.definitions import DETECTOR_DEFINITION
+from ASTRA.utils.units import kilometer_second
+from ASTRA.utils.compute_berv_and_herv_poet import compute_berv_and_herv_POET
 
 
 class ESPRESSO(ESO_PIPELINE):
@@ -113,6 +115,18 @@ class ESPRESSO(ESO_PIPELINE):
                 "ESO POET APER", "UNKNOWN"
             )
 
+            if self.observation_info["POET_APERTURE"] == "UNKNOWN":
+                logger.critical("Could not load aperture from %s", self.file_path)
+
+            self.wrong_berv = self.observation_info["BERV"]
+            true_bary, true_herv = compute_berv_and_herv_POET(header)
+            true_berv = true_bary + true_herv
+
+            new_rv = self.observation_info["DRS_RV"] - self.wrong_berv + true_berv
+            self.observation_info["DRS_RV"] = new_rv
+            self.observation_info["BERV"] = true_berv
+            self.observation_info["MAX_BERV"] = 2.5 * kilometer_second
+
     def load_telemetry_info(self, header):
         # Find the UT number and load the airmass
         for i in range(1, 6):
@@ -166,18 +180,17 @@ class ESPRESSO(ESO_PIPELINE):
         found_ADC_issue = False
         for flag, bad_value in nonfatal_QC_flags.items():
             found_UT = False
-            for UT_KW in ["", "2", "3", "4"]:
-                try:
-                    for ADC in [1, 2]:
-                        ADC_KW = flag.format(UT_KW, ADC)
-                        if header[ADC_KW] == bad_value:
-                            msg = f"QC flag {ADC_KW} has a value of {bad_value}"
-                            logger.warning(msg)
-                            self._status.store_warning(KW_WARNING(msg))
-                            found_ADC_issue = True
-                        found_UT = True
-                except:
-                    pass
+            try:
+                for ADC in [1, 2]:
+                    ADC_KW = flag.format(self.UT_number, ADC)
+                    if header[ADC_KW] == bad_value:
+                        msg = f"QC flag {ADC_KW} has a value of {bad_value}"
+                        logger.warning(msg)
+                        self._status.store_warning(KW_WARNING(msg))
+                        found_ADC_issue = True
+                    found_UT = True
+            except:
+                pass
             if not found_UT:
                 logger.critical(
                     f"Did not find the entry for the following UT related metric: {flag}"
@@ -204,6 +217,25 @@ class ESPRESSO(ESO_PIPELINE):
             self.spectral_mask.add_indexes_to_mask(inds, ERROR_THRESHOLD)
 
         self.assess_bad_orders()
+
+    def load_S1D_data(self) -> None:
+        # Store the open status before calling parent classes
+        is_open = self.is_open
+        super().load_S1D_data()
+        if self.is_poet_data and not is_open:
+            self.apply_poet_data_corrections()
+
+    def load_S2D_data(self) -> None:
+        # Store the open status before calling parent classes
+        is_open = self.is_open
+        super().load_S2D_data()
+        if self.is_poet_data and not is_open:
+            self.apply_poet_data_corrections()
+
+    def apply_poet_data_corrections(self) -> None:
+        # Correct spectra
+        self.remove_BERV_correction(self.wrong_berv)
+        self.apply_BERV_correction(self.observation_info["BERV"])
 
     def trigger_data_storage(self, *args, **kwargs):
         super().trigger_data_storage(*args, **kwargs)
