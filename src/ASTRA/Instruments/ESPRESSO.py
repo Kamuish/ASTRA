@@ -100,6 +100,11 @@ class ESPRESSO(ESO_PIPELINE):
 
     def _load_ESO_DRS_KWs(self, header):
         super()._load_ESO_DRS_KWs(header)
+
+        if header["ESO INS MODE"] == "SINGLEUHR":
+            # Update instrumental resolution of ESPRESSO for UHR mode
+            self.instrument_properties["resolution"] = 220_000
+
         self.is_poet_data = header.get("ESO INS POET MODE", False)
         if self.is_poet_data:
             logger.info("Detected PoET frame")
