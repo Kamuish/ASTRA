@@ -125,6 +125,7 @@ class ESPRESSO(ESO_PIPELINE):
             new_rv = self.observation_info["DRS_RV"] - self.wrong_berv + true_berv
             self.observation_info["DRS_RV"] = new_rv
             self.observation_info["BERV"] = true_berv
+            self.observation_info["BERV_FACTOR"] = None # Avoid re-write later on
             self.observation_info["MAX_BERV"] = 2.5 * kilometer_second
 
     def load_telemetry_info(self, header):
