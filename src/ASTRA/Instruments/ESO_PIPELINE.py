@@ -222,6 +222,14 @@ class ESO_PIPELINE(Frame):
             return self.load_old_DRS_S1D()
         self.load_ESO_DRS_S1D_data()
 
+    def get_air_wavelength(self) -> np.ndarray:
+        if self.is_S1D:
+            with fits.open(self.file_path) as hdu:
+                return hdu[1].data["wavelength_air"]
+        elif self.is_S2D:
+            with fits.open(self.file_path) as hdu:
+                return hdu["WAVEDATA_AIR_BARY"].data
+
     def check_header_QC(self, header: fits.header.Header):
         super().check_header_QC(header)
         if self._internal_configs["use_old_pipeline"]:
