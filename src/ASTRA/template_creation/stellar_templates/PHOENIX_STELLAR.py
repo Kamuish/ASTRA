@@ -28,18 +28,20 @@ class PHOENIX(StellarTemplate):
         PHOENIX_FILE_PATH=UserParam("", constraint=PathValue, mandatory=False),
     )
 
-    def __init__(self, subInst: str, user_configs: Union[None, dict] = None, loaded: bool = False) -> None:
+    def __init__(
+        self, subInst: str, user_configs: Union[None, dict] = None, loaded: bool = False
+    ) -> None:
         super().__init__(subInst=subInst, user_configs=user_configs, loaded=loaded)
         self._found_error = False
 
-    @custom_exceptions.ensure_invalid_template
-    def create_stellar_template(self, dataClass: DataClass, conditions=None) -> None:
+    def _run_template_construction(
+        self,
+        dataClass,
+        conditions,
+        reference_frame,
+    ) -> None:
         """Createthe stellar template."""
         # removal may change the first common wavelength; make sure
-        try:
-            super().create_stellar_template(dataClass, conditions)
-        except custom_exceptions.StopComputationError:
-            return
 
         logger.info("Searching for frameID with highest sum of orderwise SNRs")
 

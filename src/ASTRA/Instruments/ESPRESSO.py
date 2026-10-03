@@ -144,8 +144,8 @@ class ESPRESSO(ESO_PIPELINE):
 
         self.observation_info["DET_BINX"] = header["HIERARCH ESO DET BINX"]
         self.observation_info["DET_BINY"] = header["HIERARCH ESO DET BINY"]
-        self.observation_info["FIBER_A"] = header[f"ESO INS{self.UT_number} LSELA NAME"]
-        self.observation_info["FIBER_B"] = header[f"ESO INS{self.UT_number} LSELB NAME"]
+        self.observation_info["FIBER_A"] = header[f"ESO INS5 LSELA NAME"]
+        self.observation_info["FIBER_B"] = header[f"ESO INS5 LSELB NAME"]
 
     def check_header_QC_ESO_DRS(self, header):
         nonfatal_QC_flags = {

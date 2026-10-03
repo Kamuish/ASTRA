@@ -53,7 +53,9 @@ class Spectrum(BASE):
         self.spectra: np.ndarray = None  # S2D/S1D data
         self.wavelengths: np.ndarray = None  # wavelengths in vacuum
         self.uncertainties: np.ndarray = None  # Flux errors
-        self.spectral_mask: Mask = None  # to be determined if I want this here or not .....
+        self.spectral_mask: Mask = (
+            None  # to be determined if I want this here or not .....
+        )
         self._blaze_function = None
 
         self.flux_atmos_balance_corrected = False
@@ -153,7 +155,9 @@ class Spectrum(BASE):
         berv = BERV_value.to(kilometer_second).value
 
         if self.use_approximated_BERV_correction:
-            self.wavelengths = apply_approximated_BERV_correction(self.wavelengths, berv)
+            self.wavelengths = apply_approximated_BERV_correction(
+                self.wavelengths, berv
+            )
         else:
             # BERV_factor = self.get_KW_value("BERV_FACTOR")
             self.wavelengths = apply_BERV_correction(self.wavelengths, berv)
@@ -174,14 +178,18 @@ class Spectrum(BASE):
         berv = BERV_value.to(kilometer_second).value
 
         if self.use_approximated_BERV_correction:
-            self.wavelengths = remove_approximated_BERV_correction(self.wavelengths, berv)
+            self.wavelengths = remove_approximated_BERV_correction(
+                self.wavelengths, berv
+            )
         else:
             # BERV_factor = self.get_KW_value("BERV_FACTOR")
             self.wavelengths = remove_BERV_correction(self.wavelengths, berv)
 
         self.is_BERV_corrected = False
 
-    def apply_telluric_correction(self, model: np.ndarray, model_uncertainty: np.ndarray) -> None:
+    def apply_telluric_correction(
+        self, model: np.ndarray, model_uncertainty: np.ndarray
+    ) -> None:
         """Divide the spectra by a telluric correction model, without really accounting for model uncertainties.
 
         This shouldn't be used in the current "state" ....
@@ -192,7 +200,9 @@ class Spectrum(BASE):
 
         """
         if self.was_telluric_corrected:
-            logger.warning("Attempting to correct telluric features of previously corrected data. Doing nothing")
+            logger.warning(
+                "Attempting to correct telluric features of previously corrected data. Doing nothing"
+            )
             return
 
         if model.shape != self.spectra.shape:
@@ -253,7 +263,12 @@ class Spectrum(BASE):
             self.spectral_mask.get_custom_mask()[order],
         )
 
-    def get_data_from_full_spectrum(self) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray[bool]]:
+    def get_air_wavelength(self) -> np.ndarray:
+        raise NotImplementedError
+
+    def get_data_from_full_spectrum(
+        self,
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray[bool]]:
         """Retrieve the entire spectra.
 
         If we are working with S2D data: send the [N_orders, N_pixels] matrix
@@ -295,7 +310,9 @@ class Spectrum(BASE):
         """Re-defining the frame as one with zero mean and unit-variance (z-score)."""
         logger.info("Setting up frame as a Zscore!")
         for order in range(self.N_orders):
-            _, flux, _, mask = self.get_data_from_spectral_order(order=order, include_invalid=True)
+            _, flux, _, mask = self.get_data_from_spectral_order(
+                order=order, include_invalid=True
+            )
             valid_mask = ~mask
             mean, std = np.mean(flux[valid_mask]), np.std(flux[valid_mask])
             self.spectra = (self.spectra - mean) / std
