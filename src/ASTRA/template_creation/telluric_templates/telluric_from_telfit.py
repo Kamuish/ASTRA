@@ -47,6 +47,7 @@ atmospheric_profiles_coords_dict = {
     "HARPS": "-70.7-29.3",
     "NIRPS": "-70.7-29.3",
     "ESPRESSO": "-70.4-24.6",
+    "POET": "-70.4-24.6",
     "HARPSN": "-17.9+28.8",
     "CARMENES": "-2.5+37.2",
     "CALIB_CARMENES": "-2.5+37.2",

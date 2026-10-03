@@ -97,8 +97,8 @@ class ESPRESSO(ESO_PIPELINE):
         # https://www.eso.org/sci/facilities/paranal/astroclimate/site.html
         self.instrument_properties["site_pressure"] = 750
 
-        self.is_poet_data = None
         self.UT_number = None
+        self.is_poet_data = False
 
     def _load_ESO_DRS_KWs(self, header):
         super()._load_ESO_DRS_KWs(header)
@@ -106,27 +106,6 @@ class ESPRESSO(ESO_PIPELINE):
         if header["ESO INS MODE"] == "SINGLEUHR":
             # Update instrumental resolution of ESPRESSO for UHR mode
             self.instrument_properties["resolution"] = 220_000
-
-        self.is_poet_data = header.get("ESO INS POET MODE", False)
-        if self.is_poet_data:
-            logger.info("Detected PoET frame")
-            self.UT_number = 5
-            self.observation_info["POET_APERTURE"] = header.get(
-                "ESO POET APER", "UNKNOWN"
-            )
-
-            if self.observation_info["POET_APERTURE"] == "UNKNOWN":
-                logger.critical("Could not load aperture from %s", self.file_path)
-
-            self.wrong_berv = self.observation_info["BERV"]
-            true_bary, true_herv = compute_berv_and_herv_POET(header)
-            true_berv = true_bary + true_herv
-
-            new_rv = self.observation_info["DRS_RV"] - self.wrong_berv + true_berv
-            self.observation_info["DRS_RV"] = new_rv
-            self.observation_info["BERV"] = true_berv
-            self.observation_info["BERV_FACTOR"] = None # Avoid re-write later on
-            self.observation_info["MAX_BERV"] = 2.5 * kilometer_second
 
     def load_telemetry_info(self, header):
         # Find the UT number and load the airmass
@@ -149,22 +128,19 @@ class ESPRESSO(ESO_PIPELINE):
             "seeing": "AMBI FWHM START",
         }
 
-        if self.is_poet_data and f"ESO TEL5 {ambi_KWs["seeing"]}" not in header:
-            # Backup since some files had the wrong keyword
-            logger.critical("seeing KW not in header, falling back to old KW")
-            logger.warning(header["*AMBI FWHM"])
-            ambi_KWs["seeing"] = "AMBI FWHM"
-
         for name, endKW in ambi_KWs.items():
-            self.observation_info[name] = float(
-                header[f"HIERARCH ESO TEL{self.UT_number} {endKW}"]
-            )
-            if "temperature" in name:  # store temperature in KELVIN for TELFIT
-                self.observation_info[name] = convert_temperature(
-                    self.observation_info[name],
-                    old_scale="Celsius",
-                    new_scale="Kelvin",
+            try:
+                self.observation_info[name] = float(
+                    header[f"HIERARCH ESO TEL{self.UT_number} {endKW}"]
                 )
+                if "temperature" in name:  # store temperature in KELVIN for TELFIT
+                    self.observation_info[name] = convert_temperature(
+                        self.observation_info[name],
+                        old_scale="Celsius",
+                        new_scale="Kelvin",
+                    )
+            except KeyError:
+                logger.info(f"Failed to load {name} from header")
 
         self.observation_info["DET_BINX"] = header["HIERARCH ESO DET BINX"]
         self.observation_info["DET_BINY"] = header["HIERARCH ESO DET BINY"]
