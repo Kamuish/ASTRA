@@ -15,6 +15,7 @@ from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple
 
 import numpy as np
 from astropy.io import fits
+from astropy.units import arcsec
 from matplotlib import pyplot as plt
 
 from ASTRA import astra_logger as logger
@@ -244,6 +245,7 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
             "site_pressure": None,  # pressure in hPa
             "is_drift_corrected": None,  # True if the S2D files are already corrected from the drift
         }
+        self.is_solar = False
 
         self.frameID = frameID
         self._status = Status()  # BY DEFAULT IT IS A VALID ONE!
@@ -333,6 +335,10 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
             "FIBER_A": "",
             "FIBER_B": "",
             "filename": file_path.stem,
+            "DIFF_ATMOS_RV_CORR": 0
+            * kilometer_second,  # Differential atmospheric extinction, only relevant for Sun-as-a-Star observations,
+            "TX": 0 * arcsec,
+            "TY": 0 * arcsec,
         }
 
         # Used to allow to reject a wavelength region from one order and keep any overlap that might exist on others
@@ -504,7 +510,8 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
                 KW,
             )
 
-        if not np.isfinite(value):
+        # Bypass finite validation for strings
+        if not isinstance(value, str) and not np.isfinite(value):
             if not optional:
                 logger.critical(
                     "Loaded mandatory keyword <{}> with a non-finite value for frame {}",
@@ -984,6 +991,8 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
             logger.critical(msg)
             return
 
+        self._header = hdu
+
         try:
             for internal_KW, S2D_KW in self._KW_map.items():
                 self.observation_info[internal_KW] = hdu[S2D_KW]
@@ -1018,8 +1027,6 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
             Any: Header value
 
         """
-        if self._header is None:
-            self._header = fits.getheader(self.file_path)
         return self._header[kw]
 
     ####################################
