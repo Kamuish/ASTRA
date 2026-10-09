@@ -77,7 +77,7 @@ class ESPRESSO(ESO_PIPELINE):
         coverage = (350, 900)
 
         super().__init__(
-            inst_name="ESPRESSO",
+            inst_name="ESPRESSO" if not self.is_solar else "POET",
             array_size={"S2D": (170, 9111), "S1D": (1, 443262)},
             file_path=file_path,
             frameID=frameID,
@@ -85,6 +85,7 @@ class ESPRESSO(ESO_PIPELINE):
             user_configs=user_configs,
             reject_subInstruments=reject_subInstruments,
             quiet_user_params=quiet_user_params,
+            need_external_data_load=self.is_solar,
         )
 
         self.instrument_properties["wavelength_coverage"] = coverage
@@ -98,7 +99,6 @@ class ESPRESSO(ESO_PIPELINE):
         self.instrument_properties["site_pressure"] = 750
 
         self.UT_number = None
-        self.is_poet_data = False
 
     def _load_ESO_DRS_KWs(self, header):
         super()._load_ESO_DRS_KWs(header)
@@ -199,14 +199,14 @@ class ESPRESSO(ESO_PIPELINE):
         # Store the open status before calling parent classes
         is_open = self.is_open
         super().load_S1D_data()
-        if self.is_poet_data and not is_open:
+        if self.is_solar and not is_open:
             self.apply_poet_data_corrections()
 
     def load_S2D_data(self) -> None:
         # Store the open status before calling parent classes
         is_open = self.is_open
         super().load_S2D_data()
-        if self.is_poet_data and not is_open:
+        if self.is_solar and not is_open:
             self.apply_poet_data_corrections()
 
     def apply_poet_data_corrections(self) -> None:
