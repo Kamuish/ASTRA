@@ -186,15 +186,16 @@ def load_POET_extra_information(self: "DataClass") -> None:
     # Apply extra corrections to Sun as a Star data (differential atmospheric extinction)
     if sol_path is not None:
         sol_path = Path(sol_path)
+        print(sol_data, sol_path)
         if not sol_path.exists():
             raise custom_exceptions.InternalError(
                 f"SOLYARIS path ({sol_path}) does not exist"
             )
         for day, frameIDs in map_of_days.items():
             if sol_path.is_dir():
-                sol_path = sol_path.glob(f"**/*{day}*csv")
+                local_sol_path = sol_path.glob(f"**/*{day}*csv")
                 try:
-                    sol_data = pd.read_csv(next(sol_path))
+                    sol_data = pd.read_csv(next(local_sol_path))
                 except StopIteration:
                     logger.critical(
                         f"Couldn't find solyaris file for {day} in {sol_path}"
@@ -235,7 +236,7 @@ def load_POET_extra_information(self: "DataClass") -> None:
                 )
                 if not qual_value:
                     frame.add_to_status(
-                        FATAL_KW(f"Failed SOLYARIS QC checks for {self.fname}")
+                        FATAL_KW(f"Failed SOLYARIS QC checks for {frame.fname}")
                     )
                 frame.finalized_external_data_load()
 
