@@ -77,6 +77,7 @@ class ESO_PIPELINE(Frame):
         quiet_user_params: bool = True,
         override_KW_map=None,
         override_indicators=None,
+        need_external_data_load=False,
     ):
         """Prepare data load.
 
@@ -139,6 +140,7 @@ class ESO_PIPELINE(Frame):
             user_configs=user_configs,
             reject_subInstruments=reject_subInstruments,
             quiet_user_params=quiet_user_params,
+            need_external_data_load=need_external_data_load,
         )
 
         self.instrument_properties["is_drift_corrected"] = True
@@ -225,7 +227,7 @@ class ESO_PIPELINE(Frame):
     def get_air_wavelength(self) -> np.ndarray:
         if self.is_S1D:
             with fits.open(self.file_path) as hdu:
-                return hdu[1].data["wavelength_air"]
+                return hdu[1].data["wavelength_air"].reshape((1, self.array_size[1]))
         elif self.is_S2D:
             with fits.open(self.file_path) as hdu:
                 return hdu["WAVEDATA_AIR_BARY"].data

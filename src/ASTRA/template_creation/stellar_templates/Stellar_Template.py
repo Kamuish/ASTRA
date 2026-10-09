@@ -32,6 +32,8 @@ from ASTRA.utils.parameter_validators import (
     ValueInInterval,
 )
 from ASTRA.utils.paths_tools.build_filename import build_filename
+from ASTRA.utils.shift_spectra import remove_RVshift
+
 from ASTRA.utils.units import convert_data, kilometer_second
 from ASTRA.utils.UserConfigs import (
     DefaultValues,
@@ -326,7 +328,14 @@ class StellarTemplate(BaseTemplate, Spectral_Modelling):
 
         try:
             frame = dataClass.get_frame_by_ID(self._reference_frameID)
-            self.wave_air = frame.get_air_wavelength()
+            self.wave_air = remove_RVshift(
+                frame.get_air_wavelength(),
+                stellar_RV=convert_data(
+                    frame.get_KW_value(self.RV_keyword),
+                    new_units=kilometer_second,
+                    as_value=True,
+                ),
+            )
         except Exception as e:
             logger.critical(f"Couldn't get the air wavelengths due to {e}")
 
