@@ -27,6 +27,7 @@ from ASTRA import astra_logger as logger
 from ASTRA.data_objects.MetaData import MetaData
 from ASTRA.data_objects.Target import Target
 from ASTRA.Instruments.CARMENES import load_CARMENES_extra_information
+from ASTRA.Instruments.POET import load_POET_extra_information
 from ASTRA.status.flags import (  # for entire frame; for individual pixels
     ACTIVITY_LINE,
     SIGMA_CLIP_REJECTION,
@@ -89,7 +90,8 @@ class DataClass(BASE):
     """
 
     extra_loading_functions: Dict[str, Callable] = {
-        "CARMENES": load_CARMENES_extra_information
+        "CARMENES": load_CARMENES_extra_information,
+        "POET": load_POET_extra_information,
     }
 
     def __init__(
@@ -1125,17 +1127,15 @@ class DataClass(BASE):
         If so, then calls the relevant function.
         """
         logger.info("Checking if the instrument has extra data to load")
+
         for key, load_func in self.get_extra_loading_functions().items():
             if self.has_instrument_data(key):
                 logger.info(
                     f"Dataclass has {key} data. Extra loading is being triggered"
                 )
                 load_func(self)
-                return
 
-        logger.info(
-            "Current instrument does not need to load anything from the outside"
-        )
+        self.show_loadedData_table()
 
     @classmethod
     def add_extra_loading_information(cls, name: str, loader: Callable) -> None:

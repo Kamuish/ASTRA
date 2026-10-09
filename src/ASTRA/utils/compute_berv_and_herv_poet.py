@@ -12,6 +12,7 @@ import numpy as np
 
 from ASTRA.utils.units import kilometer_second
 from ASTRA.utils.ASTRAtypes import RV_measurement
+from ASTRA.utils import custom_exceptions
 
 
 # Compute BERV and HERV
@@ -49,5 +50,10 @@ def compute_berv_and_herv_POET(header) -> tuple[RV_measurement, RV_measurement]:
     # Convert from m/s to km/s
     berv_val *= 1e-3
     herv_val *= 1e-3
+
+    if not np.isfinite((berv_val + herv_val)):
+        raise custom_exceptions.InternalError(
+            f"Got non-finite values for the BERV calculation ({berv_val=}; {herv_val=})"
+        )
 
     return berv_val * kilometer_second, herv_val * kilometer_second
