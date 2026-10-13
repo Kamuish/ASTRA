@@ -68,7 +68,6 @@ class POET(ESPRESSO):
         # Wavelength coverage
 
         coverage = (350, 900)
-        self.is_solar = True
         self.is_resolved_observation = "_B" in file_path.as_posix()
         self._updated_drs_rv = False
 
@@ -78,6 +77,7 @@ class POET(ESPRESSO):
             user_configs=user_configs,
             reject_subInstruments=reject_subInstruments,
             quiet_user_params=quiet_user_params,
+            is_solar=True,
         )
 
     def _load_ESO_DRS_KWs(self, header):
