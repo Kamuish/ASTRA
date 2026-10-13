@@ -33,7 +33,10 @@ ASTRA is currently available in python 3.11 and python 3.12, and it can be insta
     pip install . 
     ```
 
-By default, ASTRA does not install Telfit as it will only be needed for the masking of the telluric features. If this is the goal, it must be installed manually.
+By default, ASTRA does not install the following libraries:
+
+1) Telfit as it will only be needed for the masking of the telluric features. If this is the goal, it must be installed manually (see docs for details).
+2) Barycorrpy, for PoET observations. barycorrpy is used to compute the barycentric and heliocentric correction for PoET observations only and, as such, it must be installed manually for such cases
 
 ## Issues and contribution
 
