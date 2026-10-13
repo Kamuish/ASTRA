@@ -66,7 +66,16 @@ Depending on the python version that is in use, the installation of TelFit might
 
 ## Changelog
 
-### V1.2.7 (current)
+### 1.2.9 (current)
+
+1) Add support for PoET
+2) Add new keywords to the fits header of the stellar templates to match the expected format of a stacked spectra (BJD, SNR)
+
+### 1.2.8
+
+1) Add support for MAROON-X
+
+### V1.2.7 
 
 1) Added HARPS-N support 
 2) Updated plotting capabilities of DataClass
