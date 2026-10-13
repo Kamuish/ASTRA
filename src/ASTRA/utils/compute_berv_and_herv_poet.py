@@ -5,7 +5,14 @@ Compute BERV (Barycentric-Earth RV) and HERV (HEliocentric RV) correction.
 import astropy.constants as ac
 from astropy.io import fits
 from astropy.time import Time
-import barycorrpy
+
+try:
+    import barycorrpy
+
+    BARYCORR_AVAILABLE = True
+except ImportError:
+    BARYCORR_AVAILABLE = False
+
 from glob import glob
 import matplotlib.pyplot as plt
 import numpy as np
@@ -18,6 +25,10 @@ from ASTRA.utils import custom_exceptions
 # Compute BERV and HERV
 def compute_berv_and_herv_POET(header) -> tuple[RV_measurement, RV_measurement]:
     """Compute barycentric and heliocentric correction for Paranal Observatory"""
+    if not BARYCORR_AVAILABLE:
+        raise custom_exceptions.InternalError(
+            "Barycorrpy is not available. Please install it to compute BERV and HERV."
+        )
 
     obsname = "Paranal Observatory"
     # Loop observations
