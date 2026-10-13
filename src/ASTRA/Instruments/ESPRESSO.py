@@ -57,6 +57,7 @@ class ESPRESSO(ESO_PIPELINE):
         reject_subInstruments: Optional[Iterable[str]] = None,
         frameID: Optional[int] = None,
         quiet_user_params: bool = True,
+        is_solar=False,
     ):
         """ESPRESSO interface.
 
@@ -75,7 +76,7 @@ class ESPRESSO(ESO_PIPELINE):
         # Wavelength coverage
 
         coverage = (350, 900)
-
+        self.is_solar = is_solar
         super().__init__(
             inst_name="ESPRESSO" if not self.is_solar else "POET",
             array_size={"S2D": (170, 9111), "S1D": (1, 443262)},

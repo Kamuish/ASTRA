@@ -898,6 +898,22 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
                 "no sub-instrument found for observation"
             )
 
+    def overwrite_sub_instrument(self, sub_instrument: str) -> None:
+        """Overwrite the sub-instrument designation for this Frame.
+
+        This method allows manual overriding of the sub-instrument designation.
+
+        Parameters
+        ----------
+        sub_instrument : str
+            The new sub-instrument designation to be assigned to this Frame.
+
+        """
+        if not isinstance(sub_instrument, str):
+            raise ValueError("sub_instrument must be a string.")
+        logger.info(f"Overwriting sub-instrument to {sub_instrument}")
+        self.sub_instrument = sub_instrument
+
     #####################################
     #      Handle data management      #
     ####################################
