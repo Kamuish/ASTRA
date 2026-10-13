@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 from collections import defaultdict
 from collections.abc import Iterable
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -140,6 +141,54 @@ class DataClass(BASE):
         if reject_subInstruments is not None:
             logger.warning(f"Rejecting subInstruments: {reject_subInstruments}")
 
+        self.generate_root_path(storage_path)
+        self.frameID_map = defaultdict(list)
+
+        self.add_data_from_instrument(
+            input_files=input_files,
+            instrument=instrument,
+            reject_subInstruments=reject_subInstruments,
+            instrument_options=instrument_options,
+        )
+
+        N_files = len(self.observations)
+        logger.debug("Selected {} observations from disk", N_files)
+        if N_files == 0:
+            raise InvalidConfiguration("Input has zero files")
+
+        self._collect_MetaData()
+
+        # TODO: find a better way of doing this!
+        self.Target = Target(
+            self.collect_KW_observations(
+                "OBJECT", self._inst_type.sub_instruments, include_invalid=False
+            ),
+            original_name=target_name,
+            target_dictionary_path=target_dictionary_path,
+        )
+
+        self._validate_loaded_observations()
+        self.show_loadedData_table()
+
+        self._applied_telluric_removal = False
+
+        self.StellarModel = None
+
+        self.load_instrument_extra_information()
+
+        for frame in self.observations:
+            frame.initialize_modelling_interface()
+            frame.finalize_data_load()
+
+    def add_data_from_instrument(
+        self,
+        input_files: Iterable[UI_PATH],
+        instrument: Type[Frame],
+        reject_subInstruments: Iterable[str] | None = None,
+        custom_subIns_name: str | None = None,
+        instrument_options: dict[str, Any] | None = None,
+    ) -> None:
+
         OBS_list = []
         if isinstance(input_files, (str, Path)):
             logger.info("DataClass loading data from {}", self.input_file)
@@ -179,49 +228,27 @@ class DataClass(BASE):
                 logger.critical(f"Failed in {filepath} due to {e}")
                 raise e
 
-        from concurrent.futures import ThreadPoolExecutor
-
         if instrument is not MAROONX:
             with ThreadPoolExecutor() as ex:
-                self.observations = list(ex.map(build_obs, enumerate(OBS_list)))
+                observations = list(ex.map(build_obs, enumerate(OBS_list)))
         else:
-            self.observations = list(map(build_obs, enumerate(OBS_list)))
+            observations = list(map(build_obs, enumerate(OBS_list)))
         all_ids = [i.frameID for i in self.observations]
         if len(all_ids) != len(set(all_ids)):
             raise custom_exceptions.InternalError("Clash in frameID, repeated numbers")
-        self.generate_root_path(storage_path)
 
-        N_files = len(self.observations)
-        logger.debug("Selected {} observations from disk", N_files)
-        if N_files == 0:
-            raise InvalidConfiguration("Input has zero files")
+        # The Frames don't store data inside the Iteration folder!
+        frame_root_path = self._internalPaths.root_storage_path
+        for frame in observations:
+            if custom_subIns_name is not None:
+                frame.overwrite_sub_instrument(custom_subIns_name)
 
-        self.frameID_map = {subInst: [] for subInst in self._inst_type.sub_instruments}
+            frame.generate_root_path(frame_root_path)
+        self.observations.extend(observations)
         self._build_frameID_map()
 
-        self._collect_MetaData()
-
-        # TODO: find a better way of doing this!
-        self.Target = Target(
-            self.collect_KW_observations(
-                "OBJECT", self._inst_type.sub_instruments, include_invalid=False
-            ),
-            original_name=target_name,
-            target_dictionary_path=target_dictionary_path,
-        )
-
-        self._validate_loaded_observations()
-        self.show_loadedData_table()
-
-        self._applied_telluric_removal = False
-
-        self.StellarModel = None
-
-        self.load_instrument_extra_information()
-
-        for frame in self.observations:
-            frame.initialize_modelling_interface()
-            frame.finalize_data_load()
+        if custom_subIns_name is not None:
+            self.show_loadedData_table()
 
     ########################
     #    Operate on Data   #
@@ -1012,15 +1039,6 @@ class DataClass(BASE):
 
         for frame in self.observations:
             frame.trigger_data_storage()
-
-    def generate_root_path(self, storage_path: Path) -> None:
-        """Triggers the parent routine and also generates the root path for the Frames."""
-        super().generate_root_path(storage_path)
-
-        # The Frames don't store data inside the Iteration folder!
-        frame_root_path = self._internalPaths.root_storage_path
-        for frame in self.observations:
-            frame.generate_root_path(frame_root_path)
 
     ########################
     #          MISC        #
