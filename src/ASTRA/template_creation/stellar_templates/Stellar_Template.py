@@ -661,7 +661,6 @@ class StellarTemplate(BaseTemplate, Spectral_Modelling):
             self.spectral_mask = Mask(initial_mask=mask)
 
         self.array_size = self.spectra.shape
-
         storage_path = self._internalPaths.get_path_to("RunTimeProds", as_posix=False)
 
         detailedFlags_storage = build_filename(
@@ -670,7 +669,12 @@ class StellarTemplate(BaseTemplate, Spectral_Modelling):
             fmt="json",
         )
 
-        self._OrderStatus = OrderStatus.load_from_json(detailedFlags_storage)
+        try:
+            self._OrderStatus = OrderStatus.load_from_json(detailedFlags_storage)
+        except FileNotFoundError:
+            raise custom_exceptions.TemplateNotExistsError(
+                "No data for current ASTRA version"
+            )
 
         miscInfo = build_filename(
             storage_path,
