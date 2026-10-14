@@ -17,28 +17,22 @@ from ASTRA import astra_logger as logger
 from ASTRA.base_models.Frame import Frame
 from ASTRA.base_models.Template_Model import BaseTemplate
 from ASTRA.Components import Spectral_Modelling
-from ASTRA.status.flags import HIGH_CONTAMINATION, MISSING_DATA
+from ASTRA.status.flags import HIGH_CONTAMINATION, MISSING_DATA, TELLURIC
 from ASTRA.status.Mask_class import Mask
 from ASTRA.status.OrderStatus import OrderStatus
 from ASTRA.utils import custom_exceptions
 from ASTRA.utils.choices import DISK_SAVE_MODE
 from ASTRA.utils.concurrent_tools.create_shared_arr import create_shared_array
 from ASTRA.utils.custom_exceptions import NoDataError
-from ASTRA.utils.parameter_validators import (
-    BooleanValue,
-    IntegerValue,
-    Positive_Value_Constraint,
-    ValueFromDtype,
-    ValueInInterval,
-)
+from ASTRA.utils.parameter_validators import (BooleanValue, IntegerValue,
+                                              Positive_Value_Constraint,
+                                              ValueFromDtype, ValueInInterval)
 from ASTRA.utils.paths_tools.build_filename import build_filename
 from ASTRA.utils.shift_spectra import remove_RVshift
-
+from ASTRA.utils.telluric_utilities.compute_overlaps_blocks import \
+    check_if_overlap
 from ASTRA.utils.units import convert_data, kilometer_second
-from ASTRA.utils.UserConfigs import (
-    DefaultValues,
-    UserParam,
-)
+from ASTRA.utils.UserConfigs import DefaultValues, UserParam
 
 if TYPE_CHECKING:
     from ASTRA.base_models.Frame import Frame
@@ -313,7 +307,6 @@ class StellarTemplate(BaseTemplate, Spectral_Modelling):
 
         self.header_information["STACKED BJD"] = weighted_bjds
         self.header_information["N OBS"] = len(self.frameIDs_to_use)
-
         for index, flux in enumerate(self.spectra):
             mask = ~self.spectral_mask.get_custom_mask()[index]
             self.header_information[f"ORDER {index} MEDIAN FLUX"] = np.nan_to_num(
@@ -326,8 +319,13 @@ class StellarTemplate(BaseTemplate, Spectral_Modelling):
                 np.nanmedian(flux[mask] / self.uncertainties[index][mask]), nan=0
             )
 
+        frame = dataClass.get_frame_by_ID(self._reference_frameID)
+        self.header_information["MAX BERV"] = convert_data(
+            frame.get_KW_value("MAX_BERV"),
+            new_units=kilometer_second,
+            as_value=True,
+        )
         try:
-            frame = dataClass.get_frame_by_ID(self._reference_frameID)
             self.wave_air = remove_RVshift(
                 frame.get_air_wavelength(),
                 stellar_RV=convert_data(
@@ -643,6 +641,33 @@ class StellarTemplate(BaseTemplate, Spectral_Modelling):
         )
         plt.close(fig)
 
+    def remove_telluric_features(self, Telluric_Template: TelluricModel) -> None:
+        """Remove telluric features from the stellar template."""
+
+        subInst_template = Telluric_Template.request_data(self.sub_instrument)
+
+        order_map = {
+            i: (np.min(self.wavelengths[i]), np.max(self.wavelengths[i]))
+            for i in range(self.N_orders)
+        }
+        if subInst_template.for_feature_removal:
+            for wave_pair in subInst_template.contaminated_regions:
+
+                for order in range(self.N_orders):
+                    if check_if_overlap(wave_pair, order_map[order]):
+                        indexes = np.where(
+                            np.logical_and(
+                                self.wavelengths[order] >= wave_pair[0],
+                                self.wavelengths[order] <= wave_pair[1],
+                            ),
+                        )
+                        self.spectral_mask.add_indexes_to_mask_order(
+                            order, indexes, TELLURIC
+                        )
+        else:
+            raise custom_exceptions.InternalError("Why aren't we removing tellurics?")
+        self._applied_telluric_removal = True
+
     def load_from_file(self, root_path, loading_path: str) -> None:
         super().load_from_file(root_path, loading_path)
 
@@ -659,6 +684,10 @@ class StellarTemplate(BaseTemplate, Spectral_Modelling):
 
             mask = hdulist["MASK"].data.astype(bool)
             self.spectral_mask = Mask(initial_mask=mask)
+            header = hdulist[0].header
+
+        for kw in ["MAX_BERV"]:
+            self.header_information[kw] = header.get(kw, 0)
 
         self.array_size = self.spectra.shape
         storage_path = self._internalPaths.get_path_to("RunTimeProds", as_posix=False)
