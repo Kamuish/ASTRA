@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Generator
 from typing import TYPE_CHECKING, Any, NoReturn, Set
 
+import matplotlib.pyplot as plt
 import numpy as np
 
 from ASTRA import astra_logger as logger
@@ -12,12 +13,10 @@ from ASTRA.status.OrderStatus import OrderStatus
 from ASTRA.utils import custom_exceptions
 from ASTRA.utils.ASTRAtypes import RV_measurement
 from ASTRA.utils.BASE import BASE
-from ASTRA.utils.shift_spectra import (
-    apply_approximated_BERV_correction,
-    apply_BERV_correction,
-    remove_approximated_BERV_correction,
-    remove_BERV_correction,
-)
+from ASTRA.utils.shift_spectra import (apply_approximated_BERV_correction,
+                                       apply_BERV_correction,
+                                       remove_approximated_BERV_correction,
+                                       remove_BERV_correction)
 from ASTRA.utils.units import kilometer_second
 
 if TYPE_CHECKING:
@@ -375,3 +374,54 @@ class Spectrum(BASE):
     def is_open(self) -> bool:
         """True if it has the arrays loaded on memory."""
         return self._spectrum_has_data_on_memory
+
+    def plot_spectra(
+        self,
+        order: int,
+        apply_mask: bool = True,
+        fig_and_axis: None | tuple = None,
+        return_fig_and_axis: bool = True,
+        saveto: None | str = None,
+        plot_options: dict[str, Any] | None = None,
+    ):
+        """Plot the flux of a single spectral order.
+
+        Parameters
+        ----------
+        order : int
+            Spectral order to plot.
+        apply_mask : bool, optional
+            If True, pixels flagged in the mask are excluded from the plot.
+        fig_and_axis : tuple, optional
+            An existing ``(fig, axis)`` pair to draw on. If None, a new
+            figure and axis are created.
+        return_fig_and_axis : bool, optional
+            If True, return ``(fig, axis)`` instead of showing the plot.
+            If False, the figure is shown with ``plt.show()``.
+
+        Returns
+        -------
+        tuple | None
+            ``(fig, axis)`` if ``return_fig_and_axis`` is True, otherwise None.
+        """
+        if plot_options is None:
+            plot_options = {}
+        if fig_and_axis is None:
+            fig, axis = plt.subplots()
+        else:
+            fig, axis = fig_and_axis
+
+        wave, flux, err, mask = self.get_data_from_spectral_order(order=order)
+
+        if apply_mask:
+            good_pixel_mask = ~mask
+            wave, flux = wave[good_pixel_mask], flux[good_pixel_mask]
+
+        axis.scatter(wave, flux, s=5, **plot_options)
+        axis.set_xlabel(r"wavelength $[\AA]$")
+        axis.set_ylabel("Flux")
+
+        if saveto is not None:
+            fig.savefig(saveto, dpi=600)
+        if return_fig_and_axis:
+            return fig, axis
