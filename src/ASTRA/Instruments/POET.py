@@ -176,6 +176,7 @@ def load_POET_extra_information(self: "DataClass") -> None:
         return_frameIDs=True,
     )
 
+    # Mapping to go from day to fID
     map_of_days: dict[str, list[int]] = defaultdict(list)
     for name, fID in zip(poet_iso_dates, frameIDs):
         map_of_days[name.split("T")[0]].append(fID)
@@ -253,9 +254,11 @@ def load_POET_extra_information(self: "DataClass") -> None:
         aux_path = Path(aux_path)
         for day, frameIDs in map_of_days.items():
             all_aux_files = aux_path.glob(f"**/POET.INT.{day}*fits")
+
+            # OB name to frameID
             map_of_files: dict[str, list[int]] = defaultdict(list)
-            for name, fID in zip(poet_ob_names, frameIDs):
-                map_of_files[name].append(fID)
+            for OBname, fID in zip(poet_ob_names, frameIDs):
+                map_of_files[OBname].append(fID)
 
             poe_to_header_map = {}
             for aux_file in all_aux_files:
