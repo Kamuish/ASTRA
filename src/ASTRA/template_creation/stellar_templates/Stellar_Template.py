@@ -320,6 +320,7 @@ class StellarTemplate(BaseTemplate, Spectral_Modelling):
             )
 
         frame = dataClass.get_frame_by_ID(self._reference_frameID)
+        self.header_information["POET_APERTURE"] = frame.get_KW_value("POET_APERTURE")
         self.header_information["MAX BERV"] = convert_data(
             frame.get_KW_value("MAX_BERV"),
             new_units=kilometer_second,
@@ -686,7 +687,7 @@ class StellarTemplate(BaseTemplate, Spectral_Modelling):
             self.spectral_mask = Mask(initial_mask=mask)
             header = hdulist[0].header
 
-        for kw in ["MAX_BERV"]:
+        for kw in ["MAX_BERV", "POET_APERTURE"]:
             self.header_information[kw] = header.get(kw, 0)
 
         self.array_size = self.spectra.shape
