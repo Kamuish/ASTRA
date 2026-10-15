@@ -186,7 +186,6 @@ def load_POET_extra_information(self: "DataClass") -> None:
     # Apply extra corrections to Sun as a Star data (differential atmospheric extinction)
     if sol_path is not None:
         sol_path = Path(sol_path)
-        print(sol_data, sol_path)
         if not sol_path.exists():
             raise custom_exceptions.InternalError(
                 f"SOLYARIS path ({sol_path}) does not exist"
@@ -279,14 +278,23 @@ def load_POET_extra_information(self: "DataClass") -> None:
                     ("PROG ID", "ESO ST ID"),
                     ("TX", "ESO TEL5 TARG TX"),
                     ("TY", "ESO TEL5 TARG TY"),
+                    ("ALT_OFF", "ESO MCS MOTION AL DYNAMICOFFSET"),
+                    ("AZ_OFF", "ESO MCS MOTION AZ DYNAMICOFFSET"),
+                    ("COMMENT", "COMMENT"),
                 ]:
                     val = head[head_kwy]
 
-                    if val in ["TX", "TY"]:
+                    if int_kw in ["TX", "TY"]:
                         val = float(val) * u.arcsec
+                    if int_kw in ["ALT_OFF", "AZ_OFF"]:
+                        val = float(val)
+
+                    if int_kw in ["COMMENT"]:
+                        val = " ".join(str(v) for v in val)
 
                     frame.import_KW_from_outside(KW=int_kw, value=val, optional=True)
 
+                frame.finalized_external_data_load()
     else:
         logger.warning("AUXILLIARY path was not provided, skipping loading of metadata")
         for fID in frameIDs:

@@ -340,6 +340,9 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
             * kilometer_second,  # Differential atmospheric extinction, only relevant for Sun-as-a-Star observations,
             "TX": 0 * arcsec,
             "TY": 0 * arcsec,
+            "ALT_OFF": 0,
+            "AZ_OFF": 0,
+            "COMMENT": "",
         }
 
         # Used to allow to reject a wavelength region from one order and keep any overlap that might exist on others
