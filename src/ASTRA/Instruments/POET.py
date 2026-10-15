@@ -1,6 +1,7 @@
 import datetime
 from typing import Any, Dict, Iterable, Optional, TYPE_CHECKING
 from pathlib import Path
+from ASTRA.utils import custom_exceptions
 import pandas as pd
 import numpy as np
 from astropy.coordinates import EarthLocation
@@ -250,22 +251,23 @@ def load_POET_extra_information(self: "DataClass") -> None:
 
     if aux_path is not None:
         aux_path = Path(aux_path)
-        all_aux_files = aux_path.glob(f"**/POET.INT.{day}*fits")
-        map_of_files: dict[str, list[int]] = defaultdict(list)
-        for name, fID in zip(poet_ob_names, frameIDs):
-            map_of_files[name].append(fID)
+        for day, frameIDs in map_of_days.items():
+            all_aux_files = aux_path.glob(f"**/POET.INT.{day}*fits")
+            map_of_files: dict[str, list[int]] = defaultdict(list)
+            for name, fID in zip(poet_ob_names, frameIDs):
+                map_of_files[name].append(fID)
 
-        poe_to_header_map = {}
-        for aux_file in all_aux_files:
-            aux_header = fits.getheader(aux_file, ext=1)
-            aux_ob_name = aux_header["ESO OBS NAME"]
-            if aux_ob_name not in map_of_files:
-                logger.debug(
-                    f"Could not find any frame for {aux_ob_name} in {aux_file}"
-                )
-                continue
+            poe_to_header_map = {}
+            for aux_file in all_aux_files:
+                aux_header = fits.getheader(aux_file, ext=1)
+                aux_ob_name = aux_header["ESO OBS NAME"]
+                if aux_ob_name not in map_of_files:
+                    logger.debug(
+                        f"Could not find any frame for {aux_ob_name} in {aux_file}"
+                    )
+                    continue
 
-            poe_to_header_map[aux_ob_name] = aux_header
+                poe_to_header_map[aux_ob_name] = aux_header
 
         for poet_ob_name, frameIDs in map_of_files.items():
 
