@@ -158,7 +158,7 @@ class DataClass(BASE):
 
         self._collect_MetaData()
 
-        # TODO: find a better way of doing this!
+        #  TODO: find a better way of doing this!
         self.Target = Target(
             self.collect_KW_observations(
                 "OBJECT", self._inst_type.sub_instruments, include_invalid=False
@@ -179,6 +179,28 @@ class DataClass(BASE):
         for frame in self.observations:
             frame.initialize_modelling_interface()
             frame.finalize_data_load()
+
+    def construct_subInstruments_by_obID(self) -> None:
+        """Create new sub-Instruments with the obID of the observations"""
+        logger.warning("Re-definning sub-Instruments based on the OBID")
+
+        ob_ids, frameIDS = self.collect_KW_observations(
+            KW="OBS NAME",
+            subInstruments=self.get_subInstruments_with_valid_frames(),
+            return_frameIDs=True,
+        )
+        mapa = defaultdict(list)
+        for OB, ids in zip(ob_ids, frameIDS):
+            mapa[OB].append(ids)
+
+        new_submap = defaultdict(list)
+        for new_inst, all_frameID in mapa.items():
+            print(new_inst, "--", all_frameID)
+            for frameID in all_frameID:
+                frame = self.get_frame_by_ID(frameID)
+                frame.overwrite_sub_instrument(new_inst)
+                new_submap[new_inst].append(frameID)
+        self.frameID_map = new_submap
 
     def add_data_from_instrument(
         self,
@@ -994,7 +1016,9 @@ class DataClass(BASE):
     def get_subInstruments_with_valid_frames(self) -> list[str]:
         """Find all subInstruments that have at least one valid observation."""
         out = []
-        for subInst in self._inst_type.sub_instruments:
+        for subInst in set(
+            list(self._inst_type.sub_instruments.keys()) + list(self.frameID_map.keys())
+        ):
             try:
                 _ = self.get_frameIDs_from_subInst(subInst, include_invalid=False)
                 out.append(subInst)
