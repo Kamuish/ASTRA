@@ -193,7 +193,7 @@ class TemplateFramework(BASE):
 
         for temp_path in available_templates:
             temp_disk_name = os.path.basename(temp_path)
-
+            
             temp_name = temp_disk_name.split("_")[0]
             for key in self.__class__.template_map:
                 if key.value == temp_name:
@@ -202,8 +202,11 @@ class TemplateFramework(BASE):
             else:
                 msg = f"Can't load template {temp_name}"
                 raise Exception(msg)
-            temp_subInst = temp_disk_name.split("_")[-1].split(".fits")[0]
-
+            
+            if "Poe" in temp_disk_name:
+                temp_subInst = "_".join(temp_disk_name.split(".fits")[0].split("_")[-2:])
+            else:
+                temp_subInst = temp_disk_name.split("_")[-1].split(".fits")[0]
             template_header = fits.getheader(temp_path)
             config_dict = {}
             for key in self.__class__.template_map[temp_name].control_parameters():
