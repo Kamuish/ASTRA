@@ -91,7 +91,7 @@ class StellarModel(TemplateFramework):
 
     def Generate_Model(
         self,
-        dataClass: DataClass,
+        dataClass: DataClass | None,
         template_configs: Optional[UI_DICT] = None,
         conditions: Optional[ConditionModel] = None,
         force_computation: bool = False,
@@ -145,14 +145,19 @@ class StellarModel(TemplateFramework):
             self.iteration_number = previous_sbart_rv.iteration_number + 1
             self.RV_source = "SBART"
 
-            try:
-                dataClass.load_previous_SBART_results(
-                    previous_sbart_rv,
-                    use_merged_cube=self._internal_configs["USE_MERGED_RVS"],
+            if dataClass is not None:
+                try:
+                    dataClass.load_previous_SBART_results(
+                        previous_sbart_rv,
+                        use_merged_cube=self._internal_configs["USE_MERGED_RVS"],
+                    )
+                except Exception as e:
+                    logger.opt(exception=True).critical("Failed")
+                    raise e
+            else:
+                logger.warning(
+                    "No DataClass provided. The RVs will not be loaded into the observations"
                 )
-            except Exception as e:
-                logger.opt(exception=True).critical("Failed")
-                raise e
 
         else:
             logger.info(
