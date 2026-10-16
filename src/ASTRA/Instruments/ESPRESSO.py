@@ -9,6 +9,8 @@ from ASTRA import astra_logger as logger
 from ASTRA.Instruments.ESO_PIPELINE import ESO_PIPELINE
 from ASTRA.status.flags import ERROR_THRESHOLD, KW_WARNING
 from ASTRA.utils.definitions import DETECTOR_DEFINITION
+from ASTRA.utils.units import kilometer_second
+from ASTRA.utils.compute_berv_and_herv_poet import compute_berv_and_herv_POET
 
 
 class ESPRESSO(ESO_PIPELINE):
@@ -55,6 +57,7 @@ class ESPRESSO(ESO_PIPELINE):
         reject_subInstruments: Optional[Iterable[str]] = None,
         frameID: Optional[int] = None,
         quiet_user_params: bool = True,
+        is_solar=False,
     ):
         """ESPRESSO interface.
 
@@ -73,9 +76,9 @@ class ESPRESSO(ESO_PIPELINE):
         # Wavelength coverage
 
         coverage = (350, 900)
-
+        self.is_solar = is_solar
         super().__init__(
-            inst_name="ESPRESSO",
+            inst_name="ESPRESSO" if not self.is_solar else "POET",
             array_size={"S2D": (170, 9111), "S1D": (1, 443262)},
             file_path=file_path,
             frameID=frameID,
@@ -83,6 +86,7 @@ class ESPRESSO(ESO_PIPELINE):
             user_configs=user_configs,
             reject_subInstruments=reject_subInstruments,
             quiet_user_params=quiet_user_params,
+            need_external_data_load=self.is_solar,
         )
 
         self.instrument_properties["wavelength_coverage"] = coverage
@@ -95,18 +99,14 @@ class ESPRESSO(ESO_PIPELINE):
         # https://www.eso.org/sci/facilities/paranal/astroclimate/site.html
         self.instrument_properties["site_pressure"] = 750
 
-        self.is_poet_data = None
         self.UT_number = None
 
     def _load_ESO_DRS_KWs(self, header):
         super()._load_ESO_DRS_KWs(header)
-        self.is_poet_data = header.get("ESO INS POET MODE", False)
-        if self.is_poet_data:
-            logger.info("Detected PoET frame")
-            self.UT_number = 5
-            self.observation_info["POET_APERTURE"] = header.get(
-                "ESO POET APER", "UNKNOWN"
-            )
+
+        if header["ESO INS MODE"] == "SINGLEUHR":
+            # Update instrumental resolution of ESPRESSO for UHR mode
+            self.instrument_properties["resolution"] = 220_000
 
     def load_telemetry_info(self, header):
         # Find the UT number and load the airmass
@@ -129,24 +129,24 @@ class ESPRESSO(ESO_PIPELINE):
             "seeing": "AMBI FWHM START",
         }
 
-        if self.is_poet_data:
-            ambi_KWs["seeing"] = "AMBI FWHM"
-
         for name, endKW in ambi_KWs.items():
-            self.observation_info[name] = float(
-                header[f"HIERARCH ESO TEL{self.UT_number} {endKW}"]
-            )
-            if "temperature" in name:  # store temperature in KELVIN for TELFIT
-                self.observation_info[name] = convert_temperature(
-                    self.observation_info[name],
-                    old_scale="Celsius",
-                    new_scale="Kelvin",
+            try:
+                self.observation_info[name] = float(
+                    header[f"HIERARCH ESO TEL{self.UT_number} {endKW}"]
                 )
+                if "temperature" in name:  # store temperature in KELVIN for TELFIT
+                    self.observation_info[name] = convert_temperature(
+                        self.observation_info[name],
+                        old_scale="Celsius",
+                        new_scale="Kelvin",
+                    )
+            except KeyError:
+                logger.info(f"Failed to load {name} from header")
 
         self.observation_info["DET_BINX"] = header["HIERARCH ESO DET BINX"]
         self.observation_info["DET_BINY"] = header["HIERARCH ESO DET BINY"]
-        self.observation_info["FIBER_A"] = header[f"ESO INS{self.UT_number} LSELA NAME"]
-        self.observation_info["FIBER_B"] = header[f"ESO INS{self.UT_number} LSELB NAME"]
+        self.observation_info["FIBER_A"] = header[f"ESO INS5 LSELA NAME"]
+        self.observation_info["FIBER_B"] = header[f"ESO INS5 LSELB NAME"]
 
     def check_header_QC_ESO_DRS(self, header):
         nonfatal_QC_flags = {
@@ -158,18 +158,17 @@ class ESPRESSO(ESO_PIPELINE):
         found_ADC_issue = False
         for flag, bad_value in nonfatal_QC_flags.items():
             found_UT = False
-            for UT_KW in ["", "2", "3", "4"]:
-                try:
-                    for ADC in [1, 2]:
-                        ADC_KW = flag.format(UT_KW, ADC)
-                        if header[ADC_KW] == bad_value:
-                            msg = f"QC flag {ADC_KW} has a value of {bad_value}"
-                            logger.warning(msg)
-                            self._status.store_warning(KW_WARNING(msg))
-                            found_ADC_issue = True
-                        found_UT = True
-                except:
-                    pass
+            try:
+                for ADC in [1, 2]:
+                    ADC_KW = flag.format(self.UT_number, ADC)
+                    if header[ADC_KW] == bad_value:
+                        msg = f"QC flag {ADC_KW} has a value of {bad_value}"
+                        logger.warning(msg)
+                        self._status.store_warning(KW_WARNING(msg))
+                        found_ADC_issue = True
+                    found_UT = True
+            except:
+                pass
             if not found_UT:
                 logger.critical(
                     f"Did not find the entry for the following UT related metric: {flag}"
@@ -196,6 +195,25 @@ class ESPRESSO(ESO_PIPELINE):
             self.spectral_mask.add_indexes_to_mask(inds, ERROR_THRESHOLD)
 
         self.assess_bad_orders()
+
+    def load_S1D_data(self) -> None:
+        # Store the open status before calling parent classes
+        is_open = self.is_open
+        super().load_S1D_data()
+        if self.is_solar and not is_open:
+            self.apply_poet_data_corrections()
+
+    def load_S2D_data(self) -> None:
+        # Store the open status before calling parent classes
+        is_open = self.is_open
+        super().load_S2D_data()
+        if self.is_solar and not is_open:
+            self.apply_poet_data_corrections()
+
+    def apply_poet_data_corrections(self) -> None:
+        # Correct spectra
+        self.remove_BERV_correction(self.wrong_berv)
+        self.apply_BERV_correction(self.observation_info["BERV"])
 
     def trigger_data_storage(self, *args, **kwargs):
         super().trigger_data_storage(*args, **kwargs)

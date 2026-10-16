@@ -1,6 +1,6 @@
 [project]
 name = "ASTRA-spectra"
-version = "1.2.8"
+version = "1.3.0"
 description = "Interface to open stellar spectra and construct stellar and telluric models"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -21,6 +21,9 @@ dependencies = [
     "tabletexifier>=0.3.4",
     "ujson>=5.10.0",
 ]
+
+[project.optional-dependencies]
+solar = ["drms>=0.9.0", "sunpy[map]>=7.0.5"]
 
 [build-system]
 requires = ["setuptools",  "numpy>=1.23.2,<2.0.0"]

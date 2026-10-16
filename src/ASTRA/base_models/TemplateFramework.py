@@ -10,10 +10,17 @@ from astropy.io import fits
 from ASTRA import astra_logger as logger
 
 from ASTRA.base_models.Template_Model import BaseTemplate
-from ASTRA.template_creation.telluric_templates.Telluric_Template import TelluricTemplate
+from ASTRA.template_creation.telluric_templates.Telluric_Template import (
+    TelluricTemplate,
+)
 from ASTRA.utils import custom_exceptions
 from ASTRA.utils.BASE import BASE
-from ASTRA.utils.choices import DISK_SAVE_MODE, STELLAR_CREATION_MODE, TELLURIC_CREATION_MODE, WORKING_MODE
+from ASTRA.utils.choices import (
+    DISK_SAVE_MODE,
+    STELLAR_CREATION_MODE,
+    TELLURIC_CREATION_MODE,
+    WORKING_MODE,
+)
 from ASTRA.utils.parameter_validators import ValueFromIterable
 from ASTRA.utils.UserConfigs import DefaultValues, UserParam
 
@@ -41,7 +48,9 @@ class TemplateFramework(BASE):
     _name = "TemplateFramework"
 
     model_type = "Base"
-    template_map: dict[STELLAR_CREATION_MODE | TELLURIC_CREATION_MODE, BaseTemplate] = {}
+    template_map: dict[STELLAR_CREATION_MODE | TELLURIC_CREATION_MODE, BaseTemplate] = (
+        {}
+    )
 
     _default_params = BASE._default_params + DefaultValues(
         SAVE_DISK_SPACE=UserParam(
@@ -115,7 +124,7 @@ class TemplateFramework(BASE):
 
     def Generate_Model(
         self,
-        dataClass,
+        dataClass: "DataClass" | None,
         template_configs: dict,
         attempt_to_load: bool = False,
         store_templates: bool = True,
@@ -138,7 +147,9 @@ class TemplateFramework(BASE):
         logger.debug("Starting the creation of {} models!", self.__class__.model_type)
 
         if attempt_to_load:
-            logger.info("Attempting to load previous Templates from disk before creating them")
+            logger.info(
+                "Attempting to load previous Templates from disk before creating them"
+            )
             try:
                 self.load_templates_from_disk()
             except custom_exceptions.TemplateNotExistsError:
@@ -148,6 +159,11 @@ class TemplateFramework(BASE):
             self.templates = {}
             self.update_work_mode_level(WORKING_MODE.ONE_SHOT)
 
+        if dataClass is None:
+            logger.warning(
+                "No DataClass provided. The templates will only be loaded from disk"
+            )
+            return
         for subInst in dataClass.get_available_subInstruments():
             if subInst not in self.templates:
                 self.templates[subInst] = None
@@ -164,7 +180,9 @@ class TemplateFramework(BASE):
             )
 
             self.templates[subInst].generate_root_path(
-                self._internalPaths.get_path_to(self.__class__.model_type, as_posix=False),
+                self._internalPaths.get_path_to(
+                    self.__class__.model_type, as_posix=False
+                ),
             )
 
         if store_templates:
@@ -189,8 +207,13 @@ class TemplateFramework(BASE):
             else:
                 msg = f"Can't load template {temp_name}"
                 raise Exception(msg)
-            temp_subInst = temp_disk_name.split("_")[-1].split(".fits")[0]
 
+            if "Poe" in temp_disk_name:
+                temp_subInst = "_".join(
+                    temp_disk_name.split(".fits")[0].split("_")[-2:]
+                )
+            else:
+                temp_subInst = temp_disk_name.split("_")[-1].split(".fits")[0]
             template_header = fits.getheader(temp_path)
             config_dict = {}
             for key in self.__class__.template_map[temp_name].control_parameters():
@@ -203,16 +226,22 @@ class TemplateFramework(BASE):
                 if key in ["SAVE_DISK_SPACE"]:
                     continue
                 if key == "WORKING_MODE":
-                    config_dict[key] = getattr(WORKING_MODE, template_header[f"HIERARCH {key}"])
+                    config_dict[key] = getattr(
+                        WORKING_MODE, template_header[f"HIERARCH {key}"]
+                    )
                 else:
                     config_dict[key] = template_header.get(f"HIERARCH {key}", "")
 
             if self.is_type("Telluric"):
                 config_dict["download_path"] = ""
-            loaded_temp = self.__class__.template_map[temp_name](temp_subInst, loaded=True, user_configs=config_dict)
+            loaded_temp = self.__class__.template_map[temp_name](
+                temp_subInst, loaded=True, user_configs=config_dict
+            )
 
             with contextlib.suppress(custom_exceptions.NoDataError):
-                loaded_temp.load_from_file(root_path=template_path, loading_path=temp_path)
+                loaded_temp.load_from_file(
+                    root_path=template_path, loading_path=temp_path
+                )
 
             # Ensuring that we are always sharing the same work mode with the templates
             loaded_temp.update_work_mode_level(self.work_mode)
@@ -223,7 +252,9 @@ class TemplateFramework(BASE):
 
             self.templates[temp_subInst] = loaded_temp
 
-    def _find_templates_from_disk(self, which: TELLURIC_CREATION_MODE | STELLAR_CREATION_MODE) -> list[str]:
+    def _find_templates_from_disk(
+        self, which: TELLURIC_CREATION_MODE | STELLAR_CREATION_MODE
+    ) -> list[str]:
         """Search the storage disk location to find any templates that might have been stored in there.
 
         Parameters
@@ -243,14 +274,18 @@ class TemplateFramework(BASE):
 
         """
         which = which.value.capitalize()
-        loading_path = self._internalPaths.get_path_to(self.__class__.model_type, as_posix=True)
+        loading_path = self._internalPaths.get_path_to(
+            self.__class__.model_type, as_posix=True
+        )
         logger.info(
             "Loading {} template of type {} from disk inside directory",
             self.__class__.model_type,
             which,
         )
         logger.info("\t" + loading_path)
-        available_templates = [i for i in os.listdir(loading_path) if which in i and i.endswith("fits")]
+        available_templates = [
+            i for i in os.listdir(loading_path) if which in i and i.endswith("fits")
+        ]
         logger.info(
             "Found {} available templates: {} of type {}",
             len(available_templates),
@@ -272,7 +307,9 @@ class TemplateFramework(BASE):
             Whether to delete and re-write over previous outputs
 
         """
-        storage_path = self._internalPaths.get_path_to(self.__class__.model_type, as_posix=True)
+        storage_path = self._internalPaths.get_path_to(
+            self.__class__.model_type, as_posix=True
+        )
         logger.info(
             "Storing templates from <{}> under the directory",
             self.__class__.model_type,

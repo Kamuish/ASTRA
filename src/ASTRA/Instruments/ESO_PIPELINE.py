@@ -77,6 +77,7 @@ class ESO_PIPELINE(Frame):
         quiet_user_params: bool = True,
         override_KW_map=None,
         override_indicators=None,
+        need_external_data_load=False,
     ):
         """Prepare data load.
 
@@ -139,6 +140,7 @@ class ESO_PIPELINE(Frame):
             user_configs=user_configs,
             reject_subInstruments=reject_subInstruments,
             quiet_user_params=quiet_user_params,
+            need_external_data_load=need_external_data_load,
         )
 
         self.instrument_properties["is_drift_corrected"] = True
@@ -221,6 +223,14 @@ class ESO_PIPELINE(Frame):
             # The return is to ensure that we don't do anything after this point!
             return self.load_old_DRS_S1D()
         self.load_ESO_DRS_S1D_data()
+
+    def get_air_wavelength(self) -> np.ndarray:
+        if self.is_S1D:
+            with fits.open(self.file_path) as hdu:
+                return hdu[1].data["wavelength_air"].reshape((1, self.array_size[1]))
+        elif self.is_S2D:
+            with fits.open(self.file_path) as hdu:
+                return hdu["WAVEDATA_AIR_BARY"].data
 
     def check_header_QC(self, header: fits.header.Header):
         super().check_header_QC(header)

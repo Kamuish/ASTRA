@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Generator
 from typing import TYPE_CHECKING, Any, NoReturn, Set
 
+import matplotlib.pyplot as plt
 import numpy as np
 
 from ASTRA import astra_logger as logger
@@ -12,12 +13,10 @@ from ASTRA.status.OrderStatus import OrderStatus
 from ASTRA.utils import custom_exceptions
 from ASTRA.utils.ASTRAtypes import RV_measurement
 from ASTRA.utils.BASE import BASE
-from ASTRA.utils.shift_spectra import (
-    apply_approximated_BERV_correction,
-    apply_BERV_correction,
-    remove_approximated_BERV_correction,
-    remove_BERV_correction,
-)
+from ASTRA.utils.shift_spectra import (apply_approximated_BERV_correction,
+                                       apply_BERV_correction,
+                                       remove_approximated_BERV_correction,
+                                       remove_BERV_correction)
 from ASTRA.utils.units import kilometer_second
 
 if TYPE_CHECKING:
@@ -53,7 +52,9 @@ class Spectrum(BASE):
         self.spectra: np.ndarray = None  # S2D/S1D data
         self.wavelengths: np.ndarray = None  # wavelengths in vacuum
         self.uncertainties: np.ndarray = None  # Flux errors
-        self.spectral_mask: Mask = None  # to be determined if I want this here or not .....
+        self.spectral_mask: Mask = (
+            None  # to be determined if I want this here or not .....
+        )
         self._blaze_function = None
 
         self.flux_atmos_balance_corrected = False
@@ -153,7 +154,9 @@ class Spectrum(BASE):
         berv = BERV_value.to(kilometer_second).value
 
         if self.use_approximated_BERV_correction:
-            self.wavelengths = apply_approximated_BERV_correction(self.wavelengths, berv)
+            self.wavelengths = apply_approximated_BERV_correction(
+                self.wavelengths, berv
+            )
         else:
             # BERV_factor = self.get_KW_value("BERV_FACTOR")
             self.wavelengths = apply_BERV_correction(self.wavelengths, berv)
@@ -174,14 +177,18 @@ class Spectrum(BASE):
         berv = BERV_value.to(kilometer_second).value
 
         if self.use_approximated_BERV_correction:
-            self.wavelengths = remove_approximated_BERV_correction(self.wavelengths, berv)
+            self.wavelengths = remove_approximated_BERV_correction(
+                self.wavelengths, berv
+            )
         else:
             # BERV_factor = self.get_KW_value("BERV_FACTOR")
             self.wavelengths = remove_BERV_correction(self.wavelengths, berv)
 
         self.is_BERV_corrected = False
 
-    def apply_telluric_correction(self, model: np.ndarray, model_uncertainty: np.ndarray) -> None:
+    def apply_telluric_correction(
+        self, model: np.ndarray, model_uncertainty: np.ndarray
+    ) -> None:
         """Divide the spectra by a telluric correction model, without really accounting for model uncertainties.
 
         This shouldn't be used in the current "state" ....
@@ -192,7 +199,9 @@ class Spectrum(BASE):
 
         """
         if self.was_telluric_corrected:
-            logger.warning("Attempting to correct telluric features of previously corrected data. Doing nothing")
+            logger.warning(
+                "Attempting to correct telluric features of previously corrected data. Doing nothing"
+            )
             return
 
         if model.shape != self.spectra.shape:
@@ -253,7 +262,12 @@ class Spectrum(BASE):
             self.spectral_mask.get_custom_mask()[order],
         )
 
-    def get_data_from_full_spectrum(self) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray[bool]]:
+    def get_air_wavelength(self) -> np.ndarray:
+        raise NotImplementedError
+
+    def get_data_from_full_spectrum(
+        self,
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray[bool]]:
         """Retrieve the entire spectra.
 
         If we are working with S2D data: send the [N_orders, N_pixels] matrix
@@ -295,7 +309,9 @@ class Spectrum(BASE):
         """Re-defining the frame as one with zero mean and unit-variance (z-score)."""
         logger.info("Setting up frame as a Zscore!")
         for order in range(self.N_orders):
-            _, flux, _, mask = self.get_data_from_spectral_order(order=order, include_invalid=True)
+            _, flux, _, mask = self.get_data_from_spectral_order(
+                order=order, include_invalid=True
+            )
             valid_mask = ~mask
             mean, std = np.mean(flux[valid_mask]), np.std(flux[valid_mask])
             self.spectra = (self.spectra - mean) / std
@@ -358,3 +374,59 @@ class Spectrum(BASE):
     def is_open(self) -> bool:
         """True if it has the arrays loaded on memory."""
         return self._spectrum_has_data_on_memory
+
+    def plot_spectra(
+        self,
+        order: int,
+        apply_mask: bool = True,
+        fig_and_axis: None | tuple = None,
+        return_fig_and_axis: bool = True,
+        saveto: None | str = None,
+        plot_options: dict[str, Any] | None = None,
+        kw_for_label: str | None = None
+    ):
+        """Plot the flux of a single spectral order.
+
+        Parameters
+        ----------
+        order : int
+            Spectral order to plot.
+        apply_mask : bool, optional
+            If True, pixels flagged in the mask are excluded from the plot.
+        fig_and_axis : tuple, optional
+            An existing ``(fig, axis)`` pair to draw on. If None, a new
+            figure and axis are created.
+        return_fig_and_axis : bool, optional
+            If True, return ``(fig, axis)`` instead of showing the plot.
+            If False, the figure is shown with ``plt.show()``.
+
+        Returns
+        -------
+        tuple | None
+            ``(fig, axis)`` if ``return_fig_and_axis`` is True, otherwise None.
+        """
+        if plot_options is None:
+            plot_options = {}
+        if fig_and_axis is None:
+            fig, axis = plt.subplots()
+        else:
+            fig, axis = fig_and_axis
+
+        wave, flux, err, mask = self.get_data_from_spectral_order(order=order)
+
+        if apply_mask:
+            good_pixel_mask = ~mask
+            wave, flux = wave[good_pixel_mask], flux[good_pixel_mask]
+        
+        label=None
+        if kw_for_label is not None:
+            label = self.get_KW_value(kw_for_label)
+        
+        axis.scatter(wave, flux, s=5, label=label, **plot_options)
+        axis.set_xlabel(r"wavelength $[\AA]$")
+        axis.set_ylabel("Flux")
+
+        if saveto is not None:
+            fig.savefig(saveto, dpi=600)
+        if return_fig_and_axis:
+            return fig, axis

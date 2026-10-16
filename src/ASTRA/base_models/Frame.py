@@ -15,6 +15,7 @@ from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple
 
 import numpy as np
 from astropy.io import fits
+from astropy.units import arcsec
 from matplotlib import pyplot as plt
 
 from ASTRA import astra_logger as logger
@@ -244,6 +245,7 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
             "site_pressure": None,  # pressure in hPa
             "is_drift_corrected": None,  # True if the S2D files are already corrected from the drift
         }
+        self.is_solar = False
 
         self.frameID = frameID
         self._status = Status()  # BY DEFAULT IT IS A VALID ONE!
@@ -256,7 +258,7 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
 
         self.file_path: Path = file_path
         if init_log:
-            logger.info(f"Creating frame from: {self.file_path}")
+            logger.info(f"Creating frame from: {self.file_path} with {frameID=}")
         self.inst_name = inst_name
 
         self.sub_instrument = None
@@ -285,6 +287,7 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
         # orderwise SNRs OR values with units -> should not be passed inside the KW_map!!!
         self.observation_info = {
             "BERV": np.nan * kilometer_second,
+            "HERV": 0 * kilometer_second,
             # THE BERV value on the ESPRESSO pipeline is not fully correct on BERV, so we need to propagate
             # the BERV factor. As such, it will be a common property to all frames. Default value of None, so
             # that we can ensure that it is properly computed when used
@@ -332,6 +335,14 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
             "POET_APERTURE": None,
             "FIBER_A": "",
             "FIBER_B": "",
+            "filename": file_path.stem,
+            "DIFF_ATMOS_RV_CORR": 0
+            * kilometer_second,  # Differential atmospheric extinction, only relevant for Sun-as-a-Star observations,
+            "TX": 0 * arcsec,
+            "TY": 0 * arcsec,
+            "ALT_OFF": 0,
+            "AZ_OFF": 0,
+            "COMMENT": "",
         }
 
         # Used to allow to reject a wavelength region from one order and keep any overlap that might exist on others
@@ -503,7 +514,8 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
                 KW,
             )
 
-        if not np.isfinite(value):
+        # Bypass finite validation for strings
+        if not isinstance(value, str) and not np.isfinite(value):
             if not optional:
                 logger.critical(
                     "Loaded mandatory keyword <{}> with a non-finite value for frame {}",
@@ -889,6 +901,22 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
                 "no sub-instrument found for observation"
             )
 
+    def overwrite_sub_instrument(self, sub_instrument: str) -> None:
+        """Overwrite the sub-instrument designation for this Frame.
+
+        This method allows manual overriding of the sub-instrument designation.
+
+        Parameters
+        ----------
+        sub_instrument : str
+            The new sub-instrument designation to be assigned to this Frame.
+
+        """
+        if not isinstance(sub_instrument, str):
+            raise ValueError("sub_instrument must be a string.")
+        logger.info(f"Overwriting sub-instrument to {sub_instrument}")
+        self.sub_instrument = sub_instrument
+
     #####################################
     #      Handle data management      #
     ####################################
@@ -983,8 +1011,16 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
             logger.critical(msg)
             return
 
-        for internal_KW, S2D_KW in self._KW_map.items():
-            self.observation_info[internal_KW] = hdu[S2D_KW]
+        self._header = hdu
+
+        try:
+            for internal_KW, S2D_KW in self._KW_map.items():
+                self.observation_info[internal_KW] = hdu[S2D_KW]
+        except KeyError as e:
+            msg = f"File <{self.file_path}> does have all internal Kws ({e})"
+            self.add_to_status(MISSING_FILE(msg))
+            logger.critical(msg)
+            return
 
         self.load_instrument_specific_KWs(hdu)
         self.check_header_QC(hdu)
@@ -1011,8 +1047,6 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
             Any: Header value
 
         """
-        if self._header is None:
-            self._header = fits.getheader(self.file_path)
         return self._header[kw]
 
     ####################################

@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 from collections import defaultdict
 from collections.abc import Iterable
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -28,6 +29,7 @@ from ASTRA.data_objects.MetaData import MetaData
 from ASTRA.data_objects.Target import Target
 from ASTRA.Instruments.CARMENES import load_CARMENES_extra_information
 from ASTRA.Instruments.MAROONX import MAROONX
+from ASTRA.Instruments.POET import load_POET_extra_information
 from ASTRA.status.flags import (  # for entire frame; for individual pixels
     ACTIVITY_LINE,
     SIGMA_CLIP_REJECTION,
@@ -90,7 +92,8 @@ class DataClass(BASE):
     """
 
     extra_loading_functions: Dict[str, Callable] = {
-        "CARMENES": load_CARMENES_extra_information
+        "CARMENES": load_CARMENES_extra_information,
+        "POET": load_POET_extra_information,
     }
 
     def __init__(
@@ -138,6 +141,76 @@ class DataClass(BASE):
         if reject_subInstruments is not None:
             logger.warning(f"Rejecting subInstruments: {reject_subInstruments}")
 
+        self.generate_root_path(storage_path)
+        self.frameID_map = defaultdict(list)
+
+        self.add_data_from_instrument(
+            input_files=input_files,
+            instrument=instrument,
+            reject_subInstruments=reject_subInstruments,
+            instrument_options=instrument_options,
+        )
+
+        N_files = len(self.observations)
+        logger.debug("Selected {} observations from disk", N_files)
+        if N_files == 0:
+            raise InvalidConfiguration("Input has zero files")
+
+        self._collect_MetaData()
+
+        #  TODO: find a better way of doing this!
+        self.Target = Target(
+            self.collect_KW_observations(
+                "OBJECT", self._inst_type.sub_instruments, include_invalid=False
+            ),
+            original_name=target_name,
+            target_dictionary_path=target_dictionary_path,
+        )
+
+        self._validate_loaded_observations()
+        self.show_loadedData_table()
+
+        self._applied_telluric_removal = False
+
+        self.StellarModel = None
+
+        self.load_instrument_extra_information()
+
+        for frame in self.observations:
+            frame.initialize_modelling_interface()
+            frame.finalize_data_load()
+
+    def construct_subInstruments_by_obID(self) -> None:
+        """Create new sub-Instruments with the obID of the observations"""
+        logger.warning("Re-definning sub-Instruments based on the OBID")
+
+        ob_ids, frameIDS = self.collect_KW_observations(
+            KW="OBS NAME",
+            subInstruments=self.get_subInstruments_with_valid_frames(),
+            return_frameIDs=True,
+        )
+        mapa = defaultdict(list)
+        for OB, ids in zip(ob_ids, frameIDS):
+            mapa[OB].append(ids)
+
+        new_submap = defaultdict(list)
+        for new_inst, all_frameID in mapa.items():
+            print(new_inst, "--", all_frameID)
+            for frameID in all_frameID:
+                frame = self.get_frame_by_ID(frameID)
+                frame.overwrite_sub_instrument(new_inst)
+                new_submap[new_inst].append(frameID)
+        self.frameID_map = new_submap
+
+    def add_data_from_instrument(
+        self,
+        input_files: Iterable[UI_PATH],
+        instrument: Type[Frame],
+        reject_subInstruments: Iterable[str] | None = None,
+        custom_subIns_name: str | None = None,
+        instrument_options: dict[str, Any] | None = None,
+    ) -> None:
+
         OBS_list = []
         if isinstance(input_files, (str, Path)):
             logger.info("DataClass loading data from {}", self.input_file)
@@ -177,49 +250,27 @@ class DataClass(BASE):
                 logger.critical(f"Failed in {filepath} due to {e}")
                 raise e
 
-        from concurrent.futures import ThreadPoolExecutor
-
         if instrument is not MAROONX:
             with ThreadPoolExecutor() as ex:
-                self.observations = list(ex.map(build_obs, enumerate(OBS_list)))
+                observations = list(ex.map(build_obs, enumerate(OBS_list)))
         else:
-            self.observations = list(map(build_obs, enumerate(OBS_list)))
+            observations = list(map(build_obs, enumerate(OBS_list)))
         all_ids = [i.frameID for i in self.observations]
         if len(all_ids) != len(set(all_ids)):
             raise custom_exceptions.InternalError("Clash in frameID, repeated numbers")
-        self.generate_root_path(storage_path)
 
-        N_files = len(self.observations)
-        logger.debug("Selected {} observations from disk", N_files)
-        if N_files == 0:
-            raise InvalidConfiguration("Input has zero files")
+        # The Frames don't store data inside the Iteration folder!
+        frame_root_path = self._internalPaths.root_storage_path
+        for frame in observations:
+            if custom_subIns_name is not None:
+                frame.overwrite_sub_instrument(custom_subIns_name)
 
-        self.frameID_map = {subInst: [] for subInst in self._inst_type.sub_instruments}
+            frame.generate_root_path(frame_root_path)
+        self.observations.extend(observations)
         self._build_frameID_map()
 
-        self._collect_MetaData()
-
-        # TODO: find a better way of doing this!
-        self.Target = Target(
-            self.collect_KW_observations(
-                "OBJECT", self._inst_type.sub_instruments, include_invalid=False
-            ),
-            original_name=target_name,
-            target_dictionary_path=target_dictionary_path,
-        )
-
-        self._validate_loaded_observations()
-        self.show_loadedData_table()
-
-        self._applied_telluric_removal = False
-
-        self.StellarModel = None
-
-        self.load_instrument_extra_information()
-
-        for frame in self.observations:
-            frame.initialize_modelling_interface()
-            frame.finalize_data_load()
+        if custom_subIns_name is not None:
+            self.show_loadedData_table()
 
     ########################
     #    Operate on Data   #
@@ -779,7 +830,7 @@ class DataClass(BASE):
                 all_frameIDs.append(frameID)
 
         if return_frameIDs:
-            return output, available_frameIDs
+            return output, all_frameIDs
 
         return output
 
@@ -965,7 +1016,9 @@ class DataClass(BASE):
     def get_subInstruments_with_valid_frames(self) -> list[str]:
         """Find all subInstruments that have at least one valid observation."""
         out = []
-        for subInst in self._inst_type.sub_instruments:
+        for subInst in set(
+            list(self._inst_type.sub_instruments.keys()) + list(self.frameID_map.keys())
+        ):
             try:
                 _ = self.get_frameIDs_from_subInst(subInst, include_invalid=False)
                 out.append(subInst)
@@ -1011,15 +1064,6 @@ class DataClass(BASE):
         for frame in self.observations:
             frame.trigger_data_storage()
 
-    def generate_root_path(self, storage_path: Path) -> None:
-        """Triggers the parent routine and also generates the root path for the Frames."""
-        super().generate_root_path(storage_path)
-
-        # The Frames don't store data inside the Iteration folder!
-        frame_root_path = self._internalPaths.root_storage_path
-        for frame in self.observations:
-            frame.generate_root_path(frame_root_path)
-
     ########################
     #          MISC        #
     ########################
@@ -1031,6 +1075,9 @@ class DataClass(BASE):
     def _build_frameID_map(self) -> None:
         """Populate the self.frameID_map with the frameIDs available for each subInstrument."""
         for frame in self.observations:
+            if frame.sub_instrument is None:
+                logger.critical(f"{frame} does not have a subInstrument")
+                continue
             self.frameID_map[frame.sub_instrument].append(frame.frameID)
 
     def show_loadedData_table(self) -> Table:
@@ -1131,17 +1178,15 @@ class DataClass(BASE):
         If so, then calls the relevant function.
         """
         logger.info("Checking if the instrument has extra data to load")
+
         for key, load_func in self.get_extra_loading_functions().items():
             if self.has_instrument_data(key):
                 logger.info(
                     f"Dataclass has {key} data. Extra loading is being triggered"
                 )
                 load_func(self)
-                return
 
-        logger.info(
-            "Current instrument does not need to load anything from the outside"
-        )
+        self.show_loadedData_table()
 
     @classmethod
     def add_extra_loading_information(cls, name: str, loader: Callable) -> None:
