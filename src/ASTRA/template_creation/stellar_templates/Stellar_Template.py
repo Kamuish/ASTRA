@@ -682,6 +682,7 @@ class StellarTemplate(BaseTemplate, Spectral_Modelling):
             self.spectra = hdulist["TEMP"].data
             self.wavelengths = hdulist["WAVE"].data
             self.uncertainties = hdulist["UNCERTAINTIES"].data
+            self.wave_air = hdulist["WAVE_AIR"].data
 
             mask = hdulist["MASK"].data.astype(bool)
             self.spectral_mask = Mask(initial_mask=mask)
