@@ -383,6 +383,7 @@ class Spectrum(BASE):
         return_fig_and_axis: bool = True,
         saveto: None | str = None,
         plot_options: dict[str, Any] | None = None,
+        kw_for_label: str | None = None
     ):
         """Plot the flux of a single spectral order.
 
@@ -416,8 +417,12 @@ class Spectrum(BASE):
         if apply_mask:
             good_pixel_mask = ~mask
             wave, flux = wave[good_pixel_mask], flux[good_pixel_mask]
-
-        axis.scatter(wave, flux, s=5, **plot_options)
+        
+        label=None
+        if kw_for_label is not None:
+            label = self.get_KW_value(kw_for_label)
+        
+        axis.scatter(wave, flux, s=5, label=label, **plot_options)
         axis.set_xlabel(r"wavelength $[\AA]$")
         axis.set_ylabel("Flux")
 
