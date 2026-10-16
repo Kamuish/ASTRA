@@ -892,7 +892,7 @@ class DataClass(BASE):
             for frameID in frameIDs:
                 frame = self.get_frame_by_ID(frameID)
                 if not frame.is_SubInstrument(subInst):
-                    msg = "Frame is not from the selected subInstrument"
+                    msg = f"Frame ({frame.sub_instrument}) is not from the selected subInstrument ({subInst})"
                     logger.critical(msg)
                     raise InvalidConfiguration(msg)
                 if (not frame.is_valid) and (not include_invalid):
