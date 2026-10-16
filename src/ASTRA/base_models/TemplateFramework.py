@@ -124,7 +124,7 @@ class TemplateFramework(BASE):
 
     def Generate_Model(
         self,
-        dataClass,
+        dataClass: "DataClass" | None,
         template_configs: dict,
         attempt_to_load: bool = False,
         store_templates: bool = True,
@@ -159,6 +159,11 @@ class TemplateFramework(BASE):
             self.templates = {}
             self.update_work_mode_level(WORKING_MODE.ONE_SHOT)
 
+        if dataClass is None:
+            logger.warning(
+                "No DataClass provided. The templates will only be loaded from disk"
+            )
+            return
         for subInst in dataClass.get_available_subInstruments():
             if subInst not in self.templates:
                 self.templates[subInst] = None
@@ -193,7 +198,7 @@ class TemplateFramework(BASE):
 
         for temp_path in available_templates:
             temp_disk_name = os.path.basename(temp_path)
-            
+
             temp_name = temp_disk_name.split("_")[0]
             for key in self.__class__.template_map:
                 if key.value == temp_name:
@@ -202,9 +207,11 @@ class TemplateFramework(BASE):
             else:
                 msg = f"Can't load template {temp_name}"
                 raise Exception(msg)
-            
+
             if "Poe" in temp_disk_name:
-                temp_subInst = "_".join(temp_disk_name.split(".fits")[0].split("_")[-2:])
+                temp_subInst = "_".join(
+                    temp_disk_name.split(".fits")[0].split("_")[-2:]
+                )
             else:
                 temp_subInst = temp_disk_name.split("_")[-1].split(".fits")[0]
             template_header = fits.getheader(temp_path)
