@@ -1085,9 +1085,13 @@ class DataClass(BASE):
 
         Find the number of valid (with and without warnings) and the invalid ones!
         """
-        tab = Table(
-            ["subInstrument", "Total OBS", "Valid OBS [warnings]", "INVALID OBS"]
-        )
+
+        cols = ["subInstrument", "Total OBS", "Valid OBS [warnings]", "INVALID OBS"]
+        is_solar = self.observations[0].is_solar
+        if is_solar:
+            cols += ["COMMENT"]
+
+        tab = Table(cols)
         total_warnings = 0
         total = 0
         total_valid = 0
@@ -1111,6 +1115,11 @@ class DataClass(BASE):
             total_invalid += invalid
             total += len(frames)
             row.extend([f"{valid} [{with_warnings}]", invalid])
+            if is_solar:
+                if valid + invalid > 0:
+                    row.extend([frame.get_KW_value("COMMENT")])
+                else:
+                    row.extend(["---"])
             tab.add_row(row)
 
         row = ["Total", total, f"{total_valid} [{total_warnings}]", total_invalid]

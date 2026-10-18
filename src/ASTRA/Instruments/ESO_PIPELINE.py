@@ -78,6 +78,7 @@ class ESO_PIPELINE(Frame):
         override_KW_map=None,
         override_indicators=None,
         need_external_data_load=False,
+        is_solar: bool = False,
     ):
         """Prepare data load.
 
@@ -141,6 +142,7 @@ class ESO_PIPELINE(Frame):
             reject_subInstruments=reject_subInstruments,
             quiet_user_params=quiet_user_params,
             need_external_data_load=need_external_data_load,
+            is_solar=is_solar,
         )
 
         self.instrument_properties["is_drift_corrected"] = True

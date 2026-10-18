@@ -76,9 +76,8 @@ class ESPRESSO(ESO_PIPELINE):
         # Wavelength coverage
 
         coverage = (350, 900)
-        self.is_solar = is_solar
         super().__init__(
-            inst_name="ESPRESSO" if not self.is_solar else "POET",
+            inst_name="ESPRESSO" if not is_solar else "POET",
             array_size={"S2D": (170, 9111), "S1D": (1, 443262)},
             file_path=file_path,
             frameID=frameID,
@@ -86,7 +85,8 @@ class ESPRESSO(ESO_PIPELINE):
             user_configs=user_configs,
             reject_subInstruments=reject_subInstruments,
             quiet_user_params=quiet_user_params,
-            need_external_data_load=self.is_solar,
+            need_external_data_load=is_solar,
+            is_solar=is_solar,
         )
 
         self.instrument_properties["wavelength_coverage"] = coverage
