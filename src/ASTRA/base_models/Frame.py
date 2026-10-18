@@ -200,6 +200,7 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
         need_external_data_load: bool = False,
         init_log: bool = True,
         quiet_user_params: bool = True,
+        is_solar: bool = False,
     ):
         """Init for all instruments.
 
@@ -245,7 +246,7 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
             "site_pressure": None,  # pressure in hPa
             "is_drift_corrected": None,  # True if the S2D files are already corrected from the drift
         }
-        self.is_solar = False
+        self.is_solar = is_solar
 
         self.frameID = frameID
         self._status = Status()  # BY DEFAULT IT IS A VALID ONE!
