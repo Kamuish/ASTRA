@@ -85,26 +85,26 @@ Depending on the python version that is in use, the installation of TelFit might
 
 ### 1.3.0 (current)
 
-1) Update Telfit install process to allow numpy 2
-2) Allows to add custom sub-Instruments to DataClass
-3) Transforms barycorrpy into optional dependency to be manually installed
-4) Ingest tellurics masking into stellar template after creation
-5) Update docs to show how to load templates without the DataClass
-6) SDO plotter for solar telescopes
+1. Update Telfit install process to allow numpy 2
+2. Allows to add custom sub-Instruments to DataClass
+3. Transforms barycorrpy into optional dependency to be manually installed
+4. Ingest tellurics masking into stellar template after creation
+5. Update docs to show how to load templates without the DataClass
+6. SDO plotter for solar telescopes
 
 ### 1.2.9 
 
-1) Add support for PoET
-2) Add new keywords to the fits header of the stellar templates to match the expected format of a stacked spectra (BJD, SNR)
+1. Add support for PoET
+2. Add new keywords to the fits header of the stellar templates to match the expected format of a stacked spectra (BJD, SNR)
 
 ### 1.2.8
 
-1) Add support for MAROON-X
+1. Add support for MAROON-X
 
 ### V1.2.7 
 
-1) Added HARPS-N support 
-2) Updated plotting capabilities of DataClass
+1. Added HARPS-N support 
+2. Updated plotting capabilities of DataClass
 
 
 ### V1.2.6
