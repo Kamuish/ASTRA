@@ -1,6 +1,7 @@
 import math
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 import astropy.units as u
 import matplotlib.pyplot as plt
@@ -18,9 +19,11 @@ try:
     import sunpy
     from sunpy.coordinates import frames
 
-    from ASTRA.utils.handle_SDO_image import (_JSOC_get_OBS_list_from_SDO,
-                                              download_from_SDO,
-                                              plot_sdo_with_multiple_crosses)
+    from ASTRA.utils.handle_SDO_image import (
+        _JSOC_get_OBS_list_from_SDO,
+        download_from_SDO,
+        plot_sdo_with_multiple_crosses,
+    )
 
     SUNPY_available = True
 except ImportError:
@@ -31,8 +34,10 @@ def plot_SDO_image(
     d: DataClass,
     include_fine_point_offset: bool,
     storage_location: Path,
+    JSOC_EMAIL_ADDRESS: str,
     zoom_in=False,
     label_map: dict[str, str] | None = None,
+    legend_options: dict[str, Any] | None = None,
 ):
     """Make plot of the pointing positions on SDO image
 
@@ -152,6 +157,7 @@ def plot_SDO_image(
         filenames, export = _JSOC_get_OBS_list_from_SDO(
             since=date_to_get_image - TimeDelta(1000, format="sec"),
             up_to=(date_to_get_image + TimeDelta(1000, format="sec")),
+            JSOC_EMAIL_ADDRESS=JSOC_EMAIL_ADDRESS,
         )
 
         SDO_fname = download_from_SDO(
@@ -218,6 +224,13 @@ def plot_SDO_image(
 
     fig.tight_layout()
     fig.subplots_adjust(bottom=0.2)
-    ax.legend(ncol=2, loc=4, bbox_to_anchor=(1.05, -0.27))
+    if legend_options is None:
+        legend_options = {
+        "ncol": 2,
+        "loc": 4,
+        "bbox_to_anchor": (1.05, -0.27),
+        }
+
+    ax.legend(**legend_options)
 
     fig.savefig(storage_location / "pointing_locations.png")

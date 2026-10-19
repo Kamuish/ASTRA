@@ -117,10 +117,11 @@ def construct_JSOC_SDO_query_string(  # pylint: disable=invalid-name
 def _JSOC_get_OBS_list_from_SDO(  # pylint: disable=invalid-name
     since: datetime,
     up_to: datetime = datetime.now(tz=ZoneInfo("UTC")),
+    JSOC_EMAIL_ADDRESS: str = None,
 ) -> tuple[Optional[list[str]], Optional[drms.ExportRequest]]:
     """Get the observations list from JSOC servers"""
 
-    jsoc_email = configs.get("JSOC_EMAIL_ADDRESS", "")
+    jsoc_email = JSOC_EMAIL_ADDRESS
 
     client = drms.Client(email=jsoc_email)
     time_range = up_to - since
