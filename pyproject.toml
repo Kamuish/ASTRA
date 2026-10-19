@@ -10,10 +10,8 @@ dependencies = [
     "h5py>=3.13.0",
     "loguru>=0.7.3",
     "matplotlib>=3.10.1",
-    "mkdocs-autorefs>=1.4.1",
-    "numpy>=1.23.2,<2.0.0",
+    "numpy>=2.0.0",
     "pandas>=2.2.3",
-    "pyqt6>=6.11.0",
     "scipy>=1.15.2",
     "sqlalchemy>=2.0.40",
     "sqlalchemy-utils>=0.41.2",
@@ -23,10 +21,14 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-solar = ["drms>=0.9.0", "sunpy[map]>=7.0.5"]
+solar = [
+    "barycorrpy>=0.4.4",
+    "drms>=0.9.0",
+    "sunpy[map]>=7.0,<8",
+]
 
 [build-system]
-requires = ["setuptools",  "numpy>=1.23.2,<2.0.0"]
+requires = ["setuptools",  "numpy>=2.0.0"]
 build-backend = "setuptools.build_meta"
 
 
@@ -51,6 +53,7 @@ dev = [
     "jupyter>=1.1.1",
     "mkdocs-jupyter>=0.25.1",
     "mkdocs-material>=9.6.11",
+    "mkdocs-autorefs>=1.4.1",
     "mkdocstrings-python>=1.16.10",
     "mypy>=1.15.0",
     "pre-commit>=4.2.0",

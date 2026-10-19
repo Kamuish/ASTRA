@@ -36,7 +36,20 @@ ASTRA is currently available in python 3.11 and python 3.12, and it can be insta
 By default, ASTRA does not install the following libraries:
 
 1) Telfit as it will only be needed for the masking of the telluric features. If this is the goal, it must be installed manually (see docs for details).
-2) Barycorrpy, for PoET observations. barycorrpy is used to compute the barycentric and heliocentric correction for PoET observations only and, as such, it must be installed manually for such cases
+2) Barycorrpy, for PoET observations. barycorrpy is used to compute the barycentric and heliocentric correction for PoET observations only. For such cases, it is possible to do:
+=== "Pypi"
+
+    ``` bash
+    pip install ASTRA-spectra[solar]
+    ```
+
+=== "github"
+
+    ``` sh
+    git clone git@github.com:Kamuish/ASTRA.git
+    cd ASTRA
+    pip install ".[solar]"
+    ```
 
 ## Issues and contribution
 
@@ -59,7 +72,8 @@ Depending on the python version that is in use, the installation of TelFit might
     ```
 3. Install necessary python libraries for TelFit installation
     ``` sh
-    pip install cython requests numpy==1.26.4 setuptools==80.3.1 lockfile fortranformat
+    pip install pysynphot@git+https://github.com/Kamuish/pysynphot.git
+    pip install cython requests setuptools==80.3.1 lockfile fortranformat
     ```
 5. Install Telfit through
     ``` sh
@@ -69,7 +83,11 @@ Depending on the python version that is in use, the installation of TelFit might
 
 ## Changelog
 
-### 1.2.9 (current)
+### 1.3.0 (current)
+
+1) Update Telfit install process to allow numpy 2
+
+### 1.2.9 
 
 1) Add support for PoET
 2) Add new keywords to the fits header of the stellar templates to match the expected format of a stacked spectra (BJD, SNR)
