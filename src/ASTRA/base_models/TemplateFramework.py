@@ -188,6 +188,9 @@ class TemplateFramework(BASE):
         if store_templates:
             self.store_templates_to_disk()
 
+    def get_subInsts_with_template(self) -> list[str]:
+        return list(self.templates.keys())
+
     def load_templates_from_disk(self) -> None:
         """Load templates from disk."""
         template_path = self._internalPaths.get_path_to(self.__class__.model_type)
