@@ -86,6 +86,11 @@ Depending on the python version that is in use, the installation of TelFit might
 ### 1.3.0 (current)
 
 1) Update Telfit install process to allow numpy 2
+2) Allows to add custom sub-Instruments to DataClass
+3) Transforms barycorrpy into optional dependency to be manually installed
+4) Ingest tellurics masking into stellar template after creation
+5) Update docs to show how to load templates without the DataClass
+6) SDO plotter for solar telescopes
 
 ### 1.2.9 
 
