@@ -112,7 +112,7 @@ class TemplateFramework(BASE):
         """
         try:
             if not self.templates[subInstrument].is_valid:
-                msg = "Template was not created, please refer to previous log messages for details"
+                msg = f"Template for {subInstrument} was not created, please refer to previous log messages for details"
                 logger.critical(msg)
                 raise custom_exceptions.BadTemplateError(msg)
         except KeyError:
