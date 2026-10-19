@@ -195,7 +195,6 @@ class DataClass(BASE):
 
         new_submap = defaultdict(list)
         for new_inst, all_frameID in mapa.items():
-            print(new_inst, "--", all_frameID)
             for frameID in all_frameID:
                 frame = self.get_frame_by_ID(frameID)
                 frame.overwrite_sub_instrument(new_inst)
@@ -918,7 +917,7 @@ class DataClass(BASE):
 
         """
         out = []
-        for subInst in self._inst_type.sub_instruments:
+        for subInst in self.frameID_map.keys():
             try:
                 out.extend(
                     self.get_frameIDs_from_subInst(subInst, include_invalid=False)
@@ -1101,6 +1100,8 @@ class DataClass(BASE):
             valid = 0
             with_warnings = 0
             invalid = 0
+            comms = []
+
             for frameID in frames:
                 frame = self.get_frame_by_ID(frameID)
 
@@ -1110,6 +1111,8 @@ class DataClass(BASE):
                         with_warnings += 1
                 else:
                     invalid += 1
+                comms.append(frame.get_KW_value("COMMENT"))
+
             total_valid += valid
             total_warnings += with_warnings
             total_invalid += invalid
@@ -1117,7 +1120,10 @@ class DataClass(BASE):
             row.extend([f"{valid} [{with_warnings}]", invalid])
             if is_solar:
                 if valid + invalid > 0:
-                    row.extend([frame.get_KW_value("COMMENT")])
+                    if len(set(comms)) == 1:
+                        row.extend([frame.get_KW_value("COMMENT")])
+                    else:
+                        row.extend(["Multiple OBs"])
                 else:
                     row.extend(["---"])
             tab.add_row(row)
