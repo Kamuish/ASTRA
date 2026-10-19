@@ -13,10 +13,12 @@ from ASTRA.status.OrderStatus import OrderStatus
 from ASTRA.utils import custom_exceptions
 from ASTRA.utils.ASTRAtypes import RV_measurement
 from ASTRA.utils.BASE import BASE
-from ASTRA.utils.shift_spectra import (apply_approximated_BERV_correction,
-                                       apply_BERV_correction,
-                                       remove_approximated_BERV_correction,
-                                       remove_BERV_correction)
+from ASTRA.utils.shift_spectra import (
+    apply_approximated_BERV_correction,
+    apply_BERV_correction,
+    remove_approximated_BERV_correction,
+    remove_BERV_correction,
+)
 from ASTRA.utils.units import kilometer_second
 
 if TYPE_CHECKING:
@@ -383,7 +385,7 @@ class Spectrum(BASE):
         return_fig_and_axis: bool = True,
         saveto: None | str = None,
         plot_options: dict[str, Any] | None = None,
-        kw_for_label: str | None = None
+        kw_for_label: str | None = None,
     ):
         """Plot the flux of a single spectral order.
 
@@ -417,12 +419,12 @@ class Spectrum(BASE):
         if apply_mask:
             good_pixel_mask = ~mask
             wave, flux = wave[good_pixel_mask], flux[good_pixel_mask]
-        
-        label=None
+
+        label = None
         if kw_for_label is not None:
             label = self.get_KW_value(kw_for_label)
-        
-        axis.scatter(wave, flux, s=5, label=label, **plot_options)
+            plot_options["label"] = label
+        axis.scatter(wave, flux, s=5, **plot_options)
         axis.set_xlabel(r"wavelength $[\AA]$")
         axis.set_ylabel("Flux")
 

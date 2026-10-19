@@ -150,10 +150,10 @@ class ESPRESSO(ESO_PIPELINE):
 
     def check_header_QC_ESO_DRS(self, header):
         nonfatal_QC_flags = {
-            "HIERARCH ESO INS{} ADC{} RA": 0,  # related with ADC2 problem
-            "HIERARCH ESO INS{} ADC{} dec": 0,  # related with ADC2 problem
-            "HIERARCH ESO INS{} ADC{} SENS1": 0,  # related with ADC2 problem
-            "HIERARCH ESO INS{} ADC{} TEMP": 0,  # related with ADC2 problem
+            "HIERARCH ESO INS5 ADC{} RA": 0,  # related with ADC2 problem
+            "HIERARCH ESO INS5 ADC{} dec": 0,  # related with ADC2 problem
+            "HIERARCH ESO INS5 ADC{} SENS1": 0,  # related with ADC2 problem
+            "HIERARCH ESO INS5 ADC{} TEMP": 0,  # related with ADC2 problem
         }
         found_ADC_issue = False
         for flag, bad_value in nonfatal_QC_flags.items():

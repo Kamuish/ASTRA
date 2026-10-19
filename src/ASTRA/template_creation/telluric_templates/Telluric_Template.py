@@ -13,7 +13,12 @@ from ASTRA.base_models.Template_Model import BaseTemplate
 from ASTRA.ModelParameters import Model
 from ASTRA.status.flags import DISK_LOADED_DATA, MISSING_DATA, SUCCESS
 from ASTRA.utils import custom_exceptions
-from ASTRA.utils.choices import DISK_SAVE_MODE, TELLURIC_APPLICATION_MODE, TELLURIC_EXTENSION, WORKING_MODE
+from ASTRA.utils.choices import (
+    DISK_SAVE_MODE,
+    TELLURIC_APPLICATION_MODE,
+    TELLURIC_EXTENSION,
+    WORKING_MODE,
+)
 from ASTRA.utils.create_spectral_blocks import build_blocks
 from ASTRA.utils.custom_exceptions import NoDataError
 from ASTRA.utils.parameter_validators import BooleanValue, ValueInInterval
@@ -61,7 +66,9 @@ class TelluricTemplate(BaseTemplate):
 
     _name = "Telluric"
     _default_params = BaseTemplate._default_params + DefaultValues(
-        continuum_percentage_drop=UserParam(1, constraint=ValueInInterval([0, 100], include_edges=True)),
+        continuum_percentage_drop=UserParam(
+            1, constraint=ValueInInterval([0, 100], include_edges=True)
+        ),
         force_download=UserParam(False, constraint=BooleanValue),
         inverse_mask=UserParam(
             False,
@@ -137,7 +144,9 @@ class TelluricTemplate(BaseTemplate):
         self.internal_val = updated_value
 
     def get_data_from_spectral_order(self, order: int, include_invalid: bool = False):
-        uncertainties = self.uncertainties[order] if self.for_feature_correction else None
+        uncertainties = (
+            self.uncertainties[order] if self.for_feature_correction else None
+        )
         return self.wavelengths[order], self.template[order], uncertainties
 
     def get_data_from_full_spectrum(self):
@@ -170,7 +179,9 @@ class TelluricTemplate(BaseTemplate):
         frames = dataClass.get_valid_frameIDS()
         zeroth_frame = dataClass.get_frame_by_ID(frames[0])
 
-        self.use_approximated_BERV_correction = zeroth_frame.use_approximated_BERV_correction
+        self.use_approximated_BERV_correction = (
+            zeroth_frame.use_approximated_BERV_correction
+        )
         if not self.is_valid:
             return
 
@@ -196,7 +207,10 @@ class TelluricTemplate(BaseTemplate):
             self.MAXBERV = np.nan * kilometer_second
             return
 
-        if self._associated_subInst not in DataClass.get_subInstruments_with_valid_frames():
+        if (
+            self._associated_subInst
+            not in DataClass.get_subInstruments_with_valid_frames()
+        ):
             logger.warning(
                 "{} has no valid observations. Not computing telluric template",
                 self._associated_subInst,
@@ -249,7 +263,9 @@ class TelluricTemplate(BaseTemplate):
 
         """
         try:
-            valid_frame_ids = dataclass.get_frameIDs_from_subInst(self._associated_subInst)
+            valid_frame_ids = dataclass.get_frameIDs_from_subInst(
+                self._associated_subInst
+            )
         except NoDataError:
             msg = f"{self._associated_subInst} has no valid observations. Not computing telluric template"
 
@@ -258,7 +274,9 @@ class TelluricTemplate(BaseTemplate):
             return np.nan
 
         # Placing upper limit of temperature at 50ºC
-        self._metric_selection_conditions += KEYWORD_condition("ambient_temperature", [[None, 323.15]])
+        self._metric_selection_conditions += KEYWORD_condition(
+            "ambient_temperature", [[None, 323.15]]
+        )
 
         if self.__class__.method_name.lower() == "telfit":
             # 1 December 2014, because no GDAS profile for telfit
@@ -266,9 +284,13 @@ class TelluricTemplate(BaseTemplate):
             # add condition so that the reference observation is more than week
             # ago, to guarantee the GDAS profile already exists
             one_week_ago = int(Time.now().jd - 7)
-            self._metric_selection_conditions += KEYWORD_condition("BJD", [[2453340, one_week_ago]])
+            self._metric_selection_conditions += KEYWORD_condition(
+                "BJD", [[2453340, one_week_ago]]
+            )
 
-        logger.debug("Using Relative humidity as the selection criterion for reference observation")
+        logger.debug(
+            "Using Relative humidity as the selection criterion for reference observation"
+        )
         metric_to_select = dataclass.collect_KW_observations(
             KW="relative_humidity",
             subInstruments=[self._associated_subInst],
@@ -295,7 +317,9 @@ class TelluricTemplate(BaseTemplate):
             metric_to_select = [-1 if m is None else m for m in metric_to_select]
 
         chosen_frameID = valid_frame_ids[np.argmax(metric_to_select)]
-        self._associated_BERV = dataclass.get_frame_by_ID(chosen_frameID).get_KW_value("BERV")
+        self._associated_BERV = dataclass.get_frame_by_ID(chosen_frameID).get_KW_value(
+            "BERV"
+        )
 
         logger.info(
             "Telluric Template from {} using {} as the reference",
@@ -309,7 +333,9 @@ class TelluricTemplate(BaseTemplate):
     #  Creation of the telluric binary mask #
     #########################################
 
-    def create_telluric_template(self, dataClass, custom_frameID: Optional[int] = None) -> None:
+    def create_telluric_template(
+        self, dataClass, custom_frameID: Optional[int] = None
+    ) -> None:
         logger.info(
             "Starting creation of {} template from {}",
             self.__class__.template_type,
@@ -326,12 +352,16 @@ class TelluricTemplate(BaseTemplate):
             self._reference_frameID = self._search_reference_frame(dataClass)
 
         if self.for_feature_correction:
-            raise custom_exceptions.InvalidConfiguration("No need to generate binary mask for a correction model")
+            raise custom_exceptions.InvalidConfiguration(
+                "No need to generate binary mask for a correction model"
+            )
 
         self._base_checks_for_template_creation()
 
         if not self._loaded_dataclass_info:
-            raise custom_exceptions.InvalidConfiguration(f"{self.name} did not load dataClass information")
+            raise custom_exceptions.InvalidConfiguration(
+                f"{self.name} did not load dataClass information"
+            )
 
         logger.info(
             "Starting telluric template creation, with reference ID = {}",
@@ -384,7 +414,9 @@ class TelluricTemplate(BaseTemplate):
         # TODO:  optimize the list of blocked features! It will have a very bad scaling with N_{obs}
         logger.info("Creating list of blocked features due to tellurics")
         if not self.was_loaded:
-            logger.info("Extending telluric features with the mode: <{}>", self._extension_mode)
+            logger.info(
+                "Extending telluric features with the mode: <{}>", self._extension_mode
+            )
 
         if len(self._base_mask) == 0:
             self.build_blocks()
@@ -394,7 +426,9 @@ class TelluricTemplate(BaseTemplate):
         for interval in self._base_mask:
             # first overlap search, to take advantage of the smaller list size in here (when compared against the "global" one)
             # The intervals are the start and end of each block
-            updated_block.extend(find_overlaps(self._extend_detections([interval[0], interval[-1]])))
+            updated_block.extend(
+                find_overlaps(self._extend_detections([interval[0], interval[-1]]))
+            )
 
         self._masked_wavelengths = find_overlaps(updated_block)
         self._computed_wave_blocks = True
@@ -432,7 +466,9 @@ class TelluricTemplate(BaseTemplate):
         updated_block = []
 
         berv_function = (
-            apply_approximated_BERV_correction if self.use_approximated_BERV_correction else apply_BERV_correction
+            apply_approximated_BERV_correction
+            if self.use_approximated_BERV_correction
+            else apply_BERV_correction
         )
 
         if self._extension_mode == TELLURIC_EXTENSION.LINES:
@@ -441,7 +477,9 @@ class TelluricTemplate(BaseTemplate):
                 offset = 15 / 1000  # expand each line by 15 m/s to account for wings
 
                 lowest_wavelength = berv_function(telluric_block[0], BERV=berv - offset)
-                highest_wavelength = berv_function(telluric_block[1], BERV=berv + offset)
+                highest_wavelength = berv_function(
+                    telluric_block[1], BERV=berv + offset
+                )
                 updated_block.append([lowest_wavelength, highest_wavelength])
 
         elif self._extension_mode == TELLURIC_EXTENSION.WINDOW:
@@ -450,7 +488,9 @@ class TelluricTemplate(BaseTemplate):
             highest_wavelength = berv_function(telluric_block[1], BERV=berv)
             updated_block.append([lowest_wavelength, highest_wavelength])
         else:
-            raise custom_exceptions.InternalError(f"{self._extension_mode} not recognized")
+            raise custom_exceptions.InternalError(
+                f"{self._extension_mode} not recognized"
+            )
         return updated_block
 
     def create_binary_template(self, continuum_level) -> None:
@@ -465,7 +505,9 @@ class TelluricTemplate(BaseTemplate):
         logger.info("Converting from transmittance spectra to binary mask!")
 
         if not self.for_feature_removal:
-            logger.warning("Telluric Template will not be used to remove spectra. No need to create binary mask")
+            logger.warning(
+                "Telluric Template will not be used to remove spectra. No need to create binary mask"
+            )
             return
 
         telluric_mask = create_binary_template(
@@ -494,7 +536,9 @@ class TelluricTemplate(BaseTemplate):
     def contaminated_regions(self) -> list:
         """List of contaminated regions."""
         if not self.for_feature_removal:
-            raise custom_exceptions.InvalidConfiguration("{} is not a template constructed for telluric removal!")
+            raise custom_exceptions.InvalidConfiguration(
+                "{} is not a template constructed for telluric removal!"
+            )
         if not self._computed_wave_blocks:
             logger.debug("No previous computation of wavelength blocks. Doing it now!")
             self._compute_wave_blocks()
@@ -544,11 +588,19 @@ class TelluricTemplate(BaseTemplate):
         header["subInst"] = self._associated_subInst
         header["VERSION"] = __version__
         header["IS_VALID"] = self.is_valid
-        header["HIERARCH APPROX BERV CORRECTION"] = self.use_approximated_BERV_correction
-        header["MAX_BERV"] = convert_data(self.MAXBERV, new_units=kilometer_second, as_value=True)
+        header["HIERARCH APPROX BERV CORRECTION"] = (
+            self.use_approximated_BERV_correction
+        )
+        header["MAX_BERV"] = convert_data(
+            self.MAXBERV, new_units=kilometer_second, as_value=True
+        )
 
         for key, config_val in self._internal_configs.items():
-            if "path" in key.lower() or "user_" in key or isinstance(config_val, (list, tuple)):
+            if (
+                "path" in key.lower()
+                or "user_" in key
+                or isinstance(config_val, (list, tuple))
+            ):
                 continue
 
             if "FIT" in key:
@@ -570,7 +622,9 @@ class TelluricTemplate(BaseTemplate):
         hdu_contam = fits.ImageHDU(data=contam_imge, header=header, name="CONTAM")
 
         hdu_berv = fits.ImageHDU(
-            data=convert_data(self.BERVS, new_units=kilometer_second, as_value=True), header=header, name="BERVS"
+            data=convert_data(self.BERVS, new_units=kilometer_second, as_value=True),
+            header=header,
+            name="BERVS",
         )
 
         hdus_cubes = [hdu, hdu_contam, hdu_berv]
@@ -579,7 +633,11 @@ class TelluricTemplate(BaseTemplate):
             hdu_wave = fits.ImageHDU(data=self.wavelengths, header=header, name="Wave")
             complete_template = np.zeros(self.template.shape)
             for pair in self._masked_wavelengths:
-                indexes = np.where(np.logical_and(self.wavelengths >= pair[0], self.wavelengths <= pair[1]))
+                indexes = np.where(
+                    np.logical_and(
+                        self.wavelengths >= pair[0], self.wavelengths <= pair[1]
+                    )
+                )
                 complete_template[indexes] = 1
 
             hdu_temp = fits.ImageHDU(data=complete_template, header=header, name="Temp")
@@ -587,14 +645,20 @@ class TelluricTemplate(BaseTemplate):
             for val in [hdu_wave, hdu_temp]:
                 hdus_cubes.append(val)
 
-            hdu_transWave = fits.ImageHDU(data=self.transmittance_wavelengths, header=header, name="TRANSMIT_WAVE")
-            hdu_transSpec = fits.ImageHDU(data=self.transmittance_spectra, header=header, name="TRANSMIT_SPECTRA")
+            hdu_transWave = fits.ImageHDU(
+                data=self.transmittance_wavelengths, header=header, name="TRANSMIT_WAVE"
+            )
+            hdu_transSpec = fits.ImageHDU(
+                data=self.transmittance_spectra, header=header, name="TRANSMIT_SPECTRA"
+            )
             hdus_cubes.extend([hdu_transWave, hdu_transSpec])
 
         hdul = fits.HDUList(hdus_cubes)
 
         filename = f"{self.storage_name}_{self._associated_subInst}.fits"
-        logger.debug("Storing template to {}", self._internalPaths.root_storage_path / filename)
+        logger.debug(
+            "Storing template to {}", self._internalPaths.root_storage_path / filename
+        )
         hdul.writeto(self._internalPaths.root_storage_path / filename, overwrite=True)
         if self.disk_save_level != DISK_SAVE_MODE.EXTREME:
             metrics_path = self._internalPaths.get_path_to("metrics", as_posix=False)
@@ -652,7 +716,9 @@ class TelluricTemplate(BaseTemplate):
                 self.wavelengths = None
 
             try:
-                self.use_approximated_BERV_correction = hdulist[1].header["HIERARCH APPROX BERV CORRECTION"]
+                self.use_approximated_BERV_correction = hdulist[1].header[
+                    "HIERARCH APPROX BERV CORRECTION"
+                ]
             except KeyError:
                 logger.warning("Loading old telluric template with missing keywords")
                 self.use_approximated_BERV_correction = False
