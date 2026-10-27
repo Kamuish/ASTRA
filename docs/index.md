@@ -83,7 +83,12 @@ Depending on the python version that is in use, the installation of TelFit might
 
 ## Changelog
 
-### 1.3.0 (current)
+### 1.3.1 (current)
+
+1. Add \mu angle calculation
+2. Remove h5py from mandatory requirements
+
+### 1.3.0
 
 1. Update Telfit install process to allow numpy 2
 2. Allows to add custom sub-Instruments to DataClass
