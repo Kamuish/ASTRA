@@ -18,6 +18,15 @@ from ASTRA.utils.compute_berv_and_herv_poet import compute_berv_and_herv_POET
 from ASTRA.Instruments.ESPRESSO import ESPRESSO
 from ASTRA.utils.UserConfigs import DefaultValues, UserParam
 from ASTRA.utils.parameter_validators import BooleanValue, PathValue
+from astropy.time import Time
+
+try:
+    import sunpy
+    from sunpy.coordinates.sun import angular_radius
+
+    SUNPY_available = True
+except ImportError:
+    SUNPY_available = False
 
 if TYPE_CHECKING:
     from ASTRA.data_objects import DataClass
@@ -71,6 +80,10 @@ class POET(ESPRESSO):
         coverage = (350, 900)
         self.is_resolved_observation = "_B" in file_path.as_posix()
         self._updated_drs_rv = False
+        if not SUNPY_available:
+            raise custom_exceptions.InternalError(
+                "Sunpy is not installed for PoET operations"
+            )
 
         super().__init__(
             file_path=file_path,
@@ -298,7 +311,13 @@ def load_POET_extra_information(self: "DataClass") -> None:
                         val = " ".join(str(v) for v in val)
 
                     frame.import_KW_from_outside(KW=int_kw, value=val, optional=True)
-
+                # Compute \mu angle of the pointing position
+                iso_date = frame.get_KW_value("ISO-DATE")
+                r = angular_radius(Time(iso_date, scale="utc"))
+                frame.import_KW_from_outside("SOLAR_RADIUS", value=r, optional=True)
+                tx, ty = frame.get_KW_value("TX"), frame.get_KW_value("TY")
+                mu_angle = np.sqrt(1 - ((tx / r) ** 2 + (ty / r) ** 2))
+                frame.import_KW_from_outside("MU_ANGLE", value=mu_angle, optional=True)
                 frame.finalized_external_data_load()
     else:
         logger.warning("AUXILLIARY path was not provided, skipping loading of metadata")
