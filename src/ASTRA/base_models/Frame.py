@@ -70,7 +70,7 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
 
     Internal KW name     |  Default intialization
     ------------ | -------------
-        BERV| np.nan * kilometer_second
+    BERV| np.nan * kilometer_second
     previous_SBART_RV| np.nan * kilometer_second
     previous_SBART_RV_ERR| np.nan * kilometer_second
     DRS_CCF_MASK| ""
@@ -113,6 +113,9 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
     POET_APERTURE | None
     FIBER_A | ""
     FIBER_B | ""
+    TX   | 0 * u.arcsec
+    TY   | 0 * u.arcsec
+    MU_ANGLE   | 0
     """
 
     _object_type = "Frame"
@@ -341,6 +344,8 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
             * kilometer_second,  # Differential atmospheric extinction, only relevant for Sun-as-a-Star observations,
             "TX": 0 * arcsec,
             "TY": 0 * arcsec,
+            "MU_ANGLE": None,
+            "SOLAR_RADIUS": 0 * u.arcsec,
             "ALT_OFF": 0,
             "AZ_OFF": 0,
             "COMMENT": "",
