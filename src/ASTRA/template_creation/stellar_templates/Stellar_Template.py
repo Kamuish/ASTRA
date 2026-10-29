@@ -669,6 +669,9 @@ class StellarTemplate(BaseTemplate, Spectral_Modelling):
             raise custom_exceptions.InternalError("Why aren't we removing tellurics?")
         self._applied_telluric_removal = True
 
+    def get_air_wavelength(self):
+        return self.wave_air
+    
     def load_from_file(self, root_path, loading_path: str) -> None:
         super().load_from_file(root_path, loading_path)
 
@@ -682,7 +685,11 @@ class StellarTemplate(BaseTemplate, Spectral_Modelling):
             self.spectra = hdulist["TEMP"].data
             self.wavelengths = hdulist["WAVE"].data
             self.uncertainties = hdulist["UNCERTAINTIES"].data
-            self.wave_air = hdulist["WAVE_AIR"].data
+
+            try:
+                self.wave_air = hdulist["WAVE_AIR"].data
+            except KeyError:
+                self.wave_air = None
 
             mask = hdulist["MASK"].data.astype(bool)
             self.spectral_mask = Mask(initial_mask=mask)
