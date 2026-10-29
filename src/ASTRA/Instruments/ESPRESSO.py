@@ -200,20 +200,11 @@ class ESPRESSO(ESO_PIPELINE):
         # Store the open status before calling parent classes
         is_open = self.is_open
         super().load_S1D_data()
-        if self.is_solar and not is_open:
-            self.apply_poet_data_corrections()
 
     def load_S2D_data(self) -> None:
         # Store the open status before calling parent classes
         is_open = self.is_open
         super().load_S2D_data()
-        if self.is_solar and not is_open:
-            self.apply_poet_data_corrections()
-
-    def apply_poet_data_corrections(self) -> None:
-        # Correct spectra
-        self.remove_BERV_correction(self.wrong_berv)
-        self.apply_BERV_correction(self.observation_info["BERV"])
 
     def trigger_data_storage(self, *args, **kwargs):
         super().trigger_data_storage(*args, **kwargs)

@@ -166,6 +166,7 @@ class POET(ESPRESSO):
         if self._internal_configs["DEFER_BERV_UPDATE"]:
             self._update_drs_rv()
 
+        logger.warning("Updating wavelength corrections on POET data ")
         self.remove_BERV_correction(self.wrong_berv)
         self.apply_BERV_correction(self.observation_info["BERV"])
 
