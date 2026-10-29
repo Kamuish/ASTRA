@@ -52,6 +52,8 @@ from ASTRA.utils.telluric_utilities.compute_overlaps_blocks import check_if_over
 from ASTRA.utils.units import kilometer_second
 from ASTRA.utils.UserConfigs import DefaultValues, UserParam
 
+import astropy.units as u
+
 
 class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
     """Base Class for the different instruments.
