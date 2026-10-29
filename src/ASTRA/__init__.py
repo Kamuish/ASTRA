@@ -1,6 +1,6 @@
 """ASTRA - interface for spectra."""
 
-version = "1.3.1"
+version = "1.3.2"
 
 __version__ = version.replace(".", "-")
 __version_info__ = (int(i) for i in __version__.split("-"))

@@ -83,7 +83,12 @@ Depending on the python version that is in use, the installation of TelFit might
 
 ## Changelog
 
-### 1.3.1 (current)
+### 1.3.2 (current)
+
+1. Updates to PoET interface (fix BERV correction)
+2. Fix frames to keep header in memory for later KW access 
+
+### 1.3.1
 
 1. Add \mu angle calculation
 2. Remove h5py from mandatory requirements
