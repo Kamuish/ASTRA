@@ -355,6 +355,7 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
 
         # Used to allow to reject a wavelength region from one order and keep any overlap that might exist on others
         self._orderwise_wavelength_rejection: Optional[Dict[int, List]] = None
+        self._header: Optional[fits.Header] = None
 
         self.load_header_info()
         # list of lists Each entry will be a pair of Reason: list<[<start, end>]> wavelenghts. When the S2D array is
@@ -375,7 +376,6 @@ class Frame(Spectrum, Spectral_Modelling, Spectral_Normalization):
         if need_external_data_load:
             self.add_to_status(LOADING_EXTERNAL_DATA)
 
-        self._header: Optional[fits.Header] = None
         if "skysub" in self.file_path.stem:
             self.is_skysub = True
 
