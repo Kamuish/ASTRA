@@ -20,6 +20,13 @@ from ASTRA.utils.UserConfigs import DefaultValues, UserParam
 from ASTRA.utils.parameter_validators import BooleanValue, PathValue
 from astropy.time import Time
 
+from ASTRA.utils.shift_spectra import (
+    apply_approximated_BERV_correction,
+    apply_BERV_correction,
+    remove_approximated_BERV_correction,
+    remove_BERV_correction,
+)
+
 try:
     import sunpy
     from sunpy.coordinates.sun import angular_radius
@@ -146,6 +153,14 @@ class POET(ESPRESSO):
             self.observation_info["seeing"] = float(
                 header[f"HIERARCH ESO TEL{self.UT_number} AMBI FWHM"]
             )
+
+    def get_air_wavelength(self) -> np.ndarray:
+        wave = super().get_air_wavelength()
+        wave = remove_BERV_correction(wave, self.wrong_berv.to(kilometer_second).value)
+        wave = apply_BERV_correction(
+            wave, self.observation_info["BERV"].to(kilometer_second).value
+        )
+        return wave
 
     def load_S1D_data(self) -> None:
         # Store the open status before calling parent classes
