@@ -24,13 +24,16 @@ from ASTRA.utils import custom_exceptions
 from ASTRA.utils.choices import DISK_SAVE_MODE
 from ASTRA.utils.concurrent_tools.create_shared_arr import create_shared_array
 from ASTRA.utils.custom_exceptions import NoDataError
-from ASTRA.utils.parameter_validators import (BooleanValue, IntegerValue,
-                                              Positive_Value_Constraint,
-                                              ValueFromDtype, ValueInInterval)
+from ASTRA.utils.parameter_validators import (
+    BooleanValue,
+    IntegerValue,
+    Positive_Value_Constraint,
+    ValueFromDtype,
+    ValueInInterval,
+)
 from ASTRA.utils.paths_tools.build_filename import build_filename
 from ASTRA.utils.shift_spectra import remove_RVshift
-from ASTRA.utils.telluric_utilities.compute_overlaps_blocks import \
-    check_if_overlap
+from ASTRA.utils.telluric_utilities.compute_overlaps_blocks import check_if_overlap
 from ASTRA.utils.units import convert_data, kilometer_second
 from ASTRA.utils.UserConfigs import DefaultValues, UserParam
 
@@ -301,12 +304,25 @@ class StellarTemplate(BaseTemplate, Spectral_Modelling):
             dataClass.get_KW_from_frameID("DRS_RV_ERR", frameID)
             for frameID in self.frameIDs_to_use
         ]
+
+        mu_angles = [
+            dataClass.get_KW_from_frameID("MU_ANGLE", frameID)
+            for frameID in self.frameIDs_to_use
+        ]
+
         errs = convert_data(errs, new_units=kilometer_second, as_value=True)
         weight = np.array([1 / (err**2) for err in errs])
         weighted_bjds = np.average(bjds, weights=weight)
 
+        if None in mu_angles:
+            weighted_mu = None
+            logger.critical("Mu angles are not defined in the observations....")
+        else:
+            weighted_mu = np.average(mu_angles, weights=weight)
         self.header_information["STACKED BJD"] = weighted_bjds
         self.header_information["N OBS"] = len(self.frameIDs_to_use)
+        self.header_information["MU ANGLE"] = weighted_mu
+
         for index, flux in enumerate(self.spectra):
             mask = ~self.spectral_mask.get_custom_mask()[index]
             self.header_information[f"ORDER {index} MEDIAN FLUX"] = np.nan_to_num(
