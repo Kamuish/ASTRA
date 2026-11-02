@@ -26,6 +26,7 @@ class SpecNorm_Unit(UnitModel):
         self.frame_name = frame_name
         self.algorithm_name = algo_name
         self.stored_info: Dict[int, dict] = {}
+        logger.debug(f"Setting up norm unit for {algo_name} on {frame_name}")
 
     def generate_root_path(self, storage_path: Path) -> None:  # noqa: D102
         storage = storage_path / "_Storage" / self._content_name / self.algorithm_name
@@ -56,7 +57,9 @@ class SpecNorm_Unit(UnitModel):
             data[key] = {}
             for key_1, order_values in values.items():
                 data[key][key_1] = json_ready_converter(order_values)
-
+        logger.debug(
+            f"Storing normalization parameters to disk ({self.get_storage_filename()})"
+        )
         with open(self.get_storage_filename(), mode="w") as handle:
             json.dump(data, handle, indent=4)
 
@@ -75,9 +78,9 @@ class SpecNorm_Unit(UnitModel):
 
         new_unit.generate_root_path(rv_cube_fpath)
         unit_path = Path(new_unit.get_storage_filename())
+        logger.info(f"Loading SpecNormUnit from {unit_path}")
         if not unit_path.exists():
             raise custom_exceptions.NoDataError
-
         with open(unit_path) as handle:
             norm_info = json.load(handle)
             profile = {}

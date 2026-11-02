@@ -283,22 +283,12 @@ class Spectrum(BASE):
 
         """
         self._data_access_checks()
-        if self.is_S2D:
-            return (
-                self.wavelengths,
-                self.spectra,
-                self.uncertainties,
-                self.spectral_mask.get_custom_mask(),
-            )
-        if self.is_S1D:
-            # The S1D file is stored as a S2D with only one order!
-            return (
-                self.wavelengths,
-                self.spectra,
-                self.uncertainties,
-                self.spectral_mask.get_custom_mask(),
-            )
-        raise custom_exceptions.InternalError("Not S1D nor S2D")
+        return (
+            self.wavelengths,
+            self.spectra,
+            self.uncertainties,
+            self.spectral_mask.get_custom_mask(),
+        )
 
     def scale_spectra(self, factor: float) -> None:
         """Scale flux (and uncertainties) by a given factor."""

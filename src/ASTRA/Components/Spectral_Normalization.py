@@ -34,6 +34,8 @@ from ASTRA.utils.UserConfigs import (
     UserParam,
 )
 
+from ASTRA.base_models.Template_Model import BaseTemplate
+
 
 class Spectral_Normalization(BASE):
     """Introduces, in a given object, the functionality to normalize the continuum level.
@@ -89,7 +91,9 @@ class Spectral_Normalization(BASE):
     )
 
     def __init__(self, **kwargs: Any) -> None:  # noqa: D107
-        self._default_params = self._default_params + Spectral_Normalization._default_params
+        self._default_params = (
+            self._default_params + Spectral_Normalization._default_params
+        )
         self.has_normalization_component = True
         super().__init__(**kwargs)
 
@@ -99,7 +103,9 @@ class Spectral_Normalization(BASE):
             raise Exception(msg)
 
         self._already_normalized_data = False
-        self._normalization_interfaces: Dict[NORMALIZATION_SOURCES, NormalizationBase] = {}
+        self._normalization_interfaces: Dict[
+            NORMALIZATION_SOURCES, NormalizationBase
+        ] = {}
         self._normalization_information: Optional[SpecNorm_Unit] = None
 
     def initialize_normalization_interface(self) -> None:
@@ -107,6 +113,9 @@ class Spectral_Normalization(BASE):
         key = self._internal_configs["NORMALIZATION_MODE"]
 
         if key in self._normalization_interfaces:
+            logger.info(
+                f"{key} already in initilization interfaces; skipping initialization"
+            )
             return
 
         interface_init = {
@@ -114,10 +123,17 @@ class Spectral_Normalization(BASE):
             "user_configs": self._internal_configs.get_user_configs(),
         }
 
-        interface_init["obj_info"]["S1D_name"] = self.get_S1D_name()
-        interface_init["obj_info"]["frame_path"] = self.file_path
+        # interface_init["obj_info"]["frame_path"] = self.file_path
         interface_init["obj_info"]["Frame_instance"] = type(self)
-        interface_init["obj_info"]["FWHM"] = self.get_KW_value("FWHM")
+
+        if isinstance(self, BaseTemplate):
+            interface_init["obj_info"]["S1D_name"] = self.name
+            interface_init["obj_info"]["FWHM"] = self.header_information["STACKED FWHM"]
+            current_frame_name = f"{self.storage_name}_{self._associated_subInst}"
+        else:
+            interface_init["obj_info"]["S1D_name"] = self.get_S1D_name()
+            interface_init["obj_info"]["FWHM"] = self.get_KW_value("FWHM")
+            current_frame_name = self.fname.split(".fits")[0]
 
         interface = available_normalization_interfaces[key]
 
@@ -129,9 +145,10 @@ class Spectral_Normalization(BASE):
             )
             self.generate_root_path(Path())
 
-        self._normalization_interfaces[key].generate_root_path(self._internalPaths.root_storage_path)
+        self._normalization_interfaces[key].generate_root_path(
+            self._internalPaths.root_storage_path
+        )
 
-        current_frame_name = self.fname.split(".fits")[0]
         try:  # Generate class to store the normalization parameters
             self._normalization_information = SpecNorm_Unit.load_from_disk(
                 self._internalPaths.root_storage_path,
@@ -139,12 +156,16 @@ class Spectral_Normalization(BASE):
                 algo_name=self._internal_configs["NORMALIZATION_MODE"].name,
             )
         except custom_exceptions.NoDataError:
-            logger.warning("Can't find previous normalization parameters on disk!")
+            logger.warning(
+                f"Can't find previous normalization parameters on disk ({self._internalPaths.root_storage_path})!"
+            )
             self._normalization_information = SpecNorm_Unit(
                 frame_name=current_frame_name,
                 algo_name=self._internal_configs["NORMALIZATION_MODE"].name,
             )
-            self._normalization_information.generate_root_path(self._internalPaths.root_storage_path)
+            self._normalization_information.generate_root_path(
+                self._internalPaths.root_storage_path
+            )
 
     def normalize_spectra(self):
         """Launch the normalization of the spectra, using the selected algorithm."""
@@ -156,11 +177,17 @@ class Spectral_Normalization(BASE):
             return
         self.initialize_normalization_interface()
 
-        norm_interface = self._normalization_interfaces[self._internal_configs["NORMALIZATION_MODE"]]
+        norm_interface = self._normalization_interfaces[
+            self._internal_configs["NORMALIZATION_MODE"]
+        ]
         if norm_interface.orderwise_application:
             self.trigger_orderwise_method(norm_interface)
         else:
             self.trigger_epochwise_method(norm_interface)
+
+        logger.info("Finished normalizing the spectra for {}".format(self.name))
+
+        self._normalization_information.trigger_data_storage()
 
     def trigger_epochwise_method(self, norm_interface) -> None:
         """Normalize the spectra using an epoch-wise method."""
@@ -185,7 +212,11 @@ class Spectral_Normalization(BASE):
         self.spectra = new_flux.reshape(wavelengths.shape)
         self.uncertainties = new_uncert.reshape(wavelengths.shape)
         logger.warning("Epoch wise normalization is overriding the minimum SNR!")
-        self._internal_configs["minimum_order_SNR"] = 0
+        try:
+            self._internal_configs["minimum_order_SNR"] = 0
+        except:
+            ...
+
         self.regenerate_order_status()
         self._normalization_information.store_norm_info(name, norm_keys)
 
@@ -197,10 +228,14 @@ class Spectral_Normalization(BASE):
         """Normalize the spectra using an order-wise method."""
         # TODO: see if we want to parallelize this!
         for order in range(self.N_orders):
-            wavelengths, flux, uncerts, mask = self.get_data_from_spectral_order(order, include_invalid=True)
+            wavelengths, flux, uncerts, mask = self.get_data_from_spectral_order(
+                order, include_invalid=True
+            )
 
             mask_to_use = ~mask
-            loaded_info = self._normalization_information.get_norm_info_from_order(order)
+            loaded_info = self._normalization_information.get_norm_info_from_order(
+                order
+            )
 
             (
                 new_flux,
@@ -219,8 +254,3 @@ class Spectral_Normalization(BASE):
             self._normalization_information.store_norm_info(order, norm_keys)
 
         self._already_normalized_data = True
-
-    def trigger_data_storage(self, *args, **kwargs) -> None:  # noqa: D102
-        super().trigger_data_storage(*args, **kwargs)
-        if self._normalization_information is not None:
-            self._normalization_information.trigger_data_storage()

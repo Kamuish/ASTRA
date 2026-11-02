@@ -67,31 +67,13 @@ class SNT_normalization(NormalizationBase):
                 "SNT_OUT": "_Storage/SpecNorm/SNT/outputs",
             },
         )
-        if obj_info["is_S2D"]:
-            raise custom_exceptions.InvalidConfiguration("S2D normalization not supported for now")
-            # raise custom_exceptions.InvalidConfiguration("Must provide the S1D folder when using S2D files")
 
     def _get_S1D_data(self, wavelengths, flux, uncertainties):
-        if self._spec_info["is_S2D"]:
-            S1D_path = self._internal_configs["S1D_folder"] / self._spec_info["S1D_name"]
-            temp_configs = deepcopy(self._internal_configs.get_user_configs())
-            temp_configs["spectra_format"] = "S1D"
-            # open a temporary frame to retrieve the S1D data!
-            new_frame = self._spec_info["Frame_instance"](
-                file_path=S1D_path,
-                user_configs=temp_configs,
-            )
-            (
-                wavelengths,
-                flux,
-                uncertainties,
-                _,
-            ) = new_frame.get_data_from_full_spectrum()
 
         return (
-            wavelengths[0],
-            flux[0],
-            uncertainties[0],
+            wavelengths,
+            flux,
+            uncertainties,
         )  # the S1D file is considered to be a very "large" order
 
     def run_SNT(self, wavelengths, flux, uncertainties, output_path, fname):
@@ -105,7 +87,11 @@ class SNT_normalization(NormalizationBase):
             header={},
             FWHM_override=self._spec_info["FWHM"],
             output_path=output_path,
-            user_config={"parallel_orders": False, "Ncores": 1, "run_plot_generation": False},
+            user_config={
+                "parallel_orders": False,
+                "Ncores": 1,
+                "run_plot_generation": False,
+            },
             fname=fname,
         )
         logger.info("SNT has finished running")
@@ -116,13 +102,17 @@ class SNT_normalization(NormalizationBase):
         filename = self._spec_info["S1D_name"].replace(".fits", "")
         output_path = self._internalPaths.get_path_to("SNT_OUT", as_posix=False)
 
-        self.run_SNT(wavelengths, flux, uncertainties, output_path=output_path, fname=filename)
+        self.run_SNT(
+            wavelengths, flux, uncertainties, output_path=output_path, fname=filename
+        )
 
         # TODO: missing the parameters that will be cached!
         params_to_store = {"SNT_OUT_FOLDER": output_path.as_posix()}
 
         return (
-            *self._apply_epoch_normalization(wavelengths, flux, uncertainties, **params_to_store),
+            *self._apply_epoch_normalization(
+                wavelengths, flux, uncertainties, **params_to_store
+            ),
             params_to_store,
         )
 
@@ -130,15 +120,21 @@ class SNT_normalization(NormalizationBase):
         super()._apply_epoch_normalization(wavelengths, flux, uncertainties, **kwargs)
         logger.info("Applying normalization to epoch!")
 
-        wavelengths, flux, uncertainties = self._get_S1D_data(wavelengths, flux, uncertainties)
+        wavelengths, flux, uncertainties = self._get_S1D_data(
+            wavelengths, flux, uncertainties
+        )
 
         # TODO: think about SNR problems that might arise within SBART if this goes through without adding an offset
         filename = self._spec_info["S1D_name"].replace(".fits", "")
-        SNT_out_path = Path(kwargs["SNT_OUT_FOLDER"]) / "SNT_data" / f"{filename}_continuum.txt"
+        SNT_out_path = (
+            Path(kwargs["SNT_OUT_FOLDER"]) / "SNT_data" / f"{filename}_continuum.txt"
+        )
         snt_prod = np.loadtxt(SNT_out_path, delimiter=",")
 
         good_inds = np.where(np.isfinite(snt_prod[:, 1]))
-        CSplineInterpolator = CubicSpline(snt_prod[:, 0][good_inds], snt_prod[:, 1][good_inds])
+        CSplineInterpolator = CubicSpline(
+            snt_prod[:, 0][good_inds], snt_prod[:, 1][good_inds]
+        )
         cont_solution = CSplineInterpolator(wavelengths)
 
         # Ensure that we are not interpolating outside the grid!
