@@ -40,8 +40,10 @@ from ASTRA.utils.UserConfigs import DefaultValues, UserParam
 if TYPE_CHECKING:
     from ASTRA.base_models.Frame import Frame
 
+from ASTRA.Components.Spectral_Normalization import Spectral_Normalization
 
-class StellarTemplate(BaseTemplate, Spectral_Modelling):
+
+class StellarTemplate(BaseTemplate, Spectral_Modelling, Spectral_Normalization):
     """Parent class of all StellarTemplates.
 
     Implementing a common set of user configurations, data storage
@@ -310,6 +312,11 @@ class StellarTemplate(BaseTemplate, Spectral_Modelling):
             for frameID in self.frameIDs_to_use
         ]
 
+        fwhm = [
+            dataClass.get_KW_from_frameID("FWHM", frameID)
+            for frameID in self.frameIDs_to_use
+        ]
+
         errs = convert_data(errs, new_units=kilometer_second, as_value=True)
         weight = np.array([1 / (err**2) for err in errs])
         weighted_bjds = np.average(bjds, weights=weight)
@@ -320,6 +327,8 @@ class StellarTemplate(BaseTemplate, Spectral_Modelling):
         else:
             weighted_mu = np.average(mu_angles, weights=weight)
         self.header_information["STACKED BJD"] = weighted_bjds
+        self.header_information["STACKED FWHM"] = np.average(fwhm, weights=weight)
+
         self.header_information["N OBS"] = len(self.frameIDs_to_use)
         self.header_information["MU ANGLE"] = weighted_mu
 
@@ -704,7 +713,14 @@ class StellarTemplate(BaseTemplate, Spectral_Modelling):
             self.spectral_mask = Mask(initial_mask=mask)
             header = hdulist[0].header
 
-        for kw in ["MAX_BERV", "POET_APERTURE"]:
+        for kw in [
+            "MAX_BERV",
+            "POET_APERTURE",
+            "STACKED FWHM",
+            "MU ANGLE",
+            "STACKED BJD",
+            "N OBS",
+        ]:
             self.header_information[kw] = header.get(kw, 0)
 
         self.array_size = self.spectra.shape
